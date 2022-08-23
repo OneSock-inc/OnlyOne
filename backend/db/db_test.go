@@ -7,6 +7,7 @@ import (
 )
 
 func Setup() {
+	log.SetFlags(log.Flags() | log.Llongfile)
 	err := os.Chdir("../")
 	if err != nil {
 		log.Fatalf("error : %v", err)
@@ -17,7 +18,7 @@ func Setup() {
 func TestGetClient(t *testing.T) {
 	Setup()
 
-	_, err := GetClient()
+	_, err := GetDBConnection()
 	if err != nil {
 		t.Errorf("error : %v", err)
 	}
@@ -28,6 +29,7 @@ func TestCheckUser(t *testing.T) {
 	_, err := CheckUser("test", "myPassword")
 	if err != nil {
 		t.Errorf("error : %v", err)
+
 	}
 }
 

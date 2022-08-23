@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -49,7 +50,13 @@ type Sock struct {
 }
 
 func createClient(ctx context.Context) (*firestore.Client, error) {
-	err := os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "./data/service-account.json")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("unable to get the home dir %v", err)
+		return nil, err
+	}
+	resPath := path.Join(home, ".ssh", "service-account.json")
+	err = os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", resPath)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +64,7 @@ func createClient(ctx context.Context) (*firestore.Client, error) {
 	return firestore.NewClient(ctx, projectID)
 }
 
-func GetClient() (*firestore.Client, error) {
+func GetDBConnection() (*firestore.Client, error) {
 
 	if dbClient == nil {
 		c := context.Background()
@@ -71,7 +78,7 @@ func GetClient() (*firestore.Client, error) {
 // here we get the document having the username, we then retrieve the salt from the doc and the hashed password from the doc,
 // we check if hash(password+salt) == doc.hash
 func CheckUser(username string, password string) (User, error) {
-	db, err := GetClient()
+	db, err := GetDBConnection()
 	if err != nil {
 		log.Printf("error : %v\n", err)
 		return User{}, err
@@ -96,7 +103,7 @@ func CheckUser(username string, password string) (User, error) {
 }
 
 func CheckCookie(cookie string) (User, error) {
-	client, err := GetClient()
+	client, err := GetDBConnection()
 	now := time.Now()
 	if err != nil {
 		log.Printf("error : %v\n", err)
@@ -125,7 +132,7 @@ func CheckCookie(cookie string) (User, error) {
 }
 
 func CreateUser(user User) error {
-	client, err := GetClient()
+	client, err := GetDBConnection()
 	if err != nil {
 		log.Printf("error : %v\n", err)
 		return err
