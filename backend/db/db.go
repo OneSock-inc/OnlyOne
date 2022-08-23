@@ -26,8 +26,29 @@ type User struct {
 	SessionCookie   string `firestore:"sessionCookie" json:"sessionCookie"`
 }
 
-func createClient(ctx context.Context) (*firestore.Client, error) {
+// Ther is two type : low and high
+type profile int
 
+const (
+	low profile = iota
+	high
+)
+
+type Sock struct {
+	SockId   string `firestore:"sockId" json:"sockId"`
+	ShoeSize string `firestore:"shoeSize" json:"shoeSize"`
+	//is it a high or low profile sock
+	Type           profile  `firestore:"type" json:"type"`
+	Color          string   `firestore:"color" json:"color"`
+	Description    string   `firestore:"description" json:"description"`
+	Picture        string   `firestore:"picture" json:"picture"`
+	Owner          string   `firestore:"owner" json:"owner"`
+	CompatibleList []string `firestore:"compatibleList" json:"compatibleList"`
+	AcceptList     []string `firestore:"acceptList" json:"acceptList"`
+	IsMatched      bool     `firestore:"isMatched" json:"isMatched"`
+}
+
+func createClient(ctx context.Context) (*firestore.Client, error) {
 	err := os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "./data/service-account.json")
 	if err != nil {
 		return nil, err
@@ -66,7 +87,6 @@ func CheckUser(username string, password string) (User, error) {
 	}
 	var user User
 	users[0].DataTo(&user)
-	fmt.Printf("User: %v", user)
 
 	err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password+user.Salt))
 	if err != nil {
@@ -102,4 +122,27 @@ func CheckCookie(cookie string) (User, error) {
 		}
 	}
 	return User{}, nil
+}
+
+func CreateUser(user User) error {
+	client, err := GetClient()
+	if err != nil {
+		log.Printf("error : %v\n", err)
+		return err
+	}
+	query := client.Collection("users").Query.Where("username", "==", user.Username)
+	docs, err := query.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("error : %v\n", err)
+		return err
+	}
+	if len(docs) != 0 {
+		return fmt.Errorf("user already exists")
+	}
+	client.Collection("users").NewDoc().Set(*ctx, user)
+	if err != nil {
+		log.Printf("error : %v\n", err)
+		return err
+	}
+	return nil
 }
