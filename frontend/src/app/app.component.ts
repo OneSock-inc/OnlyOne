@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'frontend';
+  buttons = [
+    {index:0, text: "login"},
+    {index:1, text: "Add a lonely sock"},
+    {index:2, text: "My socks"}
+  ]
 }
