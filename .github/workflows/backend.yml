@@ -17,7 +17,8 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
-
+    - name: Set credentials file to home directory
+        echo ${{ secret.GOOGLE_CREDS_JSON}} > ~/service-account.json
     - name: Build
       working-directory: ./backend 
       run: go build -v ./...
