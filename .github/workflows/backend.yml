@@ -12,21 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name : Change directory
-      run: |
-        ls
-        cd backend
-        ls
+    
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
 
     - name: Build
-      run: |
-        pwd
-        ls
-        go build -v ./...
+      working-directory: ./backend 
+      run: go build -v ./...
 
     - name: Test
+      working-directory: ./backend
       run: go test -v ./...
