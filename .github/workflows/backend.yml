@@ -13,14 +13,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: install gcloud deps
-      run: apt-get install -y apt-transport-https ca-certificates gnupg
+      run: sudo apt-get install -y apt-transport-https ca-certificates gnupg
     - name: install gcloud 
-      run: echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli -y
+      run: sudo echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && sudo curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && sudo apt-get update -y && sudo apt-get install google-cloud-cli -y
     
     - name: Set credentials file to home directory
       run: echo ${{ secrets.GOOGLE_CREDS_JSON}} > ~/service-account.json
     - name: install emulator dep
-      run: apt-get install -y openjdk-8-jre 
+      run: sudo apt-get install -y openjdk-8-jre 
     - name: launch emulator
       run: gcloud beta emulators firestore start --host-port=localhost &
     - name: wait for emulator
