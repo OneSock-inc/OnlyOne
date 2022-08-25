@@ -12,10 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: install gcloud deps
-      run: sudo apt-get install -y apt-transport-https ca-certificates gnupg
     - name: install gcloud 
-      run: sudo echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && sudo curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && sudo apt-get update -y && sudo apt-get install google-cloud-cli -y
+      uses: 'google-github-actions/setup-gcloud@v0'
     
     - name: Set credentials file to home directory
       run: echo ${{ secrets.GOOGLE_CREDS_JSON}} > ~/service-account.json
