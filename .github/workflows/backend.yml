@@ -20,7 +20,7 @@ jobs:
     - name: install emulator dep
       run: sudo apt-get install -y openjdk-8-jre 
     - name: launch emulator
-      run: gcloud beta emulators firestore start --host-port=localhost &
+      run: gcloud --quiet beta emulators firestore start --host-port=localhost &
     - name: wait for emulator
       run: sleep 7
       
