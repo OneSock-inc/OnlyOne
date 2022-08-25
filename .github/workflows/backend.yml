@@ -11,10 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
     - name: install gcloud 
       uses: 'google-github-actions/setup-gcloud@v0'
-    
     - name: Set credentials file to home directory
       run: echo ${{ secrets.GOOGLE_CREDS_JSON}} > ~/service-account.json
     - name: install emulator dep
@@ -23,7 +21,7 @@ jobs:
       run: gcloud --quiet beta emulators firestore start --host-port=localhost &
     - name: wait for emulator
       run: sleep 7
-      
+    - uses: actions/checkout@v3
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
