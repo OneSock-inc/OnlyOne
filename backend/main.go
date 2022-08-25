@@ -1,8 +1,8 @@
 package main
 
 import (
+	"backend/api"
 	"log"
-	"onlyOne/back/api"
 )
 
 // [START firestore_setup_client_create]
