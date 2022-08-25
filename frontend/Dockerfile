@@ -10,6 +10,6 @@ RUN mv dist/frontend/ /usr/share/nginx
 RUN mv /usr/share/nginx/frontend /usr/share/nginx/html
 WORKDIR /opt
 RUN rm -rf onlyone
-
+# comment
 # COPY dist/frontend/ /usr/share/nginx/html
 
