@@ -4,7 +4,7 @@ RUN apk add --update nodejs npm
 COPY ./ /opt/onlyone/frontend
 WORKDIR /opt/onlyone/frontend
 RUN npm install
-RUN ng build
+RUN npm build
 RUN rm -rf /usr/share/nginx/html
 RUN mv dist/frontend/ /usr/share/nginx
 RUN mv /usr/share/nginx/frontend /usr/share/nginx/html
