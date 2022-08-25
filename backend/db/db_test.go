@@ -6,51 +6,56 @@ import (
 	"testing"
 )
 
-func Setup() {
+func TestMain(m *testing.M) {
+	os.Setenv(FirestoreEmulatorHost, "localhost:8080")
 	log.SetFlags(log.Flags() | log.Llongfile)
-	err := os.Chdir("../")
-	if err != nil {
-		log.Fatalf("error : %v", err)
-	}
-
+	os.Exit(m.Run())
 }
 
+const FirestoreEmulatorHost = "FIRESTORE_EMULATOR_HOST"
+
 func TestGetClient(t *testing.T) {
-	Setup()
 
 	_, err := GetDBConnection()
 	if err != nil {
-		t.Errorf("error : %v", err)
+		t.Errorf("erro : %v", err)
 	}
 }
 func TestCheckUser(t *testing.T) {
-	Setup()
 	//this user should exist in the database
-	_, err := CheckUser("test", "myPassword")
+	const (
+		username     = "username"
+		pwd          = "myPwd"
+		firstname    = "firstname"
+		surname      = "surname"
+		shippingAddr = "shippingAddr"
+	)
+	_, err := NewUser(username, pwd, firstname, surname, shippingAddr)
 	if err != nil {
-		t.Errorf("error : %v", err)
-
+		t.Errorf("unable to create a user\n%v", err)
 	}
+	_, err = VerifyLogin("test", "myPassword")
+	if err == nil {
+		t.Errorf("error user don't exist in mockup\n%v", err)
+	}
+
 }
 
-func TestCreateUserAlreadyExist(t *testing.T) {
-	Setup()
-	user := User{
-		Username:        "test",
-		Firstname:       "Joris",
-		Surname:         "Schaller",
-		Hash:            []byte("myPassword"),
-		Salt:            "salt",
-		ShippingAddress: "this is a long shipping addr 1212 grand-Lancy",
-		SessionCookie:   "",
-	}
-
-	err := CreateUser(user)
-	if err == nil {
-		t.Error("error user should exist")
-	}
+func TestCreateUser(t *testing.T) {
+	const (
+		username        = "test"
+		firstname       = "Joris"
+		surname         = "Schaller"
+		pwd             = "myPassword"
+		shippingAddress = "this is a long shipping addr 1212 grand-Lancy"
+	)
+	_, err := NewUser(username, pwd, firstname, surname, shippingAddress)
 	if err != nil {
-		log.Printf("the user should exist : %s", err.Error())
+		t.Errorf(" user should not exist\n%v", err)
 	}
+	_, err = NewUser(username, pwd, firstname, surname, shippingAddress)
 
+	if err == nil {
+		log.Printf("the user should exist : %v", err)
+	}
 }

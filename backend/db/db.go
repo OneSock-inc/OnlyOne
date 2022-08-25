@@ -18,35 +18,72 @@ var dbClient *firestore.Client
 var ctx *context.Context
 
 type User struct {
+	ID              string `firestore:"ID,omitempty" json:"ID"`
 	Username        string `firestore:"username" json:"username"`
 	Firstname       string `firestore:"firstname" json:"firstname"`
 	Surname         string `firestore:"surname" json:"surname"`
 	Hash            []byte `firestore:"hash" json:"hash"`
-	Salt            string `firestore:"salt" json:"salt"`
 	ShippingAddress string `firestore:"shippingAddress" json:"shippingAddress"`
 	SessionCookie   string `firestore:"sessionCookie" json:"sessionCookie"`
 }
 
 // Ther is two type : low and high
-type profile int
+type Profile int
 
 const (
-	low profile = iota
+	low Profile = iota
 	high
 )
 
 type Sock struct {
-	SockId   string `firestore:"sockId" json:"sockId"`
-	ShoeSize string `firestore:"shoeSize" json:"shoeSize"`
+	SockId   string `firestore:"sockId,omitempty" json:"sockId"`
+	ShoeSize int    `firestore:"shoeSize" json:"shoeSize"`
 	//is it a high or low profile sock
-	Type           profile  `firestore:"type" json:"type"`
-	Color          string   `firestore:"color" json:"color"`
-	Description    string   `firestore:"description" json:"description"`
-	Picture        string   `firestore:"picture" json:"picture"`
-	Owner          string   `firestore:"owner" json:"owner"`
-	CompatibleList []string `firestore:"compatibleList" json:"compatibleList"`
-	AcceptList     []string `firestore:"acceptList" json:"acceptList"`
-	IsMatched      bool     `firestore:"isMatched" json:"isMatched"`
+	Type         Profile  `firestore:"type" json:"type"`
+	Color        string   `firestore:"color" json:"color"`
+	Description  string   `firestore:"description" json:"description"`
+	Picture      string   `firestore:"picture" json:"picture"`
+	Owner        string   `firestore:"owner" json:"owner"`
+	RefusedList  []string `firestore:"refusedList" json:"refusedList"`
+	AcceptedList []string `firestore:"acceptedList" json:"acceptedList"`
+	IsMatched    bool     `firestore:"isMatched" json:"isMatched"`
+}
+
+//return all the socks of a user identified by it's cookie session
+
+func getUserSocks(userCookie string) ([]Sock, error) {
+	return make([]Sock, 0), nil
+}
+
+func getUser(username string) (User, error) {
+	return User{}, nil
+}
+func editMatchingSock(sockID string, otherSockID string, accept bool) error {
+	return nil
+}
+
+func getSockInfo(sockID string) Sock {
+	return Sock{}
+}
+
+func NewSock(shoeSize int, size Profile, color string, desc string, Pictureb64 string) (*firestore.DocumentRef, error) {
+
+	client, err := GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	s := Sock{
+		ShoeSize:     shoeSize,
+		Type:         size,
+		Color:        color,
+		Description:  desc,
+		Picture:      Pictureb64,
+		RefusedList:  []string{},
+		AcceptedList: []string{},
+		IsMatched:    false,
+	}
+	docRef, _, err := client.Collection("socks").Add(*ctx, s)
+	return docRef, err
 }
 
 func createClient(ctx context.Context) (*firestore.Client, error) {
@@ -55,7 +92,7 @@ func createClient(ctx context.Context) (*firestore.Client, error) {
 		log.Fatalf("unable to get the home dir %v", err)
 		return nil, err
 	}
-	resPath := path.Join(home, ".ssh", "service-account.json")
+	resPath := path.Join(home, "service-account.json")
 	err = os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", resPath)
 	if err != nil {
 		return nil, err
@@ -63,24 +100,21 @@ func createClient(ctx context.Context) (*firestore.Client, error) {
 	// Sets your Google Cloud Platform project ID.
 	return firestore.NewClient(ctx, projectID)
 }
-
 func GetDBConnection() (*firestore.Client, error) {
 
 	if dbClient == nil {
 		c := context.Background()
 		ctx = &c
-		dbClient, err := createClient(*ctx)
-		return dbClient, err
+		return createClient(*ctx)
 	}
 	return dbClient, nil
 }
 
 // here we get the document having the username, we then retrieve the salt from the doc and the hashed password from the doc,
 // we check if hash(password+salt) == doc.hash
-func CheckUser(username string, password string) (User, error) {
+func VerifyLogin(username string, password string) (User, error) {
 	db, err := GetDBConnection()
 	if err != nil {
-		log.Printf("error : %v\n", err)
 		return User{}, err
 	}
 	query := db.Collection("users").Where("username", "==", username)
@@ -94,8 +128,8 @@ func CheckUser(username string, password string) (User, error) {
 	}
 	var user User
 	users[0].DataTo(&user)
-
-	err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password+user.Salt))
+	//CompareHashAndPassword take the salt part from the hash and verify using it
+	err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password))
 	if err != nil {
 		return User{}, fmt.Errorf("password not correct")
 	}
@@ -104,11 +138,10 @@ func CheckUser(username string, password string) (User, error) {
 
 func CheckCookie(cookie string) (User, error) {
 	client, err := GetDBConnection()
-	now := time.Now()
 	if err != nil {
-		log.Printf("error : %v\n", err)
 		return User{}, err
 	}
+	now := time.Now()
 
 	query := client.Collection("users").Query.Where("sessionCookie", "==", cookie)
 	iter := query.Documents(context.Background())
@@ -131,25 +164,34 @@ func CheckCookie(cookie string) (User, error) {
 	return User{}, nil
 }
 
-func CreateUser(user User) error {
+func NewUser(username string, pwd string, firstname string, surname string, shippingAddr string) (*firestore.DocumentRef, error) {
 	client, err := GetDBConnection()
 	if err != nil {
-		log.Printf("error : %v\n", err)
-		return err
+		return nil, err
 	}
-	query := client.Collection("users").Query.Where("username", "==", user.Username)
+	//query doc where username's field == `username`
+	query := client.Collection("users").Query.Where("username", "==", username)
 	docs, err := query.Documents(context.Background()).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
-		return err
+		return nil, err
 	}
+	//if there are docs with this username
 	if len(docs) != 0 {
-		return fmt.Errorf("user already exists")
+		return nil, fmt.Errorf("user already exists")
 	}
-	client.Collection("users").NewDoc().Set(*ctx, user)
+
+	//bcrypt's GenerateFromPassword generate the password with a salt !!
+	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	user := User{Username: username, Firstname: firstname, Surname: surname, Hash: hash, ShippingAddress: shippingAddr, SessionCookie: ""}
+	docRef, _, err := client.Collection("users").Add(*ctx, user)
+
 	if err != nil {
 		log.Printf("error : %v\n", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return docRef, nil
 }
