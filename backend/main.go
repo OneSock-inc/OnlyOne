@@ -10,7 +10,7 @@ import (
 func main() {
 	log.SetFlags(log.Flags() | log.Llongfile)
 	engine := api.Setup()
-	engine.Run(":8080")
+	engine.Run(":8000")
 
 	// Get a Firestore client.
 	// client, err := db.GetClient()
