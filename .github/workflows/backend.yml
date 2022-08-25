@@ -18,7 +18,7 @@ jobs:
       run: echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli -y
     
     - name: Set credentials file to home directory
-      run: echo ${{ secret.GOOGLE_CREDS_JSON}} > ~/service-account.json
+      run: echo ${{ secrets.GOOGLE_CREDS_JSON}} > ~/service-account.json
     - name: install emulator dep
       run: apt-get install -y openjdk-8-jre 
     - name: launch emulator
