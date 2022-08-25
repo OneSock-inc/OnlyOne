@@ -18,7 +18,7 @@ jobs:
     - name: install emulator dep
       run: sudo apt-get install -y openjdk-8-jre 
     - name: install beta cmd
-      run: gcloud --quiet components install beta
+      run: gcloud --quiet components install beta cloud-firestore-emulator
     - name: launch emulator
       run: gcloud --quiet beta emulators firestore start --host-port=localhost &
     - name: wait for emulator
