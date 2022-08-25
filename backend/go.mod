@@ -7,6 +7,8 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8
 	google.golang.org/api v0.59.0
+	github.com/google/uuid v1.1.2
+
 )
 
 require (
