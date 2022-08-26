@@ -15,11 +15,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: debug
+    - name: debug 1
       run: git branch
     # - name: Install npm packages
     #   run: cd frontend && npm install
 
+    - name: debug 1
+      run: git subtree split --prefix frontend/dist feat_frontend_cicd
     # - name: Build Angular app
     #   run: cd frontend && npm run build
 
