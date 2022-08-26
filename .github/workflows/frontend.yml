@@ -2,7 +2,7 @@ name: frontend
 
 on:
   push:
-    branches: [ "main"]
+    branches: [ "feat_frontend_cicd"]
   pull_request:
     branches: [ "main", "feat*" ]
 
