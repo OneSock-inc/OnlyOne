@@ -26,5 +26,5 @@ jobs:
 
     # Run our deployment command
     - name: Deploying the static website to gh-pages
-      run: git push origin `git subtree split --prefix frontend/dist master`:gh-pages --force
+      run: git push origin `git subtree split --prefix frontend/dist feat_frontend_cicd`:gh-pages --force
 
