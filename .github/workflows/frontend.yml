@@ -1,0 +1,24 @@
+name: frontend
+
+on:
+  push:
+    branches: [ "main"]
+  pull_request:
+    branches: [ "main", "feat*" ]
+
+# Specify the tasks to run when this script gets triggered
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Download our master branch
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build Angular app
+      run: npm run build
+
+    # Run our deployment command
+    - name: Deploying the static website to gh-pages
+      run: git push origin `git subtree split --prefix dist master`:gh-pages --force
+
