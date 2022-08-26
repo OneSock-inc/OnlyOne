@@ -21,7 +21,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    
+    - name: echo GCP_PROJECT
+      run: echo ${{ secrets.GCP_PROJECT }}
+    - name:
+      run: echo ${{ secrets.ACTION_SERVICE_ACCT }}
     - name: auth google
       id: 'auth'
       uses: 'google-github-actions/auth@v0'
