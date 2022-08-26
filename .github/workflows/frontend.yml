@@ -20,13 +20,14 @@ jobs:
     # - name: Install npm packages
     #   run: cd frontend && npm install
 
-    - name: debug 1
-      run: git subtree split --prefix frontend/dist feat_frontend_cicd
     # - name: Build Angular app
     #   run: cd frontend && npm run build
 
-    # - name: Debug 
+    # - name: Debug 2
     #   run: cd frontend && ls
+
+    # - name: debug 3
+    #   run: git subtree split --prefix frontend/dist feat_frontend_cicd
 
     # Run our deployment command
     # - name: Deploying the static website to gh-pages
