@@ -48,7 +48,7 @@ jobs:
     #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
     # Setup gcloud CLI
-    - name: Set up Cloud SDK  
+    - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v0
 
     - name: Authorize Docker push
@@ -60,7 +60,7 @@ jobs:
         docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} .
         docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
     - name: Deploy to Cloud Run
-      run: |-
+      run: |- 
         gcloud run deploy ${{ env.SERVICE }} \
           --region ${{ env.REGION }} \
           --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
