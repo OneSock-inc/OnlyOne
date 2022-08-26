@@ -22,12 +22,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
-      name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v0'
       with:
         credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
+
+    # # Configure Workload Identity Federation and generate an access token.
+    # - id: 'auth'
+    #   name: 'authentication via credentials json'
+    #   uses: 'google-github-actions/auth@v0'
+    #   with:
+    #     credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
 
     # Alternative option - authentication via credentials json
     # - id: 'auth'
