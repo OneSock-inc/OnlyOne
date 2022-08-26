@@ -3,7 +3,7 @@ on:
     branches:
     - feature_deploy_backend
 
-name: Build and Deploy to Cloud Run
+name: Deploy backend to GCR
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
   RUN_REGION: us-central1  
