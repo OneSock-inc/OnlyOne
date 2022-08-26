@@ -13,7 +13,7 @@ jobs:
 
     # Download our master branch
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
 
     - name: debug 1
       run: git branch
