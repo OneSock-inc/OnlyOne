@@ -23,7 +23,7 @@ jobs:
       uses: actions/checkout@v3
     - name: echo GCP_PROJECT
       run: echo ${{ secrets.GCP_PROJECT }}
-    - name:
+    - name: echo ACTION_SERVICE_ACCT
       run: echo ${{ secrets.ACTION_SERVICE_ACCT }}
     - name: auth google
       id: 'auth'
