@@ -1,13 +1,13 @@
-FROM nginx:1.23-alpine
-RUN apk add --update nodejs npm
-# RUN npm install -g @angular/cli
-COPY ./ /opt/onlyone/frontend
-WORKDIR /opt/onlyone/frontend
+# build
+FROM node:alpine as builder
+WORKDIR /app
+COPY package.json .
 RUN npm install
+COPY . .
 RUN npm run build
-RUN rm -rf /usr/share/nginx/html
-RUN mv dist/frontend/ /usr/share/nginx
-RUN mv /usr/share/nginx/frontend /usr/share/nginx/html
-WORKDIR /opt
-RUN rm -rf onlyone
 
+# deploy
+FROM nginx
+EXPOSE 80
+COPY ./server-config-prod/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist/frontend /usr/share/nginx/html
