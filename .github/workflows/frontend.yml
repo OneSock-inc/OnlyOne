@@ -13,10 +13,11 @@ jobs:
 
     # Download our master branch
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: debug 1
       run: git branch
+
     - name: Install npm packages
       run: cd frontend && npm install
 
@@ -29,7 +30,7 @@ jobs:
     # - name: debug 3
     #   run: git subtree split --prefix frontend/dist feat_frontend_cicd
 
-    Run our deployment command
+    # Run our deployment command
     - name: Deploying the static website to gh-pages
       run: git push origin `git subtree split --prefix frontend/dist feat_frontend_cicd`:gh-pages --force
 
