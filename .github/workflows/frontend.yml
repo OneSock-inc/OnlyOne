@@ -15,16 +15,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install npm packages
-      run: cd frontend && npm install
+    - name: debug
+      run: git branch
+    # - name: Install npm packages
+    #   run: cd frontend && npm install
 
-    - name: Build Angular app
-      run: cd frontend && npm run build
+    # - name: Build Angular app
+    #   run: cd frontend && npm run build
 
-    - name: Debug 
-      run: cd frontend && ls
+    # - name: Debug 
+    #   run: cd frontend && ls
 
     # Run our deployment command
-    - name: Deploying the static website to gh-pages
-      run: git push origin `git subtree split --prefix frontend/dist feat_frontend_cicd`:gh-pages --force
+    # - name: Deploying the static website to gh-pages
+    #   run: git push origin `git subtree split --prefix frontend/dist feat_frontend_cicd`:gh-pages --force
 
