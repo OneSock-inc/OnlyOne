@@ -1,68 +1,12 @@
-on:
-  push:
-    branches:
-    - feature_deploy_backend
-
-name: Deploy backend to GCR
+name: Fly Deploy
+on: [push]
 env:
-  PROJECT_ID: onlyone-cb08e
-  RUN_REGION: us-central1  
-  SERVICE: onlyOne-backend
-  GCP_PROJECT: '{"type": "service_account","project_id": "onlyone-cb08e","private_key_id": "d6c3bae52f8c97378a99229602b6270651835f36","private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCLCH9zi0pdi99z\nHafJEnkgppi1Lb3csv+BnMENJuT5LlNZwGCHdFLZZ3BDsF1DPZZg0pNKXmHD0y9D\nO9CvFJLG0jiwb4Emum5sKk3TG2OHDugan9idTzEokAzlJYFfSKyOslMRKlQLs2M2\ntw3IOTakks48QS6LVDXK7LLqcpWdxb327AY7KcXzEf1eTmmIC3piUL7rIpJ42imU\ns0E4/xKcg9UHEeV5kgkxx4zd3FXilxVIhy/ImvETwjYvtA7BSMUbA9vJSMqzscIS\nPtwy9ueXvcL+B7IFU1eVFInRqOCeaIKnFzLU2z0WBfH9cgLKjl2d5wpJlOEwkCGZ\nn/aOZNaDAgMBAAECggEAD9Nzzo84c9WMJepmQvkbWKAeGeGPDyRA+VwCjaCzx7mC\nO2Eum7yeAalImivlMdY82+Cca4a60jOj2Z9hbcyFuKQNV+gZZ3MpRp66JSGk/qav\nvPgdDCsLiXZ8QUk3pMT8/3FFC1sqHfrZfEzyAKyij7E2UJ2K0slPJj4zT4Sji0Xg\nGZrYbDvrhH4HB/K6diB7EaYIkF7hx5Tukkw9lRWvZSiDgY18LpLFEZo2bjfD1GiC\n5f7NfPMvix27D2sOQ09yRJjVFEtuOAP262P1eyX8LbOsZXEgSg0WVN0+KHFi7IRX\n09mhviMiey5/aoG6Da6r8np//VCZyqumLdDwkeusgQKBgQC/D605R90L8BYLxj7o\nsYnINm/2E3PQD+9qZrd/ktFA9QFIRxh5RXXLIfKtVWn/s4Vy/V6DKz6N+1SFrkZf\nj5HBtuM09+atawCO7dn5HXstJ25AVt96OnU84jGrqWKdgioxA8CRFHx3rp2x1FZG\n4410aXlLYkdzm/cC49DzAYVd0wKBgQC6SdaL6w1RidzwJ04moAxuJuYP3Q4VyFxU\nI5eOinn8G+oGbvQlpaov6SW4rA9vb0wiAG2ZZ/EHUrj5N4HN/2rG2we/wvPw91sr\nwIDb+gxt2viMopM5vg3/LcDcCl3Bmo2CXFJ1j1YaJ4uTcjtJKzMYHC+d91edyR8P\n1dJdFiFGkQKBgQCthFA+iExxLg7njJjPfYVzRjUyV4JDgGVfzX9zJeRSyO/sM10/\nrdyHqgIad0r4BZL51q+CEsER8yJU8exJlzq5oh4Ame9uqZHtPIhMXQDkBj5zwjHd\ncL/OlmKj0waTo4Yr04uMdv1/OB9RRFVCtiBei/ezhcL8dLXFcx7twwDbLwKBgAeu\nL6hJIp1v/6nvFOvGwXxxIh8ZUBFZ12SoqwD3eJwKUpW9UVeUAvZCuIlqnqBLiGoG\ndn5SqL9Si8nKnhFuLGrScPlZAlG3AQ1GvIlVP9nvozu5IDTLPyx8KG1qB/+Jbbgo\nMkYiiLw/USPdG9CidVLTJqtunTAmMJ+ogynPVcPhAoGAUUATAW4MKuG6hdiGhcmo\nA9aCVbvtH2et8TvPWISN7mv7+N6RKdw1VeAaFEiZMVG4yQc+aB12o7Q94G3Nhf4n\nkVDsT0Vsfvf/6S98zLrULWfSdKW3p04ncX2zra0Mpcn/QpZFcRXNrxfD7GPv0EDH\nlFDEUUNoBIrLY8QxcZ7SUr4=\n-----END PRIVATE KEY-----\n","client_email": "github-action-816@onlyone-cb08e.iam.gserviceaccount.com","client_id": "113693427372757593193","auth_uri": "https://accounts.google.com/o/oauth2/auth","token_uri": "https://oauth2.googleapis.com/token","auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-action-816%40onlyone-cb08e.iam.gserviceaccount.com"}'
-
-
-
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-
-    # Add "id-token" with the intended permissions.
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: echo GCP_PROJECT
-      run: echo ${{ env.GCP_PROJECT }}
-    - name: echo ACTION_SERVICE_ACCT
-      run: echo ${{ env.ACTION_SERVICE_ACCT }}
-    - name: auth google
-      id: 'auth'
-      uses: 'google-github-actions/auth@v0'
-      with: 
-        credentials_json: '${{ env.ACTION_SERVICE_ACCT }}'
-
-    # # Configure Workload Identity Federation and generate an access token. 
-    # - id: 'auth'
-    #   name: 'authentication via credentials json'
-    #   uses: 'google-github-actions/auth@v0'
-    #   with:
-    #     credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
-
-    # Alternative option - authentication via credentials json
-    # - id: 'auth'
-    #   uses: 'google-github-actions/auth@v0'
-    #   with:
-    #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-
-    # Setup gcloud CLI
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0
-
-    - name: Authorize Docker push
-      run: gcloud auth configure-docker 
-
-    - name: Build and Push Container 
-      run: |- 
-        cd backend
-        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} .
-        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
-    - name: Deploy to Cloud Run
-      run: |- 
-        gcloud run deploy ${{ env.SERVICE }} \
-          --region ${{ env.REGION }} \
-          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
-          --platform "managed" \
-          --quiet
+      name: Deploy app
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: superfly/flyctl-actions/setup-flyctl@master
+        - run: flyctl deploy --remote-only
