@@ -32,14 +32,14 @@ def on_push():
         currentCommit = repo.head.commit
         repo.remotes.origin.pull()
         if currentCommit != repo.head.commit:
-            subprocess.run(["docker-compose","stop"])
-            subprocess.run(["docker-compose","build"])
-            subprocess.run(["docker-compose","up", "-d"])
+            subprocess.run(["sudo", "docker-compose","stop"])
+            subprocess.run(["sudo", "docker-compose","build"])
+            subprocess.run(["sudo", "docker-compose","up", "-d"])
             ret = "Docker reloaded"
     else:
         Repo.clone_from("https://github.com/OneSock-inc/OnlyOne.git", "./OnlyOne")
         os.chdir("./OnlyOne")
-        subprocess.run(["docker-compose","up", "-d"])
+        subprocess.run(["sudo", "docker-compose","up", "-d"])
         ret = "Docker started."
     return ret
 
