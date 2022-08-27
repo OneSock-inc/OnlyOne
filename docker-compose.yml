@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: .
+    container_name: onlyoneFrontend
+    ports:
+      - 8888:80
+  
