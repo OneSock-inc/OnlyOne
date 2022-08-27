@@ -3,7 +3,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: .
+      dockerfile: Dockerfile
     container_name: onlyoneFrontend
     ports:
       - 8888:80
