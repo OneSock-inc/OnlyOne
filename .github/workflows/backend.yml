@@ -2,22 +2,32 @@ name: backend
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" , "feature_cicd_golang"]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "feat*" ]
 
 jobs:
 
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: install gcloud 
+      uses: 'google-github-actions/setup-gcloud@v0'
+    - name: Set credentials file to home directory
+      run: echo ${{ secrets.GOOGLE_CREDS_JSON}} > ~/service-account.json
+    - name: install emulator dep
+      run: sudo apt-get install -y openjdk-8-jre 
+    - name: install beta cmd
+      run: gcloud --quiet components install beta cloud-firestore-emulator
+    - name: launch emulator
+      run: gcloud --quiet beta emulators firestore start --host-port=localhost &
+    - name: wait for emulator
+      run: sleep 7
     - uses: actions/checkout@v3
-    
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
-
     - name: Build
       working-directory: ./backend 
       run: go build -v ./...

@@ -3,7 +3,7 @@ package api
 import (
 	//import gin
 
-	"onlyOne/back/db"
+	"backend/db"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +40,7 @@ func nextOne(c *gin.Context) {
 func testLogin(c *gin.Context) {
 	usr := c.Query("username")
 	pwd := c.Query("password")
-	db.CheckUser(usr, pwd)
+	db.VerifyLogin(usr, pwd)
 	c.Next()
 
 }
@@ -54,7 +54,7 @@ func login(c *gin.Context) {
 	username := c.Query("username")
 	pwd := c.Query("password")
 	//check if the username and password are correct
-	db.CheckUser(username, pwd)
+	db.VerifyLogin(username, pwd)
 	if username == "m" && pwd == "myPwd" {
 		//if they are correct, return a success message
 		//TODO - add a token to the response
