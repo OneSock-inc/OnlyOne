@@ -30,6 +30,6 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.for-test')?.textContent).toContain('frontendapp is running!');
+    expect(compiled.querySelector('.for-test')?.textContent).toContain('frontend app is running!');
   });
 });
