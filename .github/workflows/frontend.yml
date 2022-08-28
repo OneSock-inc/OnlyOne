@@ -1,0 +1,22 @@
+name: frontend
+
+on:
+  push:
+    branches: [ "feat_frontend_cicd"]
+  pull_request:
+    branches: [ "main", "feat*" ]
+
+# Specify the tasks to run when this script gets triggered
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Download our master branch
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install npm packages
+      run: cd frontend && npm ci
+
+    - name: Build and test Angular app
+      run: cd frontend && npm run test:prod
