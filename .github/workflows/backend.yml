@@ -1,12 +1,9 @@
 name: backend
-
 on:
   pull_request:
     branches:
     - main
-
 jobs:
-
   build:
     if: contains(github.head_ref, '_back_') || contains(github.head_ref, '_backend_')
     runs-on: ubuntu-latest
