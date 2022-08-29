@@ -1,3 +1,4 @@
 ./data/service-account.json
 .DS_Store
-
+./fire*
+./*.log
