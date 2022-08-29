@@ -13,6 +13,17 @@
     text-align: center;
 }
 
+.default-layout {
+    max-width: 900px;
+    margin: auto;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    height: 100vh;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap');
 
 @import "./styles-generic/default";
