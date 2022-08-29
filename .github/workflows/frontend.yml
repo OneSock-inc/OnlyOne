@@ -1,14 +1,14 @@
 name: frontend
 
 on:
-  push:
-    branches: [ "feat_frontend_cicd"]
   pull_request:
-    branches: [ "main", "feat*" ]
+    types: [opened, synchronize, edited]
+    branches: ["main"]
 
 # Specify the tasks to run when this script gets triggered
 jobs:
   build:
+    if: contains(github.head_ref, '_front_') || contains(github.head_ref, '_frontend_')
     runs-on: ubuntu-latest
 
     # Download our master branch

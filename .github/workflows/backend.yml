@@ -1,14 +1,13 @@
 name: backend
 
 on:
-  push:
-    branches: [ "main" , "feature_cicd_golang"]
   pull_request:
-    branches: [ "main", "feat*" ]
+    types: [opened, synchronize, edited]
+    branches: ["main"]
 
 jobs:
-
   build:
+    if: contains(github.head_ref, '_back_') || contains(github.head_ref, '_backend_')
     runs-on: ubuntu-latest
     steps:
     - name: install gcloud 
