@@ -84,8 +84,19 @@ func nextOne(c *gin.Context) {
 func testLogin(c *gin.Context) {
 	usr := c.Query("username")
 	pwd := c.Query("password")
-	db.VerifyLogin(usr, pwd)
-	c.Next()
+
+	u, err := db.VerifyLogin(usr, pwd)
+	if err != nil {
+		c.JSON(401, gin.H{
+			"message": "wrong username or password",
+		})
+		return
+	}
+	log.Printf("user: %v\n", u)
+
+	c.JSON(200, gin.H{
+		"message": "login successful",
+	})
 
 }
 
