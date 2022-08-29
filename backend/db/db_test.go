@@ -1,15 +1,63 @@
 package db
 
 import (
+	"context"
 	"log"
 	"os"
 	"testing"
+
+	"cloud.google.com/go/firestore"
+	"google.golang.org/api/iterator"
 )
 
 func TestMain(m *testing.M) {
 	os.Setenv(FirestoreEmulatorHost, "localhost:8080")
 	log.SetFlags(log.Flags() | log.Llongfile)
-	os.Exit(m.Run())
+	exit := m.Run()
+	client, _ := GetDBConnection()
+	err := deleteCollection(context.Background(), client, client.Collection("users"), 64)
+	if err != nil {
+		log.Print(err.Error())
+		os.Exit(1)
+	}
+	os.Exit(exit)
+}
+func deleteCollection(ctx context.Context, client *firestore.Client,
+	ref *firestore.CollectionRef, batchSize int) error {
+
+	for {
+		// Get a batch of documents
+		iter := ref.Limit(batchSize).Documents(ctx)
+		numDeleted := 0
+
+		// Iterate through the documents, adding
+		// a delete operation for each one to a
+		// WriteBatch.
+		batch := client.Batch()
+		for {
+			doc, err := iter.Next()
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				return err
+			}
+
+			batch.Delete(doc.Ref)
+			numDeleted++
+		}
+
+		// If there are no documents to delete,
+		// the process is over.
+		if numDeleted == 0 {
+			return nil
+		}
+
+		_, err := batch.Commit(ctx)
+		if err != nil {
+			return err
+		}
+	}
 }
 
 const FirestoreEmulatorHost = "FIRESTORE_EMULATOR_HOST"

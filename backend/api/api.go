@@ -111,7 +111,7 @@ func login(c *gin.Context) {
 	err := c.BindJSON(&tmpLogin)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "login failed",
+			"message": err.Error(),
 		})
 		return
 	}
@@ -121,7 +121,7 @@ func login(c *gin.Context) {
 	if err != nil {
 		//if they are not correct, return an error message
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "login failed",
+			"message": "login failed 2",
 		})
 		return
 	}
@@ -131,7 +131,6 @@ func login(c *gin.Context) {
 	ck := cookie.GenSessionCookie(c)
 	db.SetCookie(ck, tmpLogin.Username)
 
-	c.Status(http.StatusOK)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "login sucessful",
 	})
@@ -164,4 +163,5 @@ func register(c *gin.Context) {
 		})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{"message": "registration successful"})
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -168,17 +169,20 @@ func CheckCookie(cookie string) (User, error) {
 }
 
 func RegisterUser(username string, pwd string, firstname string, surname string, shippingAddr string) (*firestore.DocumentRef, error) {
-	if username == "" {
-		return nil, fmt.Errorf("username is empty !")
+	if strings.TrimSpace(username) == "" {
+		return nil, fmt.Errorf("username is empty")
 	}
-	if pwd == "" {
-		return nil, fmt.Errorf("password is empty !")
+	if strings.TrimSpace(pwd) == "" {
+		return nil, fmt.Errorf("password is empty")
 	}
-	if surname == "" {
-		return nil, fmt.Errorf("surname is empty !")
+	if strings.TrimSpace(firstname) == "" {
+		return nil, fmt.Errorf("firstname is empty")
+	}
+	if strings.TrimSpace(surname) == "" {
+		return nil, fmt.Errorf("surname is empty")
 	}
 	if shippingAddr == "" {
-		return nil, fmt.Errorf("shipping address is empty !")
+		return nil, fmt.Errorf("shipping address is empty")
 	}
 
 	client, err := GetDBConnection()
@@ -236,5 +240,3 @@ func SetCookie(cookie string, username string) error {
 
 	return nil
 }
-
-func CheckCookie
