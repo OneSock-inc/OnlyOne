@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize, edited]
     branches: 
-      - main
+      - [main, feature_deploy_front_back]
 
 
 # Specify the tasks to run when this script gets triggered
