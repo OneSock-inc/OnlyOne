@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize]
     branches: 
       - main
+      
 
 # Specify the tasks to run when this script gets triggered
 jobs:
