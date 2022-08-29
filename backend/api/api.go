@@ -12,14 +12,22 @@ var router *gin.Engine
 
 func Setup() *gin.Engine {
 	router = gin.Default()
-
 	user := router.Group("/user")
 	{
 		user.POST("/login", login)
 		user.POST("/register", register)
+		user.GET("/:username", showUser)             //.Use(isAuthenticated())
+		user.GET("/:username/sock", listSocksOfUser) //.Use(isAuthenticated())
 	}
-	router.GET("/next", nextOne)
-	router.GET("/test", testLogin)
+
+	sock := router.Group("/sock")
+	{
+		sock.POST("/", addSock)                        //.Use(isAuthenticated())
+		sock.GET("/:sockId/match", listMatchesOfSock)  //.Use(isAuthenticated())
+		sock.PATCH("/:sockId/", patchAcceptListOfSock) //.Use(isAuthenticated())
+		sock.GET("/:sockId", getSockInfo)
+	}
+
 	return router
 }
 
