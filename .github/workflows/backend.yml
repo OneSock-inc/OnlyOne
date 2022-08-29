@@ -2,7 +2,8 @@ name: backend
 
 on:
   pull_request:
-    branches: [ "main", "*_back*" ]
+    types: [opened, synchronize, edited]
+    branches: ["main"]
 
 jobs:
 
