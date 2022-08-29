@@ -164,7 +164,7 @@ func CheckCookie(cookie string) (User, error) {
 	return User{}, nil
 }
 
-func NewUser(username string, pwd string, firstname string, surname string, shippingAddr string) (*firestore.DocumentRef, error) {
+func RegisterUser(username string, pwd string, firstname string, surname string, shippingAddr string) (*firestore.DocumentRef, error) {
 	client, err := GetDBConnection()
 	if err != nil {
 		return nil, err

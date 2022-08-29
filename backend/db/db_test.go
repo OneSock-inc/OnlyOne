@@ -30,7 +30,7 @@ func TestCheckUser(t *testing.T) {
 		surname      = "surname"
 		shippingAddr = "shippingAddr"
 	)
-	_, err := NewUser(username, pwd, firstname, surname, shippingAddr)
+	_, err := RegisterUser(username, pwd, firstname, surname, shippingAddr)
 	if err != nil {
 		t.Errorf("unable to create a user\n%v", err)
 	}
@@ -49,11 +49,11 @@ func TestCreateUser(t *testing.T) {
 		pwd             = "myPassword"
 		shippingAddress = "this is a long shipping addr 1212 grand-Lancy"
 	)
-	_, err := NewUser(username, pwd, firstname, surname, shippingAddress)
+	_, err := RegisterUser(username, pwd, firstname, surname, shippingAddress)
 	if err != nil {
 		t.Errorf(" user should not exist\n%v", err)
 	}
-	_, err = NewUser(username, pwd, firstname, surname, shippingAddress)
+	_, err = RegisterUser(username, pwd, firstname, surname, shippingAddress)
 
 	if err == nil {
 		log.Printf("the user should exist : %v", err)
