@@ -1,10 +1,8 @@
 name: frontend
 
 on:
-  push:
-    branches: [ "feat_frontend_cicd"]
   pull_request:
-    branches: [ "main", "feat*" ]
+    branches: [ "main", "*_front*" ]
 
 # Specify the tasks to run when this script gets triggered
 jobs:
