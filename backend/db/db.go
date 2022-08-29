@@ -168,6 +168,19 @@ func CheckCookie(cookie string) (User, error) {
 }
 
 func RegisterUser(username string, pwd string, firstname string, surname string, shippingAddr string) (*firestore.DocumentRef, error) {
+	if username == "" {
+		return nil, fmt.Errorf("username is empty !")
+	}
+	if pwd == "" {
+		return nil, fmt.Errorf("password is empty !")
+	}
+	if surname == "" {
+		return nil, fmt.Errorf("surname is empty !")
+	}
+	if shippingAddr == "" {
+		return nil, fmt.Errorf("shipping address is empty !")
+	}
+
 	client, err := GetDBConnection()
 	if err != nil {
 		return nil, err

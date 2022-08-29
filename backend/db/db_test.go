@@ -59,3 +59,26 @@ func TestCreateUser(t *testing.T) {
 		log.Printf("the user should exist : %v", err)
 	}
 }
+
+func TestInvalidRegisterUser(t *testing.T) {
+	_, err := RegisterUser("", "123", "Luc", "Skywalter", "Rue des Grands 28")
+	if err == nil {
+		t.Errorf("Empty username should not be allowed\n")
+	}
+	_, err = RegisterUser("luc", "", "Luc", "Skywalter", "Rue des Grands 28")
+	if err == nil {
+		t.Errorf("Empty password should not be allowed\n")
+	}
+	_, err = RegisterUser("luc", "123", "", "Skywalter", "Rue des Grands 28")
+	if err == nil {
+		t.Errorf("Empty firstname should not be allowed\n")
+	}
+	_, err = RegisterUser("luc", "123", "Luc", "", "Rue des Grands 28")
+	if err == nil {
+		t.Errorf("Empty surname should not be allowed\n")
+	}
+	_, err = RegisterUser("luc", "123", "Luc", "Skywalter", "")
+	if err == nil {
+		t.Errorf("Empty shipping address should not be allowed\n")
+	}
+}
