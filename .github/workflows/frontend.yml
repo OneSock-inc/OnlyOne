@@ -3,8 +3,7 @@ name: frontend
 on:
   pull_request:
     types: [opened, synchronize, edited]
-    branches: 
-      - [main, feature_deploy_front_back]
+    branches: ["main", "feature_deploy_front_back"]
 
 
 # Specify the tasks to run when this script gets triggered
