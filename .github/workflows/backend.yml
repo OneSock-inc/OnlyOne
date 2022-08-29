@@ -1,14 +1,13 @@
 name: backend
 
 on:
-  if: contains(github.head_ref, '_back_') || contains(github.head_ref, '_backend_')
   pull_request:
     types: [opened, synchronize, edited]
     branches: ["main"]
 
 jobs:
-
   build:
+    if: contains(github.head_ref, '_back_') || contains(github.head_ref, '_backend_')
     runs-on: ubuntu-latest
     steps:
     - name: install gcloud 
