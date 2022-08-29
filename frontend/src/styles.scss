@@ -35,3 +35,7 @@
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(5, 1fr);
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+

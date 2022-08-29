@@ -1,1 +1,16 @@
-<p>login-page works!</p>
+<p>
+  <h1 class="title">Login</h1>
+  <form (submit)="onSubmit(this)">
+    <mat-form-field appearance="legacy" class="form-group" id="username">
+      <mat-label>Username</mat-label>
+      <input matInput name="username" placeholder="Enter your username" [(ngModel)]="username">
+    </mat-form-field>
+    <mat-form-field appearance="legacy" class="form-group" id="password">
+      <mat-label>Password</mat-label>
+      <input matInput  name=password type="password" placeholder="Enter your password" [(ngModel)]="password">
+    </mat-form-field>
+    <button mat-flat-button class="form-group" color="primary" id="login">Login</button>
+  </form>
+
+
+ 
