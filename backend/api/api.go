@@ -60,7 +60,16 @@ func listMatchesOfSock(c *gin.Context) {
 
 func isAuthenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		session_cookie, err := c.Cookie("session")
+		if err != nil {
+			c.AbortWithStatus(401)
+		}
 
+		_, err = db.CheckCookie(session_cookie)
+		if err != nil {
+			c.AbortWithStatus(401)
+		}
+		c.Next()
 	}
 }
 
