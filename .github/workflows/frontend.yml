@@ -2,10 +2,10 @@ name: frontend
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, edited]
     branches: 
       - main
-      
+
 
 # Specify the tasks to run when this script gets triggered
 jobs:
