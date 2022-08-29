@@ -124,14 +124,17 @@ func VerifyLogin(username string, password string) (User, error) {
 		return User{}, err
 	}
 	if len(users) == 0 {
-		return User{}, fmt.Errorf("user not found")
+		return User{}, fmt.Errorf("user `%s` not found", username)
+	}
+	if len(users) > 1 {
+		return User{}, fmt.Errorf("multiple users `%s` found", username)
 	}
 	var user User
 	users[0].DataTo(&user)
 	//CompareHashAndPassword take the salt part from the hash and verify using it
 	err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password))
 	if err != nil {
-		return User{}, fmt.Errorf("password not correct")
+		return User{}, fmt.Errorf("password not correct for user `%s`", username)
 	}
 	return user, nil
 }
