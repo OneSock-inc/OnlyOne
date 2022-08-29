@@ -195,3 +195,30 @@ func RegisterUser(username string, pwd string, firstname string, surname string,
 	}
 	return docRef, nil
 }
+
+func SetCookie(cookie string, username string) error {
+	client, err := GetDBConnection()
+	if err != nil {
+		return err
+	}
+
+	query := client.Collection("users").Query.Where("username", "==", username)
+	docs, err := query.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("error : %v\n", err)
+		return err
+	}
+	//if there are docs with this username
+	if len(docs) != 1 {
+		return fmt.Errorf("user already exists")
+	}
+
+	doc := docs[0]
+	data := doc.Data()
+	data["sessionCookie"] = cookie
+	client.Collection("users").Doc(doc.Ref.ID).Set(context.Background(), data)
+
+	return nil
+}
+
+func CheckCookie
