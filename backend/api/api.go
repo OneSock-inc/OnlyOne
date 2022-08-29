@@ -4,6 +4,9 @@ import (
 	//import gin
 
 	"backend/db"
+	cookie "backend/utils"
+	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,6 +32,30 @@ func Setup() *gin.Engine {
 	}
 
 	return router
+}
+
+func getSockInfo(c *gin.Context) {
+	c.Next()
+}
+
+func patchAcceptListOfSock(c *gin.Context) {
+	c.Next()
+}
+func showUser(c *gin.Context) {
+	c.Next()
+}
+
+func listSocksOfUser(c *gin.Context) {
+	c.Next()
+}
+
+func addSock(c *gin.Context) {
+	c.Next()
+
+}
+
+func listMatchesOfSock(c *gin.Context) {
+	c.Next()
 }
 
 func isAuthenticated() gin.HandlerFunc {
