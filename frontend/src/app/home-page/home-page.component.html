@@ -1,6 +1,4 @@
-<div class="content vh-100 grid-default">
   <app-title class="app-title"></app-title>
   <ng-template ngFor let-link let-i="index" [ngForOf]="links">
       <a class={{link.classlist}} id="btn-{{ i }}" routerLink="{{link.href}}">{{ link.text }}</a>
   </ng-template>
-</div>
