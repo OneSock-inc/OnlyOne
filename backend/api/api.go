@@ -102,26 +102,40 @@ func testLogin(c *gin.Context) {
 
 // create the login function
 func login(c *gin.Context) {
+	type TmpLogin struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
 	//retrieve the username and the password from the post data
-	// username := c.PostForm("username")
-	// pwd := c.PostForm("password")
-
-	username := c.Query("username")
-	pwd := c.Query("password")
-	//check if the username and password are correct
-	db.VerifyLogin(username, pwd)
-	if username == "m" && pwd == "myPwd" {
-		//if they are correct, return a success message
-		//TODO - add a token to the response
-		c.JSON(200, gin.H{
-			"message": "login successful",
-		})
-	} else {
-		//if they are not correct, return an error message
-		c.JSON(401, gin.H{
+	tmpLogin := TmpLogin{}
+	err := c.BindJSON(&tmpLogin)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "login failed",
 		})
+		return
 	}
+	//check if the username and password are correct
+
+	_, err = db.VerifyLogin(tmpLogin.Username, tmpLogin.Password)
+	if err != nil {
+		//if they are not correct, return an error message
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "login failed",
+		})
+		return
+	}
+
+	//if they are correct, return a success message
+	//TODO - add a token to the response
+	ck := cookie.GenSessionCookie(c)
+	db.SetCookie(ck, tmpLogin.Username)
+
+	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "login sucessful",
+	})
+
 }
 
 // create the register function
