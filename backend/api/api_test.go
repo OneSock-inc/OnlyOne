@@ -94,7 +94,8 @@ func TestLoginFail(t *testing.T) {
 		"username":"mojojo",
 		"password":"mySecret"
 	}`)
-	req, _ := http.NewRequest("POST", "/user/login", r)
+	req, err := http.NewRequest("POST", "/user/login", r)
+	assert.Nil(t, err)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
@@ -125,7 +126,8 @@ func TestIllFormedLoginFail(t *testing.T) {
 	js := fmt.Sprintf(`
 	{"pwd": "%s"
 	"usr" : "%s" `, "pwd", "usr")
-	req, _ := http.NewRequest("POST", "/user/login", strings.NewReader(js))
+	req, err := http.NewRequest("POST", "/user/login", strings.NewReader(js))
+	assert.Nil(t, err)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body)
@@ -135,7 +137,9 @@ func TestIllFormedLoginFail(t *testing.T) {
 func TestIllFormed2LoginFail(t *testing.T) {
 	js := fmt.Sprintf(`
 	{"password": "%s"}`, "pwd")
-	req, _ := http.NewRequest("POST", "/user/login", strings.NewReader(js))
+	req, err := http.NewRequest("POST", "/user/login", strings.NewReader(js))
+	assert.Nil(t, err)
+
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body)
@@ -145,8 +149,11 @@ func TestIllFormed2LoginFail(t *testing.T) {
 func TestLoginSucess(t *testing.T) {
 
 	//delete all users
-	client, _ := db.GetDBConnection()
-	_ = deleteCollection(context.Background(), client, client.Collection("users"), 64)
+	client, err := db.GetDBConnection()
+	assert.Nil(t, err)
+	err = deleteCollection(context.Background(), client, client.Collection("users"), 64)
+	assert.Nil(t, err)
+
 	const user = "hisUsername"
 	const pwd = "hisPassword"
 	//Creat a user in the db (might not exist)
@@ -162,7 +169,7 @@ func TestLoginSucess(t *testing.T) {
 			"username": "%s", 
 			"password":"%s"
 		}`, user, pwd))
-	req, err := http.NewRequest("POST", "/user/login", r)
+	req, err = http.NewRequest("POST", "/user/login", r)
 	assert.Nil(t, err)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)

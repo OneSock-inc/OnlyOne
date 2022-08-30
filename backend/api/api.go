@@ -4,9 +4,8 @@ import (
 	//import gin
 
 	"backend/db"
-	cookie "backend/utils"
+	"backend/utils"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -57,7 +56,7 @@ func addSock(c *gin.Context) {
 	}
 
 	type TmpSock struct {
-		ShoeSize    uint16     `json:"shoeSize"`
+		ShoeSize    uint8      `json:"shoeSize"`
 		Type        db.Profile `json:"type"`
 		Color       string     `json:"color"`
 		Description string     `json:"description"`
@@ -108,33 +107,6 @@ func isAuthenticated() gin.HandlerFunc {
 	}
 }
 
-// get the next data for the user
-func nextOne(c *gin.Context) {
-
-	c.JSON(200, gin.H{
-		"message": "pong",
-	})
-}
-
-func testLogin(c *gin.Context) {
-	usr := c.Query("username")
-	pwd := c.Query("password")
-
-	u, err := db.VerifyLogin(usr, pwd)
-	if err != nil {
-		c.JSON(401, gin.H{
-			"message": "wrong username or password",
-		})
-		return
-	}
-	log.Printf("user: %v\n", u)
-
-	c.JSON(200, gin.H{
-		"message": "login successful",
-	})
-
-}
-
 // create the login function
 func login(c *gin.Context) {
 	type TmpLogin struct {
@@ -163,7 +135,7 @@ func login(c *gin.Context) {
 
 	//if they are correct, return a success message
 	//TODO - add a token to the response
-	ck := cookie.GenSessionCookie(c)
+	ck := utils.GenSessionCookie(c)
 	db.SetCookie(ck, tmpLogin.Username)
 
 	c.JSON(http.StatusOK, gin.H{

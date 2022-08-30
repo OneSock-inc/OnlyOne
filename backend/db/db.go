@@ -30,7 +30,7 @@ type User struct {
 }
 
 // Ther is two type : low and high
-type Profile uint16
+type Profile uint8
 
 const (
 	low Profile = iota
@@ -39,7 +39,7 @@ const (
 )
 
 type Sock struct {
-	ShoeSize uint16 `firestore:"shoeSize" json:"shoeSize"`
+	ShoeSize uint8 `firestore:"shoeSize" json:"shoeSize"`
 	//is it a high or low profile sock
 	Type         Profile  `firestore:"type" json:"type"`
 	Color        string   `firestore:"color" json:"color"`
@@ -68,7 +68,7 @@ func getSockInfo(sockID string) Sock {
 	return Sock{}
 }
 
-func NewSock(shoeSize uint16, type_ Profile, color string, desc string, Pictureb64 string, owner string) (*firestore.DocumentRef, error) {
+func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb64 string, owner string) (*firestore.DocumentRef, error) {
 	if shoeSize > 75 {
 		return nil, fmt.Errorf("show size `%d` is giant ! Are you a giant ? I don't think so", shoeSize)
 	}

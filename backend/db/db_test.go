@@ -15,8 +15,13 @@ func TestMain(m *testing.M) {
 	log.SetFlags(log.Flags() | log.Llongfile)
 	exit := m.Run()
 	// delete collection after run
-	client, _ := GetDBConnection()
-	err := deleteCollection(context.Background(), client, client.Collection("users"), 64)
+	client, err := GetDBConnection()
+
+	if err != nil {
+		log.Print(err.Error())
+		os.Exit(1)
+	}
+	err = deleteCollection(context.Background(), client, client.Collection("users"), 64)
 	if err != nil {
 		log.Print(err.Error())
 		os.Exit(1)
