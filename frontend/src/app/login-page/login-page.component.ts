@@ -10,12 +10,7 @@ import { FormBuilder } from '@angular/forms';
 export class LoginPageComponent implements OnInit {
 
   hide = true;
-  // username!: string;
-  // password!: string;
-
-
-
-
+ 
   loginForm = this.formBuilder.group({
     username: '',
     password: ''
