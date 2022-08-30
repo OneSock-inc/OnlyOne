@@ -3,6 +3,7 @@ package api
 import (
 	"backend/db"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -197,62 +198,62 @@ func TestAddSockWithoutUser(t *testing.T) {
 }
 
 func TestAddSockBadShoeSize(t *testing.T) {
-	session := makeLogedinUser()
+	jwtToken := makeLogedinUser()
 	w := httptest.NewRecorder()
 	req := newSockRequest(0, 0, "#FFF", "In a very good state", getValidBase64Image())
-	req.AddCookie(session)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestAddSockBadType(t *testing.T) {
-	session := makeLogedinUser()
+	jwtToken := makeLogedinUser()
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 2, "#FFF", "In a very good state", getValidBase64Image())
-	req.AddCookie(session)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestAddSockBadColor(t *testing.T) {
-	cookie := makeLogedinUser()
+	jwtToken := makeLogedinUser()
 
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 0, "", "In a very good state", getValidBase64Image())
-	req.AddCookie(cookie)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	req = newSockRequest(42, 1, "junk", "In a very good state", getValidBase64Image())
-	req.AddCookie(cookie)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestAddSockBadDescription(t *testing.T) {
-	session := makeLogedinUser()
+	jwtToken := makeLogedinUser()
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 0, "#FFF", "", getValidBase64Image())
-	req.AddCookie(session)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestAddSockBadBase64(t *testing.T) {
-	session := makeLogedinUser()
+	jwtToken := makeLogedinUser()
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 0, "#FFF", "Magnificent !", "")
-	req.AddCookie(session)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
-func makeLogedinUser() *http.Cookie {
+func makeLogedinUser() string {
 	//creat user
 	res := httptest.NewRecorder()
 	sockMan := "sockMan"
@@ -267,27 +268,31 @@ func makeLogedinUser() *http.Cookie {
 	req = httptest.NewRequest("POST", "/user/login", r)
 	loginResponse := httptest.NewRecorder()
 	router.ServeHTTP(loginResponse, req)
-	log.Printf("%s", loginResponse.Body)
+	body := loginResponse.Body.String()
+	log.Printf("%s", body)
 
-	//get cookie session
-	var c *http.Cookie = nil
-	//find session cookie from login
-	for _, cookie := range loginResponse.Result().Cookies() {
-		if cookie.Name == "session" {
-			c = cookie
-
-		}
+	type result struct {
+		Code   uint16 `json:"code"`
+		Expire string `json:"expire"`
+		Token  string `json:"token"`
 	}
-	return c
+	//get cookie session
+	fmt.Printf("%s", body)
+	var jsonResult result
+	if err := json.Unmarshal([]byte(body), &jsonResult); err != nil {
+		return err.Error()
+	}
+	log.Print("token :" + jsonResult.Token)
+	return jsonResult.Token
 
 }
 func TestCreateUser_Login_AddSock(t *testing.T) {
 
-	cookie := makeLogedinUser()
+	jwtToken := makeLogedinUser()
+	log.Printf("%s", jwtToken)
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 0, "#FFF", "In a very bad state. Also smells", getValidBase64Image())
-	req.Host = "localhost"
-	req.AddCookie(cookie)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusCreated, w.Code)

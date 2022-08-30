@@ -4,26 +4,57 @@ import (
 	//import gin
 
 	"backend/db"
-	"backend/utils"
-	"fmt"
+	"log"
 	"net/http"
+	"time"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
 var router *gin.Engine
 
+func jwtSetup() *jwt.GinJWTMiddleware {
+	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
+		Realm:      "realm doesn't make sens in the JWT context",
+		Key:        []byte("This is the secret key used to sign the identity, hope it doesn't leak ;)"),
+		Timeout:    time.Hour * time.Duration(8760),
+		MaxRefresh: time.Hour * time.Duration(8760),
+		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			if v, ok := data.(string); ok {
+				log.Println("OK")
+
+				return jwt.MapClaims{
+					jwt.IdentityKey: v,
+				}
+			}
+			log.Println("not ok")
+
+			return jwt.MapClaims{}
+		},
+		Authenticator: login,
+
+		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
+		TimeFunc: time.Now,
+	})
+
+	if err != nil {
+		log.Fatal("JWT Error:" + err.Error())
+	}
+	return authMiddleware
+}
 func Setup() *gin.Engine {
 	router = gin.Default()
+	auth := jwtSetup()
 	user := router.Group("/user")
 	{
-		user.POST("/login", login)
+		user.POST("/login", auth.LoginHandler)
 		user.POST("/register", register)
 		user.GET("/:username", showUser)
 		user.GET("/:username/sock", listSocksOfUser)
 	}
 
-	sock := router.Group("/sock").Use(isAuthenticated())
+	sock := router.Group("/sock").Use(auth.MiddlewareFunc())
 	{
 		sock.POST("/", addSock)
 		sock.GET("/:sockId/match", listMatchesOfSock)
@@ -50,10 +81,15 @@ func listSocksOfUser(c *gin.Context) {
 }
 
 func addSock(c *gin.Context) {
+	log.Printf("")
+
 	if c.Keys["docID"] == "" {
 		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Printf("Are we here ")
+
 		return
 	}
+	log.Printf("")
 
 	type TmpSock struct {
 		ShoeSize    uint8      `json:"shoeSize"`
@@ -62,86 +98,71 @@ func addSock(c *gin.Context) {
 		Description string     `json:"description"`
 		Picture     string     `json:"picture"`
 	}
+	log.Printf("")
+
 	tmpSock := TmpSock{}
 	err := c.BindJSON(&tmpSock)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
+		log.Printf("")
 
-	userID := fmt.Sprintf("%s", c.Keys["docID"])
-	_, err = db.NewSock(tmpSock.ShoeSize, tmpSock.Type, tmpSock.Color, tmpSock.Description, tmpSock.Picture, userID)
-	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
+	log.Printf("")
+
+	claim := jwt.ExtractClaims(c)
+	log.Printf("%+v", claim)
+
+	if userID, ok := claim[jwt.IdentityKey].(string); ok {
+		log.Printf("%s", userID)
+
+		_, err = db.NewSock(tmpSock.ShoeSize, tmpSock.Type, tmpSock.Color, tmpSock.Description, tmpSock.Picture, userID)
+		if err != nil {
+			log.Printf("")
+
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			log.Printf("")
+
+			return
+		}
+	}
+	log.Printf("")
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Sock successfully added !",
 	})
+	log.Printf("")
+
 }
 
 func listMatchesOfSock(c *gin.Context) {
 	c.Next()
 }
 
-func isAuthenticated() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		session_cookie, err := c.Cookie("session")
-		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		userRef, err := db.CheckCookie(session_cookie)
-		if err != nil || userRef == nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-		c.Set("docID", userRef.ID)
-		c.Next()
-	}
-}
-
 // create the login function
-func login(c *gin.Context) {
+func login(c *gin.Context) (interface{}, error) {
 	type TmpLogin struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
 	//retrieve the username and the password from the post data
 	tmpLogin := TmpLogin{}
-	err := c.BindJSON(&tmpLogin)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": err.Error(),
-		})
-		return
+	if err := c.BindJSON(&tmpLogin); err != nil {
+		log.Printf("%s", err.Error())
+		return "", err
 	}
 	//check if the username and password are correct
 
-	_, err = db.VerifyLogin(tmpLogin.Username, tmpLogin.Password)
+	id, err := db.VerifyLogin(tmpLogin.Username, tmpLogin.Password)
 	if err != nil {
-		//if they are not correct, return an error message
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "login failed 2",
-		})
-		return
+		return "", err
 	}
 
-	//if they are correct, return a success message
-	//TODO - add a token to the response
-	ck := utils.GenSessionCookie(c)
-	db.SetCookie(ck, tmpLogin.Username)
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "login sucessful",
-	})
-
+	return id, nil
 }
 
 // create the register function
