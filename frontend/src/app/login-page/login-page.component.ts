@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'app-login-page',
@@ -9,18 +10,28 @@ import { Component, OnInit } from '@angular/core';
 export class LoginPageComponent implements OnInit {
 
   hide = true;
-  username!: string;
-  password!: string;
+  // username!: string;
+  // password!: string;
 
 
+
+
+  loginForm = this.formBuilder.group({
+    username: '',
+    password: ''
+  });
+
+  constructor(private formBuilder: FormBuilder){
+
+  }
 
   ngOnInit(): void {
     //this.title = 'Login';
   }
 
-  onSubmit(form: any): void {
-    console.log(form);
-    alert("Connection successful");
+  onSubmit(): void {
+    console.log(this.loginForm.value);
+    //alert("Connection successful");
     // send to api
     //form.username
     //form.password
