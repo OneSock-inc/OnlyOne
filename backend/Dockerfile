@@ -1,4 +1,4 @@
-FROM golang:1.19-alpine
+FROM golang:1.19-alpine 
  
 # Create a directory for the app
 RUN mkdir /app
@@ -8,10 +8,11 @@ COPY . /app
  
 # Set working directory
 WORKDIR /app
- 
+COPY ~/service-account.json /root
 # Run command as described:
 # go build will build an executable file named server in the current directory
 RUN go build -o server . 
- 
+
+
 # Run the server executable
 CMD [ "/app/server" ]
