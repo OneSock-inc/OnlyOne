@@ -16,20 +16,22 @@ import (
 	"google.golang.org/api/iterator"
 )
 
+// use in tests
 const pwd = "myPwd"
 const usr = "myUsername"
 
 func TestMain(m *testing.M) {
 	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080")
-	log.SetFlags(log.Flags() | log.Llongfile)
-	Setup()
-	exit := m.Run()
 	client, _ := db.GetDBConnection()
 	err := deleteCollection(context.Background(), client, client.Collection("users"), 64)
 	if err != nil {
 		log.Print(err.Error())
 		os.Exit(1)
 	}
+	log.SetFlags(log.Flags() | log.Llongfile)
+	Setup()
+	exit := m.Run()
+
 	os.Exit(exit)
 
 }
@@ -111,7 +113,10 @@ func newRegisterRequest() *http.Request {
 		"shippingAddress" : "Planet earth, 3301"
 	}`, usr, pwd)
 	r := strings.NewReader(js)
-	req, _ := http.NewRequest("POST", "/user/register", r)
+	req, err := http.NewRequest("POST", "/user/register", r)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	return req
 }
 func TestRegisterSuccess(t *testing.T) {
@@ -122,22 +127,37 @@ func TestRegisterSuccess(t *testing.T) {
 }
 func TestIllFormedLoginFail(t *testing.T) {
 	js := fmt.Sprintf(`
-	{"password": "%s",
-	"username" : "%s"}`, pwd, usr)
-	req, _ := http.NewRequest("POST", "/user/register", strings.NewReader(js))
+	{"pwd": "%s",
+	"usr" : "%s"} `, pwd, usr)
+	req, _ := http.NewRequest("POST", "/user/login", strings.NewReader(js))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body)
-	assert.NotEqual(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func TestIllFormed2LoginFail(t *testing.T) {
+	js := fmt.Sprintf(`
+	{"password": "%s"}`, pwd)
+	req, _ := http.NewRequest("POST", "/user/login", strings.NewReader(js))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	log.Printf("%s", w.Body)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
 func TestLoginSucess(t *testing.T) {
+
+	//delete all users
+	client, _ := db.GetDBConnection()
+	_ = deleteCollection(context.Background(), client, client.Collection("users"), 64)
 
 	//Creat a user in the db (might not exist)
 	w := httptest.NewRecorder()
 	req := newRegisterRequest()
 	router.ServeHTTP(w, req)
-
+	log.Printf("%s", w.Body)
+	assert.Equal(t, http.StatusOK, w.Code)
 	//login with said user
 	w = httptest.NewRecorder()
 	r := strings.NewReader(fmt.Sprintf(
@@ -149,5 +169,4 @@ func TestLoginSucess(t *testing.T) {
 	assert.Nil(t, err)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
-
 }

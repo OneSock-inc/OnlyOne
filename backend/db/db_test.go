@@ -14,6 +14,7 @@ func TestMain(m *testing.M) {
 	os.Setenv(FirestoreEmulatorHost, "localhost:8080")
 	log.SetFlags(log.Flags() | log.Llongfile)
 	exit := m.Run()
+	// delete collection after run
 	client, _ := GetDBConnection()
 	err := deleteCollection(context.Background(), client, client.Collection("users"), 64)
 	if err != nil {
