@@ -29,16 +29,16 @@ type User struct {
 }
 
 // Ther is two type : low and high
-type Profile int
+type Profile uint16
 
 const (
 	low Profile = iota
 	high
+	count
 )
 
 type Sock struct {
-	SockId   string `firestore:"sockId,omitempty" json:"sockId"`
-	ShoeSize int    `firestore:"shoeSize" json:"shoeSize"`
+	ShoeSize uint16 `firestore:"shoeSize" json:"shoeSize"`
 	//is it a high or low profile sock
 	Type         Profile  `firestore:"type" json:"type"`
 	Color        string   `firestore:"color" json:"color"`
@@ -67,18 +67,46 @@ func getSockInfo(sockID string) Sock {
 	return Sock{}
 }
 
-func NewSock(shoeSize int, size Profile, color string, desc string, Pictureb64 string) (*firestore.DocumentRef, error) {
-
+func NewSock(shoeSize uint16, type_ Profile, color string, desc string, Pictureb64 string, owner string) (*firestore.DocumentRef, error) {
+	if shoeSize > 75 {
+		return nil, fmt.Errorf("show size `%d` is giant ! Are you a giant ? I don't think so", shoeSize)
+	}
+	if shoeSize <= 5 {
+		return nil, fmt.Errorf("show size `%d` is very small ! Are you a dwarf ? I don't think so", shoeSize)
+	}
+	if type_ >= count {
+		return nil, fmt.Errorf("type `%d` is invalid", count)
+	}
+	if strings.TrimSpace(color) == "" {
+		return nil, fmt.Errorf("color is empty")
+	}
+	if strings.TrimSpace(desc) == "" {
+		return nil, fmt.Errorf("description is empty")
+	}
+	if strings.TrimSpace(Pictureb64) == "" {
+		return nil, fmt.Errorf("picture is empty")
+	}
+	// TODO: validate base64 + image data
 	client, err := GetDBConnection()
 	if err != nil {
 		return nil, err
 	}
+	userSnapShot, err := client.Collection("user").Doc(owner).Get(context.Background())
+	if !userSnapShot.Exists() {
+		errMsg := ""
+		if err != nil {
+			errMsg = err.Error()
+		}
+		return nil, fmt.Errorf("user doesn't exist %s", errMsg)
+	}
+
 	s := Sock{
 		ShoeSize:     shoeSize,
-		Type:         size,
+		Type:         type_,
 		Color:        color,
 		Description:  desc,
 		Picture:      Pictureb64,
+		Owner:        owner,
 		RefusedList:  []string{},
 		AcceptedList: []string{},
 		IsMatched:    false,
@@ -140,10 +168,10 @@ func VerifyLogin(username string, password string) (User, error) {
 	return user, nil
 }
 
-func CheckCookie(cookie string) (User, error) {
+func CheckCookie(cookie string) (*firestore.DocumentRef, error) {
 	client, err := GetDBConnection()
 	if err != nil {
-		return User{}, err
+		return nil, err
 	}
 	now := time.Now()
 
@@ -156,16 +184,16 @@ func CheckCookie(cookie string) (User, error) {
 		}
 		if err != nil {
 			log.Printf("Failed to iterate: %v", err)
-			return User{}, err
+			return nil, err
 		}
 		//if cookie is fresh (less than 1 day)
 		if now.Sub(doc.UpdateTime).Hours() < 24 {
 			var user User
 			doc.DataTo(&user)
-			return user, nil
+			return doc.Ref, nil
 		}
 	}
-	return User{}, nil
+	return nil, nil
 }
 
 func RegisterUser(username string, pwd string, firstname string, surname string, shippingAddr string) (*firestore.DocumentRef, error) {
@@ -181,7 +209,7 @@ func RegisterUser(username string, pwd string, firstname string, surname string,
 	if strings.TrimSpace(surname) == "" {
 		return nil, fmt.Errorf("surname is empty")
 	}
-	if shippingAddr == "" {
+	if strings.TrimSpace(shippingAddr) == "" {
 		return nil, fmt.Errorf("shipping address is empty")
 	}
 

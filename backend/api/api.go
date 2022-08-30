@@ -5,6 +5,7 @@ import (
 
 	"backend/db"
 	cookie "backend/utils"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -19,15 +20,15 @@ func Setup() *gin.Engine {
 	{
 		user.POST("/login", login)
 		user.POST("/register", register)
-		user.GET("/:username", showUser)             //.Use(isAuthenticated())
-		user.GET("/:username/sock", listSocksOfUser) //.Use(isAuthenticated())
+		user.GET("/:username", showUser)
+		user.GET("/:username/sock", listSocksOfUser)
 	}
 
-	sock := router.Group("/sock")
+	sock := router.Group("/sock").Use(isAuthenticated())
 	{
-		sock.POST("/", addSock)                        //.Use(isAuthenticated())
-		sock.GET("/:sockId/match", listMatchesOfSock)  //.Use(isAuthenticated())
-		sock.PATCH("/:sockId/", patchAcceptListOfSock) //.Use(isAuthenticated())
+		sock.POST("/", addSock)
+		sock.GET("/:sockId/match", listMatchesOfSock)
+		sock.PATCH("/:sockId/", patchAcceptListOfSock)
 		sock.GET("/:sockId", getSockInfo)
 	}
 
@@ -50,8 +51,39 @@ func listSocksOfUser(c *gin.Context) {
 }
 
 func addSock(c *gin.Context) {
-	c.Next()
+	if c.Keys["docID"] == "" {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
 
+	type TmpSock struct {
+		ShoeSize    uint16     `json:"shoeSize"`
+		Type        db.Profile `json:"type"`
+		Color       string     `json:"color"`
+		Description string     `json:"description"`
+		Picture     string     `json:"picture"`
+	}
+	tmpSock := TmpSock{}
+	err := c.BindJSON(&tmpSock)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userID := fmt.Sprintf("%s", c.Keys["docID"])
+	_, err = db.NewSock(tmpSock.ShoeSize, tmpSock.Type, tmpSock.Color, tmpSock.Description, tmpSock.Picture, userID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Sock successfully added !",
+	})
 }
 
 func listMatchesOfSock(c *gin.Context) {
@@ -62,13 +94,14 @@ func isAuthenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session_cookie, err := c.Cookie("session")
 		if err != nil {
-			c.AbortWithStatus(401)
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 
-		_, err = db.CheckCookie(session_cookie)
+		userRef, err := db.CheckCookie(session_cookie)
 		if err != nil {
-			c.AbortWithStatus(401)
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
+		c.Keys["docID"] = userRef.ID
 		c.Next()
 	}
 }
@@ -163,5 +196,5 @@ func register(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "registration successful"})
+	c.JSON(http.StatusCreated, gin.H{"message": "registration successful"})
 }
