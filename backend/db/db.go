@@ -1,6 +1,7 @@
 package db
 
 import (
+	utils "backend/utils"
 	"context"
 	"fmt"
 	"log"
@@ -77,8 +78,9 @@ func NewSock(shoeSize uint16, type_ Profile, color string, desc string, Pictureb
 	if type_ >= count {
 		return nil, fmt.Errorf("type `%d` is invalid", count)
 	}
-	if strings.TrimSpace(color) == "" {
-		return nil, fmt.Errorf("color is empty")
+	_, err := utils.ParseHexColor(color)
+	if err != nil {
+		return nil, err
 	}
 	if strings.TrimSpace(desc) == "" {
 		return nil, fmt.Errorf("description is empty")
@@ -91,7 +93,7 @@ func NewSock(shoeSize uint16, type_ Profile, color string, desc string, Pictureb
 	if err != nil {
 		return nil, err
 	}
-	userSnapShot, err := client.Collection("user").Doc(owner).Get(context.Background())
+	userSnapShot, err := client.Collection("users").Doc(owner).Get(context.Background())
 	if !userSnapShot.Exists() {
 		errMsg := ""
 		if err != nil {

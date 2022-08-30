@@ -95,13 +95,15 @@ func isAuthenticated() gin.HandlerFunc {
 		session_cookie, err := c.Cookie("session")
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
 
 		userRef, err := db.CheckCookie(session_cookie)
-		if err != nil {
+		if err != nil || userRef == nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
-		c.Keys["docID"] = userRef.ID
+		c.Set("docID", userRef.ID)
 		c.Next()
 	}
 }
