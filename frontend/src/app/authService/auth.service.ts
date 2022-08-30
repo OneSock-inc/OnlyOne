@@ -14,7 +14,7 @@ export class AuthService {
   private error:any;
   
 
-  login(username:string, password:string) {
+  login(username?: string, password?: string) {
     return this.http.post<User>(this.backendLink.getLoginUrl(), {username, password}).subscribe({
       next: (data: User) => {
         this.user = {...data};
