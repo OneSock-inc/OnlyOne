@@ -7,10 +7,10 @@
     </mat-form-field>
     <mat-form-field appearance="legacy" class="form-group" id="password">
       <mat-label>Password</mat-label>
-      <input matInput  name=password type="password" placeholder="Enter your password" [(ngModel)]="password">
+      <input matInput  name=password [type]="hide ? 'password' : 'text'" placeholder="Enter your password" [(ngModel)]="password">
+      <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" type="button">
+        <mat-icon>{{hide ? 'visibility' : 'visibility_off'}}</mat-icon>
+      </button>
     </mat-form-field>
     <button mat-flat-button class="form-group" color="primary" id="login">Login</button>
   </form>
-
-
- 

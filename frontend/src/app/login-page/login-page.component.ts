@@ -8,14 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LoginPageComponent implements OnInit {
 
-  title!: string;
+  hide = true;
   username!: string;
   password!: string;
 
 
 
   ngOnInit(): void {
-    this.title = 'Login';
+    //this.title = 'Login';
   }
 
   onSubmit(form: any): void {
