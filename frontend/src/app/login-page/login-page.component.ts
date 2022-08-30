@@ -4,6 +4,9 @@ import { AuthService } from '../authService/auth.service';
 import { Router } from '@angular/router';
 import { LoaderComponent } from '../loader/loader.component';
 import { LoaderDirective } from '../loader/loader.directive';
+import { MesageBannerDirective } from '../message-banner/mesage-banner.directive';
+import { MessageBannerComponent } from '../message-banner/message-banner.component';
+
 
 @Component({
   selector: 'app-login-page',
@@ -25,16 +28,16 @@ export class LoginPageComponent implements OnInit {
   @ViewChild(LoaderDirective, { static: true })
   dynamicChild!: LoaderDirective;
 
+  @ViewChild(MesageBannerDirective, { static: true })
+  dynamicBanner!: MesageBannerDirective;
 
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private viewContainerRef: ViewContainerRef
   ) {}
 
   ngOnInit(): void {
-    //this.title = 'Login';
   }
 
   onSubmit() {
@@ -42,31 +45,37 @@ export class LoginPageComponent implements OnInit {
     if (this.clicked) return;
     this.clicked = true;
 
-    //console.log(this.loginForm.value);
-    // this.authService.login("éajkshdg", "salékgdj").add(() => {
-    //   this.router.navigate(["/home"]);
-    // });
-
     this.createLoader();
+    this.authService.clearError();
+    this.removeMessage();
+
     this.authService.login('éajkshdg', 'salékgdj').add(() => {
-      if (typeof this.authService.error !== 'undefined') {
+      if (typeof this.authService.getError() !== 'undefined') {
         console.warn('error');
         this.clicked = false;
+        this.removeLoader();
+        this.displayMessage("error");
       } else {
         this.router.navigate(['/home']);
       }
     });
 
-
-    
-    //alert("Connection successful");
-    // send to api
-    //form.username
-    //form.password
   }
 
   createLoader(): void {
     this.dynamicChild.viewContainerRef.createComponent(LoaderComponent);
+  }
+
+  removeLoader(): void {
+    this.dynamicChild.viewContainerRef.clear();
+  }
+
+  displayMessage(message: string) {
+    const elem = this.dynamicBanner.vcref.createComponent(MessageBannerComponent)
+    elem.instance.message = message;
+  }
+  removeMessage() {
+    this.dynamicBanner.vcref.clear();
   }
 
 }

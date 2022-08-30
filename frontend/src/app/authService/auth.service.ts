@@ -10,7 +10,8 @@ export class AuthService {
   constructor(private http: HttpClient, private backendLink: BackendLinkService) { }
 
   user?: User;
-  error:any;
+
+  private error:any;
   
 
   login(username:string, password:string) {
@@ -23,6 +24,13 @@ export class AuthService {
     });
   }
 
+  getError() {
+    return this.error;
+  }
+
+  clearError() {
+    this.error = undefined;
+  }
 }
 
 // https://blog.angular-university.io/angular-jwt-authentication/
