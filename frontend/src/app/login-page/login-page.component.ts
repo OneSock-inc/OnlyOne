@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 
+import { ConfigService } from '../config/config.service';
+import { Config } from '../dataModel/config.model';
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
-  host: {'class': 'default-layout'}
+  host: {'class': 'default-layout'},
+  providers: [ConfigService]
 })
 export class LoginPageComponent implements OnInit {
 
