@@ -28,7 +28,6 @@ import {RouterModule} from '@angular/router';
     LoginPageComponent,
     PageNotFoundComponent,
     HomePageComponent,
-
   ],
   imports: [
     BrowserModule,
