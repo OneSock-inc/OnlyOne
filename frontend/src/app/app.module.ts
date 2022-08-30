@@ -20,6 +20,11 @@ import { AppRoutingModule } from './app-routing.module';
 import {RouterModule} from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ConfigService } from './config/config.service';
+import { LoaderComponent } from './loader/loader.component';
+import { LoaderDirective } from './loader/loader.directive';
+import { MessageBannerComponent } from './message-banner/message-banner.component';
+import { MesageBannerDirective } from './message-banner/mesage-banner.directive';
 
 @NgModule({
   declarations: [
@@ -29,6 +34,10 @@ import { ReactiveFormsModule } from '@angular/forms';
     LoginPageComponent,
     PageNotFoundComponent,
     HomePageComponent,
+    LoaderComponent,
+    LoaderDirective,
+    MessageBannerComponent,
+    MesageBannerDirective,
   ],
   imports: [
     BrowserModule,
@@ -43,7 +52,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatIconModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [ConfigService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

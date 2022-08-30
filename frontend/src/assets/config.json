@@ -1,4 +1,8 @@
 {
-    "backendUrl": "http://localhost:9999",
-    "date": "30.09.2022"
+    "backendUrl": "http://localhost:5000",
+    "date": "30.09.2022",
+    "apiEndpoints": {
+        "login": "/user/login",
+        "logout": "/user/logout"
+    }
 }
