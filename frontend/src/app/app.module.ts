@@ -17,8 +17,9 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import {MatButtonModule} from '@angular/material/button'; 
 import {MatIconModule} from '@angular/material/icon'; 
 
-
+import { HttpClientModule } from '@angular/common/http';
 import {RouterModule} from '@angular/router';
+//import { ConfigService } from './config/config.service';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import {RouterModule} from '@angular/router';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
