@@ -8,17 +8,19 @@ import { ButtonComponent } from './button/button.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { HomePageComponent } from './home-page/home-page.component';
+import { SignupPageComponent } from './signup-page/signup-page.component';
 
 // Material
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from "@angular/material/form-field";
+import {MatButtonModule} from '@angular/material/button'; 
+import {MatIconModule} from '@angular/material/icon';
+import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
 
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ConfigService } from './services/config/config.service';
 import { LoaderComponent } from './loader/loader.component';
@@ -42,6 +44,7 @@ import { TokenService } from './services/authService/token-service.service';
     LoaderDirective,
     MessageBannerComponent,
     MesageBannerDirective,
+    SignupPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,6 +58,8 @@ import { TokenService } from './services/authService/token-service.service';
     MatButtonModule,
     MatIconModule,
     HttpClientModule,
+    MatAutocompleteModule,
+    ReactiveFormsModule,
   ],
   providers: [
     ConfigService,
