@@ -8,7 +8,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"time"
 
 	"cloud.google.com/go/firestore"
 	"golang.org/x/crypto/bcrypt"
@@ -18,6 +17,9 @@ import (
 var projectID string = "onlyone-cb08e"
 var dbClient *firestore.Client
 var ctx *context.Context
+
+const UserColl = "users"
+const SocksCollection = "socks"
 
 type Address struct {
 	Street     string `firestore:"street" json:"street"`
@@ -199,34 +201,6 @@ func VerifyLogin(username string, password string) (string, error) {
 	return users[0].Ref.ID, nil
 }
 
-func CheckCookie(cookie string) (*firestore.DocumentRef, error) {
-	client, err := GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	now := time.Now()
-
-	query := client.Collection("users").Query.Where("sessionCookie", "==", cookie)
-	iter := query.Documents(context.Background())
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Printf("Failed to iterate: %v", err)
-			return nil, err
-		}
-		//if cookie is fresh (less than 1 day)
-		if now.Sub(doc.UpdateTime).Hours() < 24 {
-			var user User
-			doc.DataTo(&user)
-			return doc.Ref, nil
-		}
-	}
-	return nil, nil
-}
-
 // register a user in the db, currently the hash field should be a clear password
 // unfortunatly we cannot have an option as in rust
 func RegisterUser(u User) (*firestore.DocumentRef, error) {
@@ -286,31 +260,6 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 		return nil, err
 	}
 	return docRef, nil
-}
-
-func SetCookie(cookie string, username string) error {
-	client, err := GetDBConnection()
-	if err != nil {
-		return err
-	}
-
-	query := client.Collection("users").Query.Where("username", "==", username)
-	docs, err := query.Documents(context.Background()).GetAll()
-	if err != nil {
-		log.Printf("error : %v\n", err)
-		return err
-	}
-	//if there are docs with this username
-	if len(docs) != 1 {
-		return fmt.Errorf("user already exists")
-	}
-
-	doc := docs[0]
-	data := doc.Data()
-	data["sessionCookie"] = cookie
-	client.Collection("users").Doc(doc.Ref.ID).Set(context.Background(), data)
-
-	return nil
 }
 
 func DeleteCollection(ctx context.Context, client *firestore.Client,
