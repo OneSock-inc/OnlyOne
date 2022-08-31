@@ -58,8 +58,29 @@ type Sock struct {
 
 //return all the socks of a user identified by it's cookie session
 
-func getUserSocks(userCookie string) ([]Sock, error) {
-	return make([]Sock, 0), nil
+func GetUserSocks(userID string) ([]Sock, error) {
+	client, err := GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	query := client.Collection("sock").Query.Where("owner", "==", userID)
+	iter := query.Documents(context.Background())
+	var socks []Sock
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("Failed to iterate: %v", err)
+			return nil, err
+		}
+		var s Sock
+		doc.DataTo(&s)
+		socks = append(socks, s)
+	}
+	return socks, nil
 }
 
 func getUser(username string) (User, error) {
