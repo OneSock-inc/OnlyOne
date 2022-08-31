@@ -161,3 +161,29 @@ func TestGetUserSocks(t *testing.T) {
 	assert.Equal(t, 1, len(socks))
 	assert.Equal(t, sockID, socks[0].ID)
 }
+
+func TestGetInfoSock(t *testing.T) {
+	//set a user
+	doc, err := RegisterUser(User{Username: "jackob", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
+	assert.Nil(t, err)
+	owner := doc.ID
+
+	s := Sock{
+		ShoeSize:     41,
+		Type:         Profile(1),
+		Color:        "#BEDEAD",
+		Description:  "I tried selling it on onlyFan, but it didn't work",
+		Picture:      "JHAKHSD==",
+		RefusedList:  make([]string, 0), //this init the memory see GetSockInfo@db.go for further detail
+		AcceptedList: make([]string, 0),
+		Owner:        owner,
+	}
+
+	s2, err := NewSock(s.ShoeSize, s.Type, s.Color, s.Description, s.Picture, s.Owner)
+	assert.Nil(t, err)
+	sockId := s2.ID
+	sockBack, err := GetSockInfo(sockId)
+	assert.Nil(t, err)
+	assert.Equal(t, sockBack, s)
+
+}

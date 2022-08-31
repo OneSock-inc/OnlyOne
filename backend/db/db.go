@@ -94,8 +94,39 @@ func editMatchingSock(sockID string, otherSockID string, accept bool) error {
 	return nil
 }
 
-func getSockInfo(sockID string) Sock {
-	return Sock{}
+// get a sock struct from the database
+func GetSockInfo(sockId string) (Sock, error) {
+	client, err := GetDBConnection()
+	if err != nil {
+		return Sock{}, err
+	}
+	ref, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
+	if err != nil {
+		return Sock{}, err
+	}
+	if !ref.Exists() {
+		return Sock{}, fmt.Errorf("the given sock id doesn't exist")
+	}
+	var s Sock
+	if err := ref.DataTo(&s); err != nil {
+		return Sock{}, fmt.Errorf("corrupted data, unable to read database")
+	}
+
+	//in order to have an empty json array and not a null when converting from the go struct to the json repr
+	// related to TestGetSockInfo@db_test.go
+	//{..
+	//"refusedList": [],
+	//"acceptedList": [],...}
+	if s.AcceptedList == nil {
+		log.Printf("changing type")
+		s.AcceptedList = make([]string, 0)
+	}
+	if s.RefusedList == nil {
+		log.Printf("changing type")
+		s.RefusedList = make([]string, 0)
+	}
+
+	return s, nil
 }
 
 func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb64 string, owner string) (*firestore.DocumentRef, error) {
@@ -124,12 +155,11 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		return nil, err
 	}
 	userSnapShot, err := client.Collection("users").Doc(owner).Get(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("user doesn't exist %s", err.Error())
+	}
 	if !userSnapShot.Exists() {
-		errMsg := ""
-		if err != nil {
-			errMsg = err.Error()
-		}
-		return nil, fmt.Errorf("user doesn't exist %s", errMsg)
+		return nil, fmt.Errorf("document doesn't exist")
 	}
 
 	s := Sock{
@@ -139,8 +169,8 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		Description:  desc,
 		Picture:      Pictureb64,
 		Owner:        owner,
-		RefusedList:  []string{},
-		AcceptedList: []string{},
+		RefusedList:  make([]string, 0),
+		AcceptedList: make([]string, 0),
 		IsMatched:    false,
 	}
 	docRef, _, err := client.Collection("socks").Add(*ctx, s)
@@ -299,3 +329,36 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 		}
 	}
 }
+
+// func GetSockByID(sockId string) (Sock, error) {
+// 	client, err := GetDBConnection()
+// 	if err != nil {
+// 		return Sock{}, err
+// 	}
+// 	ref, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
+// 	if err != nil {
+// 		return Sock{}, err
+// 	}
+// 	if !ref.Exists() {
+// 		return Sock{}, fmt.Errorf("the given sock id doesn't exist")
+// 	}
+// 	var s Sock
+// 	if err := ref.DataTo(&s); err != nil {
+// 		return Sock{}, fmt.Errorf("corrupted data, unable to read database")
+// 	}
+
+// 	//in order to have an empty json array and not a null
+// 	//{..
+// 	//"refusedList": [],
+// 	//"acceptedList": [],...}
+// 	if s.AcceptedList == nil {
+// 		log.Printf("changing type")
+// 		s.AcceptedList = make([]string, 0)
+// 	}
+// 	if s.RefusedList == nil {
+// 		log.Printf("changing type")
+// 		s.RefusedList = make([]string, 0)
+// 	}
+
+// 	return s, nil
+// }

@@ -4,8 +4,6 @@ import (
 	//import gin
 
 	"backend/db"
-	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -66,32 +64,17 @@ func Setup() *gin.Engine {
 func getSockInfo(c *gin.Context) {
 
 	sockId := c.Param("sockId")
-	client, err := db.GetDBConnection()
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusTeapot, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-	ref, err := client.Collection(db.SocksCollection).Doc(sockId).Get(context.Background())
+	s, err := db.GetSockInfo(sockId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	if !ref.Exists() {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Errorf("the given sock id doesn't exist"),
-		})
-		return
-	}
-	var s db.Sock
-	ref.DataTo(&s)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": s,
 	})
-	return
 
 }
 
