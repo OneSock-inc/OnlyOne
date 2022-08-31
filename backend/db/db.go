@@ -38,7 +38,8 @@ const (
 )
 
 type Sock struct {
-	ShoeSize uint8 `firestore:"shoeSize" json:"shoeSize"`
+	ID       string `json:"id"`
+	ShoeSize uint8  `firestore:"shoeSize" json:"shoeSize"`
 	//is it a high or low profile sock
 	Type         Profile  `firestore:"type" json:"type"`
 	Color        string   `firestore:"color" json:"color"`
@@ -58,7 +59,7 @@ func GetUserSocks(userID string) ([]Sock, error) {
 		return nil, err
 	}
 
-	query := client.Collection("sock").Query.Where("owner", "==", userID)
+	query := client.Collection("socks").Query.Where("owner", "==", userID)
 	iter := query.Documents(context.Background())
 	var socks []Sock
 	for {
@@ -72,6 +73,7 @@ func GetUserSocks(userID string) ([]Sock, error) {
 		}
 		var s Sock
 		doc.DataTo(&s)
+		s.ID = doc.Ref.ID
 		socks = append(socks, s)
 	}
 	return socks, nil
