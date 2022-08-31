@@ -9,6 +9,10 @@ export class TokenService {
 
   private token?: JWToken;
 
+  /**
+   * Return the jwt in string format and non parsed.
+   * @returns empty string if user there is no token in localStorage (i.e. user is not logged in).
+   */
   getAuthorizationToken(): string {
     if (typeof this.token === 'undefined') {
       this.setSessionFromLocalStorage();
@@ -38,5 +42,5 @@ export class TokenService {
       this.token = <JWToken>jsonObj;
     }
   }
-  
+
 }

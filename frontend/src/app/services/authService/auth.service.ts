@@ -15,19 +15,24 @@ export class AuthService {
     private http: HttpClient,
     private backendLink: BackendLinkService,
     private tokenService: TokenService
-  ) {}
+  ) { }
 
-  user?: User;
-
-  private jwt?: JWToken;
   private error: any;
 
+  /**
+   * Sends a login request to backend and expects a JWT token in return.
+   * Set its jwt param value and save it in localStorage.
+   * @param username provided by front end user
+   * @param password provided by front end user
+   * @returns Observable
+   */
   login(username?: string, password?: string) {
     return this.http
       .post<JWToken>(this.backendLink.getLoginUrl(), { username, password })
       .subscribe({
         next: (data: JWToken) => {
           this.tokenService.setAutoriuationToken(data);
+          // TODO: jwt token validator
           // this.jwt = { ...data };
         }, // success path
         error: (error) => { 
@@ -36,9 +41,8 @@ export class AuthService {
       });
   }
 
-  getAuthorizationToken(): string {
-    if (typeof this.jwt !== 'undefined') return this.jwt.token;
-    else return '';
+  isLoggedIn(): boolean {
+    return this.tokenService.getAuthorizationToken() !== '';
   }
 
   getError() {
