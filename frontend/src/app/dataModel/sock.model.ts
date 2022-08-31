@@ -3,4 +3,5 @@ export interface Sock {
     shoeSize: number
     description: string
     color: string
+    picture: string
 }

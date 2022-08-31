@@ -25,7 +25,7 @@ import { LoaderComponent } from './loader/loader.component';
 import { LoaderDirective } from './loader/loader.directive';
 import { MessageBannerComponent } from './message-banner/message-banner.component';
 import { MesageBannerDirective } from './message-banner/mesage-banner.directive';
-import { HttpErrorService } from './http-interceptors/http-error.service';
+import { HttpErrorService } from './services/http-interceptors/http-error.service';
 
 @NgModule({
   declarations: [

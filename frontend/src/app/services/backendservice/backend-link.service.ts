@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { ConfigService } from '../config/config.service';
-import { Config } from '../dataModel/config.model';
+import { ConfigService } from '../../config/config.service';
+import { Config } from '../../dataModel/config.model';
 
 @Injectable({
   providedIn: 'root'

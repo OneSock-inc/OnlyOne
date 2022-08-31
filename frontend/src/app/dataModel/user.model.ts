@@ -1,7 +1,7 @@
+import { Address } from "./address.model";
 export interface User {
-    username: string;
     fisrtname: string;
     surname: string;
-    shippingAddress: string;
-    sessionCookie: string;
+    username: string;
+    shippingAddress: Address;
 }

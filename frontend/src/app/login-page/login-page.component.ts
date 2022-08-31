@@ -5,7 +5,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { AuthService } from '../authService/auth.service';
+import { AuthService } from '../services/authService/auth.service';
 import { Router } from '@angular/router';
 import { LoaderComponent } from '../loader/loader.component';
 import { LoaderDirective } from '../loader/loader.directive';
@@ -48,7 +48,6 @@ export class LoginPageComponent {
   @ViewChild(MesageBannerDirective, { static: true })
   dynamicBanner!: MesageBannerDirective;
 
-
   onSubmit() {
     if (this.loginForm.invalid) return;
     if (this.clicked) return;
@@ -58,15 +57,17 @@ export class LoginPageComponent {
     this.authService.clearError();
     this.removeMessage();
 
-    this.authService.login(this.loginForm.value.username, this.loginForm.value.password).add(() => {
-      if (typeof this.authService.getError() !== 'undefined') {
-        this.clicked = false;
-        this.removeLoader();
-        this.displayMessage(this.authService.getError());
-      } else {
-        this.router.navigate(['/home']);
-      }
-    });
+    this.authService
+      .login(this.loginForm.value.username, this.loginForm.value.password)
+      .add(() => {
+        if (typeof this.authService.getError() !== 'undefined') {
+          this.clicked = false;
+          this.removeLoader();
+          this.displayMessage(this.authService.getError());
+        } else {
+          this.router.navigate(['/home']);
+        }
+      });
   }
 
   createLoader(): void {
