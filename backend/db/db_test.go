@@ -6,8 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"cloud.google.com/go/firestore"
-	"google.golang.org/api/iterator"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -134,4 +133,30 @@ func TestInvalidRegisterUser(t *testing.T) {
 	if err == nil {
 		t.Errorf("Empty shipping address should not be allowed\n")
 	}
+}
+
+func TestInvalidGetUserSocks(t *testing.T) {
+	socks, err := GetUserSocks("invalid")
+	assert.Nil(t, err)
+	assert.Zero(t, len(socks))
+}
+
+func TestGetUserSocks(t *testing.T) {
+	doc, err := RegisterUser("james2010", "123", "James", "Wow", "Ship")
+	assert.Nil(t, err)
+
+	userID := doc.ID
+	socks, err := GetUserSocks(userID)
+	assert.Nil(t, err)
+	assert.Zero(t, len(socks))
+
+	doc, err = NewSock(10, low, "#000", "Super sock !", "aGkK", userID)
+	assert.Nil(t, err)
+
+	sockID := doc.ID
+	socks, err = GetUserSocks(userID)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(socks))
+	assert.Equal(t, sockID, socks[0].ID)
 }

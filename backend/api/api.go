@@ -4,7 +4,6 @@ import (
 	//import gin
 
 	"backend/db"
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -47,8 +46,8 @@ func Setup() *gin.Engine {
 	{
 		user.POST("/login", auth.LoginHandler)
 		user.POST("/register", register)
-		user.GET("/:username", showUser)
-		user.GET("/:username/sock", listSocksOfUser)
+		user.GET("/:username", auth.MiddlewareFunc(), showUser)
+		user.GET("/:username/sock", auth.MiddlewareFunc(), listSocksOfUser)
 	}
 
 	sock := router.Group("/sock").Use(auth.MiddlewareFunc())
@@ -90,31 +89,24 @@ func listSocksOfUser(c *gin.Context) {
 		})
 		return
 	}
-
-	j, err := json.Marshal(socks)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, j)
+	c.JSON(http.StatusOK, socks)
 }
 
 func addSock(c *gin.Context) {
 
 	type TmpSock struct {
+		ID          string     `json:"id"`
 		ShoeSize    uint8      `json:"shoeSize"`
 		Type        db.Profile `json:"type"`
 		Color       string     `json:"color"`
 		Description string     `json:"description"`
 		Picture     string     `json:"picture"`
+		Owner       string     `json:"owner"`
 	}
 
 	tmpSock := TmpSock{}
 	err := c.BindJSON(&tmpSock)
 	if err != nil {
-
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -122,24 +114,27 @@ func addSock(c *gin.Context) {
 	}
 
 	claim := jwt.ExtractClaims(c)
-
-	if userID, ok := claim[jwt.IdentityKey].(string); ok {
-
-		_, err = db.NewSock(tmpSock.ShoeSize, tmpSock.Type, tmpSock.Color, tmpSock.Description, tmpSock.Picture, userID)
-		if err != nil {
-
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
-			})
-
-			return
-		}
-		log.Printf("user %s added sock %+v \n", userID, tmpSock)
+	userID, ok := claim[jwt.IdentityKey].(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "User not authentificated",
+		})
+		return
 	}
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "Sock successfully added !",
-	})
 
+	doc, err := db.NewSock(tmpSock.ShoeSize, tmpSock.Type, tmpSock.Color, tmpSock.Description, tmpSock.Picture, userID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+
+		return
+	}
+	tmpSock.ID = doc.ID
+	tmpSock.Owner = userID
+	log.Printf("user %s added sock %+v \n", userID, tmpSock)
+
+	c.JSON(http.StatusCreated, tmpSock)
 }
 
 func listMatchesOfSock(c *gin.Context) {

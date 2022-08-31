@@ -154,6 +154,33 @@ func getValidBase64Image() string {
 	return "aHR0cHM6Ly9kbGFuZy5vcmcK"
 }
 
+func TestListSocksOfUser(t *testing.T) {
+	jwtToken := makeLogedinUser()
+	log.Printf("%s", jwtToken)
+	w := httptest.NewRecorder()
+
+	req := newSockRequest(42, db.Profile(0), "#FFF", "Do not", getValidBase64Image())
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+	var sock db.Sock
+
+	json.Unmarshal(w.Body.Bytes(), &sock)
+	w = httptest.NewRecorder()
+
+	req = httptest.NewRequest("GET", "/user/sockMan/sock", nil)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, `[{"id":"`+
+		sock.ID+
+		`","shoeSize":42,"type":0,"color":"#FFF","description":"Do not","picture":"aHR0cHM6Ly9kbGFuZy5vcmcK","owner":"`+
+		sock.Owner+
+		`","refusedList":null,"acceptedList":null,"isMatched":false}]`, w.Body.String())
+}
+
 func TestAddSockWithoutUser(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, db.Profile(1), "#FFFFFF", "i used to wank in this one", getValidBase64Image())
