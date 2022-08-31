@@ -20,7 +20,6 @@ var dbClient *firestore.Client
 var ctx *context.Context
 
 type User struct {
-	ID              string `firestore:"ID,omitempty" json:"ID"`
 	Username        string `firestore:"username" json:"username"`
 	Firstname       string `firestore:"firstname" json:"firstname"`
 	Surname         string `firestore:"surname" json:"surname"`

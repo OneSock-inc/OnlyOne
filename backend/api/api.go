@@ -22,14 +22,10 @@ func jwtSetup() *jwt.GinJWTMiddleware {
 		MaxRefresh: time.Hour * time.Duration(8760),
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(string); ok {
-				log.Println("OK")
-
 				return jwt.MapClaims{
 					jwt.IdentityKey: v,
 				}
 			}
-			log.Println("not ok")
-
 			return jwt.MapClaims{}
 		},
 		Authenticator: login,
@@ -81,15 +77,6 @@ func listSocksOfUser(c *gin.Context) {
 }
 
 func addSock(c *gin.Context) {
-	log.Printf("")
-
-	if c.Keys["docID"] == "" {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		log.Printf("Are we here ")
-
-		return
-	}
-	log.Printf("")
 
 	type TmpSock struct {
 		ShoeSize    uint8      `json:"shoeSize"`
@@ -98,44 +85,35 @@ func addSock(c *gin.Context) {
 		Description string     `json:"description"`
 		Picture     string     `json:"picture"`
 	}
-	log.Printf("")
 
 	tmpSock := TmpSock{}
 	err := c.BindJSON(&tmpSock)
 	if err != nil {
-		log.Printf("")
 
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	log.Printf("")
 
 	claim := jwt.ExtractClaims(c)
-	log.Printf("%+v", claim)
 
 	if userID, ok := claim[jwt.IdentityKey].(string); ok {
-		log.Printf("%s", userID)
 
 		_, err = db.NewSock(tmpSock.ShoeSize, tmpSock.Type, tmpSock.Color, tmpSock.Description, tmpSock.Picture, userID)
 		if err != nil {
-			log.Printf("")
 
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": err.Error(),
 			})
-			log.Printf("")
 
 			return
 		}
+		log.Printf("user %s added sock %+v \n", userID, tmpSock)
 	}
-	log.Printf("")
-
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Sock successfully added !",
 	})
-	log.Printf("")
 
 }
 
@@ -152,16 +130,16 @@ func login(c *gin.Context) (interface{}, error) {
 	//retrieve the username and the password from the post data
 	tmpLogin := TmpLogin{}
 	if err := c.BindJSON(&tmpLogin); err != nil {
-		log.Printf("%s", err.Error())
 		return "", err
 	}
 	//check if the username and password are correct
 
 	id, err := db.VerifyLogin(tmpLogin.Username, tmpLogin.Password)
 	if err != nil {
+		log.Printf("login failed %+v\n", tmpLogin)
 		return "", err
 	}
-
+	log.Printf("user %s logged in\n", id)
 	return id, nil
 }
 
