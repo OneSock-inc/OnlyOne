@@ -1,5 +1,5 @@
 {
-    "backendUrl": "http://localhost:5000",
+    "backendUrl": "https://api.jsch.ch",
     "date": "30.09.2022",
     "apiEndpoints": {
         "login": "/user/login",

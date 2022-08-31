@@ -38,4 +38,5 @@ export class TokenService {
       this.token = <JWToken>jsonObj;
     }
   }
+  
 }

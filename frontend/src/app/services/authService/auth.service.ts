@@ -29,10 +29,8 @@ export class AuthService {
         next: (data: JWToken) => {
           this.tokenService.setAutoriuationToken(data);
           // this.jwt = { ...data };
-          console.log(this.jwt);
         }, // success path
         error: (error) => { 
-          console.error(error);
           this.error = error; // error path
         }
       });

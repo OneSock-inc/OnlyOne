@@ -59,9 +59,7 @@ export class LoginPageComponent {
       .add(() => {
         if (typeof this.authService.getError() !== 'undefined') {
           this.clicked = false;
-          this.removeLoader();
-          console.error(this.authService.getError());
-          
+          this.removeLoader();          
           this.displayMessage(this.authService.getError());
         } else {
           this.router.navigate(['/home']);
