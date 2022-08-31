@@ -145,23 +145,18 @@ func login(c *gin.Context) (interface{}, error) {
 
 // create the register function
 func register(c *gin.Context) {
-	type TmpUser struct {
-		Username        string `json:"username"`
-		Firstname       string `json:"firstname"`
-		Surname         string `json:"surname"`
-		ShippingAddress string `json:"shippingAddress"`
-		Password        string `json:"password"`
-	}
-	tmpUser := TmpUser{}
-	err := c.BindJSON(&tmpUser)
-	if err != nil {
+
+	tmpUser := db.User{}
+	log.Printf("new user signing up :")
+	if err := c.BindJSON(&tmpUser); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
+	log.Printf("%+v\n", tmpUser)
 
-	_, err = db.RegisterUser(tmpUser.Username, tmpUser.Password, tmpUser.Firstname, tmpUser.Surname, tmpUser.ShippingAddress)
+	_, err := db.RegisterUser(tmpUser)
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{

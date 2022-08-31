@@ -105,10 +105,15 @@ func TestLoginFail(t *testing.T) {
 func newUserRegisterRequest(usr string, pwd string) *http.Request {
 	js := fmt.Sprintf(`{
 		"username": "%s",
-		"firstname": "firstname",
-		"surname" : "surname",
-		"password" : "%s",
-		"shippingAddress" : "Planet earth, 3301"
+		"firstname": "first",
+		"surname": "surname",
+		"address": {
+			"street": "rue du rhone 1",
+			"country": "Swiss",
+			"city": "Genève",
+			"postalCode": "1212"
+		},
+		"password": "%s"
 	}`, usr, pwd)
 	r := strings.NewReader(js)
 	req, err := http.NewRequest("POST", "/user/register", r)

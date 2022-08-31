@@ -76,38 +76,48 @@ func TestGetClient(t *testing.T) {
 	}
 }
 func TestCheckUser(t *testing.T) {
-	//this user should exist in the database
-	const (
-		username     = "username"
-		pwd          = "myPwd"
-		firstname    = "firstname"
-		surname      = "surname"
-		shippingAddr = "shippingAddr"
-	)
-	_, err := RegisterUser(username, pwd, firstname, surname, shippingAddr)
+	username := "A username"
+	pwd := `compl3 x Pwd!`
+	usr := User{username,
+		"first",
+		"surname",
+		pwd,
+		Address{
+			"Street name",
+			"country",
+			"City",
+			"zip code",
+		},
+	}
+	_, err := RegisterUser(usr)
 	if err != nil {
 		t.Errorf("unable to create a user\n%v", err)
 	}
-	_, err = VerifyLogin("test", "myPassword")
-	if err == nil {
+	_, err = VerifyLogin(username, pwd)
+	if err != nil {
 		t.Errorf("error user don't exist in mockup\n%v", err)
 	}
 
 }
 
 func TestCreateUser(t *testing.T) {
-	const (
-		username        = "test"
-		firstname       = "Joris"
-		surname         = "Schaller"
-		pwd             = "myPassword"
-		shippingAddress = "this is a long shipping addr 1212 grand-Lancy"
-	)
-	_, err := RegisterUser(username, pwd, firstname, surname, shippingAddress)
+
+	usr := User{"test",
+		"Joris",
+		"jsch",
+		"myPassword", Address{
+			"Street name",
+			"country",
+			"City",
+			"zip code",
+		},
+	}
+
+	_, err := RegisterUser(usr)
 	if err != nil {
 		t.Errorf(" user should not exist\n%v", err)
 	}
-	_, err = RegisterUser(username, pwd, firstname, surname, shippingAddress)
+	_, err = RegisterUser(usr)
 
 	if err == nil {
 		log.Printf("the user should exist : %v", err)
@@ -115,23 +125,43 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestInvalidRegisterUser(t *testing.T) {
-	_, err := RegisterUser("", "123", "Luc", "Skywalter", "Rue des Grands 28")
+	usr := User{"test",
+		"Joris",
+		"Schaller",
+		"myPassword", Address{
+			"Street name",
+			"country",
+			"City",
+			"zip code",
+		},
+	}
+	fakeUsr := usr
+	fakeUsr.Username = ""
+	_, err := RegisterUser(fakeUsr)
 	if err == nil {
 		t.Errorf("Empty username should not be allowed\n")
 	}
-	_, err = RegisterUser("luc", "", "Luc", "Skywalter", "Rue des Grands 28")
+	fakeUsr = usr
+	fakeUsr.Password = ""
+	_, err = RegisterUser(fakeUsr)
 	if err == nil {
 		t.Errorf("Empty password should not be allowed\n")
 	}
-	_, err = RegisterUser("luc", "123", "", "Skywalter", "Rue des Grands 28")
+	fakeUsr = usr
+	fakeUsr.Firstname = ""
+	_, err = RegisterUser(fakeUsr)
 	if err == nil {
 		t.Errorf("Empty firstname should not be allowed\n")
 	}
-	_, err = RegisterUser("luc", "123", "Luc", "", "Rue des Grands 28")
+	fakeUsr = usr
+	fakeUsr.Surname = ""
+	_, err = RegisterUser(fakeUsr)
 	if err == nil {
 		t.Errorf("Empty surname should not be allowed\n")
 	}
-	_, err = RegisterUser("luc", "123", "Luc", "Skywalter", "")
+	fakeUsr = usr
+	fakeUsr.Address = Address{}
+	_, err = RegisterUser(fakeUsr)
 	if err == nil {
 		t.Errorf("Empty shipping address should not be allowed\n")
 	}
