@@ -22,6 +22,29 @@ export class SignupPageComponent implements OnInit {
   country!: string;
   postalCode!: string;
 
+  //// Validators
+
+  // to detect if the postal code is a number
+  postalCodeValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const re = /^[0-9]*$/;
+      if (re.test(control.value)) {
+        return null  /* valid option selected */
+      }
+      return { 'invalidPostalCode': { value: control.value } }
+    }
+  }
+
+  // to detect if the country is valid
+  countryValidator(validOptions: Array<string>): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      if (validOptions.indexOf(control.value) !== -1) {
+        return null  /* valid option selected */
+      }
+      return { 'invalidAutocompleteString': { value: control.value } }
+    }
+  }
+
   displayArrow: boolean = true;
   hidePassword = true;
 
@@ -51,7 +74,7 @@ export class SignupPageComponent implements OnInit {
   ngOnInit(): void {
     this.signupForm = new FormGroup({
       country : new FormControl('', {
-        validators: [countryValidator(this.countries), Validators.required] 
+        validators: [this.countryValidator(this.countries), Validators.required] 
       }),
       username: new FormControl('', {
         validators: [Validators.required]
@@ -69,7 +92,7 @@ export class SignupPageComponent implements OnInit {
         validators: [Validators.required]
       }),
       postalCode: new FormControl('', {
-        validators: [Validators.required, postalCodeValidator()]
+        validators: [Validators.required, this.postalCodeValidator()]
       }),
       city: new FormControl('', {
         validators: [Validators.required]
@@ -99,25 +122,3 @@ export class SignupPageComponent implements OnInit {
 
 }
 
-//// Validators
-
-// to detect if the country is valid
-function countryValidator(validOptions: Array<string>): ValidatorFn {
-  return (control: AbstractControl): { [key: string]: any } | null => {
-    if (validOptions.indexOf(control.value) !== -1) {
-      return null  /* valid option selected */
-    }
-    return { 'invalidAutocompleteString': { value: control.value } }
-  }
-}
-
-// to detect if the postal code is a number
-function postalCodeValidator(): ValidatorFn {
-  return (control: AbstractControl): { [key: string]: any } | null => {
-    const re = /^[0-9]*$/;
-    if (re.test(control.value)) {
-      return null  /* valid option selected */
-    }
-    return { 'invalidPostalCode': { value: control.value } }
-  }
-}
