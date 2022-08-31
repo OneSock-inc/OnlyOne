@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { ConfigService } from '../../config/config.service';
+import { ConfigService } from '../config/config.service';
 import { Config } from '../../dataModel/config.model';
 
 @Injectable({
@@ -14,10 +14,9 @@ export class BackendLinkService {
   constructor(private configService: ConfigService) { 
     this.configService.getConfig().subscribe({
       next: (data: Config) => this.config = { ...data }, // success path
-      error: error => this.error = error, // error path
+      // error: error => this.error = error, // error path
     });
   }
-
 
   getLoginUrl(): string {
     return this.config?.backendUrl + "/user/login"

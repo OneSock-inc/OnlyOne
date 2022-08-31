@@ -18,14 +18,17 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ConfigService } from './config/config.service';
+import { ConfigService } from './services/config/config.service';
 import { LoaderComponent } from './loader/loader.component';
 import { LoaderDirective } from './loader/loader.directive';
 import { MessageBannerComponent } from './message-banner/message-banner.component';
 import { MesageBannerDirective } from './message-banner/mesage-banner.directive';
 import { HttpErrorService } from './services/http-interceptors/http-error.service';
+import { AuthService } from './services/authService/auth.service';
+import { AuthInterceptor } from './services/http-interceptors/auth-interceptor.service';
+import { TokenService } from './services/authService/token-service.service';
 
 @NgModule({
   declarations: [
@@ -55,10 +58,17 @@ import { HttpErrorService } from './services/http-interceptors/http-error.servic
   ],
   providers: [
     ConfigService,
+    AuthService,
+    TokenService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpErrorService,
       multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
     },
   ],
   bootstrap: [AppComponent],

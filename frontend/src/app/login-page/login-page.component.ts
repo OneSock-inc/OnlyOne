@@ -1,6 +1,5 @@
-import { Component, OnInit, ViewContainerRef, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import {
-  FormBuilder,
   FormControl,
   FormGroup,
   Validators,
@@ -17,12 +16,10 @@ import { MessageBannerComponent } from '../message-banner/message-banner.compone
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
   host: { class: 'default-layout' },
-  providers: [AuthService],
 })
 export class LoginPageComponent {
   constructor(
     private router: Router,
-    private formBuilder: FormBuilder,
     private authService: AuthService
   ) {
     this.loginForm = new FormGroup({
@@ -63,6 +60,8 @@ export class LoginPageComponent {
         if (typeof this.authService.getError() !== 'undefined') {
           this.clicked = false;
           this.removeLoader();
+          console.error(this.authService.getError());
+          
           this.displayMessage(this.authService.getError());
         } else {
           this.router.navigate(['/home']);
