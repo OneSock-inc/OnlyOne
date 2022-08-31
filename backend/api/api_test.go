@@ -12,15 +12,13 @@ import (
 	"strings"
 	"testing"
 
-	"cloud.google.com/go/firestore"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/api/iterator"
 )
 
 func TestMain(m *testing.M) {
 	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080")
 	client, _ := db.GetDBConnection()
-	err := deleteCollection(context.Background(), client, client.Collection("users"), 64)
+	err := db.DeleteCollection(context.Background(), client, client.Collection("users"), 64)
 	if err != nil {
 		log.Print(err.Error())
 		os.Exit(1)
@@ -31,44 +29,6 @@ func TestMain(m *testing.M) {
 
 	os.Exit(exit)
 
-}
-
-func deleteCollection(ctx context.Context, client *firestore.Client,
-	ref *firestore.CollectionRef, batchSize int) error {
-
-	for {
-		// Get a batch of documents
-		iter := ref.Limit(batchSize).Documents(ctx)
-		numDeleted := 0
-
-		// Iterate through the documents, adding
-		// a delete operation for each one to a
-		// WriteBatch.
-		batch := client.Batch()
-		for {
-			doc, err := iter.Next()
-			if err == iterator.Done {
-				break
-			}
-			if err != nil {
-				return err
-			}
-
-			batch.Delete(doc.Ref)
-			numDeleted++
-		}
-
-		// If there are no documents to delete,
-		// the process is over.
-		if numDeleted == 0 {
-			return nil
-		}
-
-		_, err := batch.Commit(ctx)
-		if err != nil {
-			return err
-		}
-	}
 }
 
 func TestSetup(t *testing.T) {
@@ -152,7 +112,7 @@ func TestLoginSucess(t *testing.T) {
 	//delete all users
 	client, err := db.GetDBConnection()
 	assert.Nil(t, err)
-	err = deleteCollection(context.Background(), client, client.Collection("users"), 64)
+	err = db.DeleteCollection(context.Background(), client, client.Collection("users"), 64)
 	assert.Nil(t, err)
 
 	const user = "hisUsername"
