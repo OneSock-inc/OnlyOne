@@ -9,13 +9,16 @@ import { ButtonComponent } from './button/button.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { HomePageComponent } from './home-page/home-page.component';
+import { SignupPageComponent } from './signup-page/signup-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ReactiveFormsModule } from '@angular/forms';
 
 // Material
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import {MatButtonModule} from '@angular/material/button'; 
-import {MatIconModule} from '@angular/material/icon'; 
+import {MatIconModule} from '@angular/material/icon';
+import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
 
 
 import {RouterModule} from '@angular/router';
@@ -28,6 +31,7 @@ import {RouterModule} from '@angular/router';
     LoginPageComponent,
     PageNotFoundComponent,
     HomePageComponent,
+    SignupPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,6 +43,8 @@ import {RouterModule} from '@angular/router';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    MatAutocompleteModule,
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
