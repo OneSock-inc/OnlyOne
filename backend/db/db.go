@@ -19,13 +19,19 @@ var projectID string = "onlyone-cb08e"
 var dbClient *firestore.Client
 var ctx *context.Context
 
+type Address struct {
+	Street     string `firestore:"street" json:"street"`
+	Country    string `firestore:"country" json:"country"`
+	City       string `firestore:"city" json:"city"`
+	PostalCode string `firestore:"postalCode" json:"postalCode"`
+}
+
 type User struct {
-	Username        string `firestore:"username" json:"username"`
-	Firstname       string `firestore:"firstname" json:"firstname"`
-	Surname         string `firestore:"surname" json:"surname"`
-	Hash            []byte `firestore:"hash" json:"hash"`
-	ShippingAddress string `firestore:"shippingAddress" json:"shippingAddress"`
-	SessionCookie   string `firestore:"sessionCookie" json:"sessionCookie"`
+	Username  string  `firestore:"username" json:"username"`
+	Firstname string  `firestore:"firstname" json:"firstname"`
+	Surname   string  `firestore:"surname" json:"surname"`
+	Password  string  `firestore:"hash" json:"password"`
+	Address   Address `firestore:"address" json:"address"`
 }
 
 // Ther is two type : low and high
@@ -161,8 +167,9 @@ func VerifyLogin(username string, password string) (string, error) {
 	}
 	var user User
 	users[0].DataTo(&user)
+	log.Printf("trying to log with %s/%s", username, password)
 	//CompareHashAndPassword take the salt part from the hash and verify using it
-	err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return "", fmt.Errorf("password not correct for user `%s`", username)
 	}
@@ -197,21 +204,32 @@ func CheckCookie(cookie string) (*firestore.DocumentRef, error) {
 	return nil, nil
 }
 
-func RegisterUser(username string, pwd string, firstname string, surname string, shippingAddr string) (*firestore.DocumentRef, error) {
-	if strings.TrimSpace(username) == "" {
+// register a user in the db, currently the hash field should be a clear password
+// unfortunatly we cannot have an option as in rust
+func RegisterUser(u User) (*firestore.DocumentRef, error) {
+	if strings.TrimSpace(u.Username) == "" {
 		return nil, fmt.Errorf("username is empty")
 	}
-	if strings.TrimSpace(pwd) == "" {
+	if strings.TrimSpace(u.Password) == "" {
 		return nil, fmt.Errorf("password is empty")
 	}
-	if strings.TrimSpace(firstname) == "" {
+	if strings.TrimSpace(u.Firstname) == "" {
 		return nil, fmt.Errorf("firstname is empty")
 	}
-	if strings.TrimSpace(surname) == "" {
+	if strings.TrimSpace(u.Surname) == "" {
 		return nil, fmt.Errorf("surname is empty")
 	}
-	if strings.TrimSpace(shippingAddr) == "" {
-		return nil, fmt.Errorf("shipping address is empty")
+	if strings.TrimSpace(u.Address.City) == "" {
+		return nil, fmt.Errorf("city address is empty")
+	}
+	if strings.TrimSpace(u.Address.Country) == "" {
+		return nil, fmt.Errorf("country address is empty")
+	}
+	if strings.TrimSpace(u.Address.PostalCode) == "" {
+		return nil, fmt.Errorf("postal address is empty")
+	}
+	if strings.TrimSpace(u.Address.Street) == "" {
+		return nil, fmt.Errorf("street address is empty")
 	}
 
 	client, err := GetDBConnection()
@@ -219,7 +237,7 @@ func RegisterUser(username string, pwd string, firstname string, surname string,
 		return nil, err
 	}
 	//query doc where username's field == `username`
-	query := client.Collection("users").Query.Where("username", "==", username)
+	query := client.Collection("users").Query.Where("username", "==", u.Username)
 	docs, err := query.Documents(context.Background()).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
@@ -231,11 +249,13 @@ func RegisterUser(username string, pwd string, firstname string, surname string,
 	}
 
 	//bcrypt's GenerateFromPassword generate the password with a salt !!
-	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
-	user := User{Username: username, Firstname: firstname, Surname: surname, Hash: hash, ShippingAddress: shippingAddr, SessionCookie: ""}
+	log.Printf("Hashed password : %s\n", hash)
+	user := u
+	user.Password = string(hash)
 	docRef, _, err := client.Collection("users").Add(*ctx, user)
 
 	if err != nil {
