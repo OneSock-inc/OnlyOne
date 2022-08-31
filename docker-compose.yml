@@ -10,6 +10,8 @@ services:
   back:
     build: 
       context: ./backend
+    volumes:
+      - /home/ubuntu/service-account.json:/root/service-account.json
     ports:
       - "8000:8000"
   
