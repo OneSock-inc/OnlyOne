@@ -20,7 +20,6 @@ var dbClient *firestore.Client
 var ctx *context.Context
 
 type User struct {
-	ID              string `firestore:"ID,omitempty" json:"ID"`
 	Username        string `firestore:"username" json:"username"`
 	Firstname       string `firestore:"firstname" json:"firstname"`
 	Surname         string `firestore:"surname" json:"surname"`
@@ -143,31 +142,31 @@ func GetDBConnection() (*firestore.Client, error) {
 
 // here we get the document having the username, we then retrieve the salt from the doc and the hashed password from the doc,
 // we check if hash(password+salt) == doc.hash
-func VerifyLogin(username string, password string) (User, error) {
+func VerifyLogin(username string, password string) (string, error) {
 	db, err := GetDBConnection()
 	if err != nil {
-		return User{}, err
+		return "", err
 	}
 	query := db.Collection("users").Where("username", "==", username)
 	users, err := query.Documents(*ctx).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
-		return User{}, err
+		return "", err
 	}
 	if len(users) == 0 {
-		return User{}, fmt.Errorf("user `%s` not found", username)
+		return "", fmt.Errorf("user `%s` not found", username)
 	}
 	if len(users) > 1 {
-		return User{}, fmt.Errorf("multiple users `%s` found", username)
+		return "", fmt.Errorf("multiple users `%s` found", username)
 	}
 	var user User
 	users[0].DataTo(&user)
 	//CompareHashAndPassword take the salt part from the hash and verify using it
 	err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password))
 	if err != nil {
-		return User{}, fmt.Errorf("password not correct for user `%s`", username)
+		return "", fmt.Errorf("password not correct for user `%s`", username)
 	}
-	return user, nil
+	return users[0].Ref.ID, nil
 }
 
 func CheckCookie(cookie string) (*firestore.DocumentRef, error) {
