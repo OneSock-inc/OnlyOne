@@ -142,7 +142,8 @@ func TestInvalidGetUserSocks(t *testing.T) {
 }
 
 func TestGetUserSocks(t *testing.T) {
-	doc, err := RegisterUser("james2010", "123", "James", "Wow", "Ship")
+	user := User{Username: "james2010", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}}
+	doc, err := RegisterUser(user)
 	assert.Nil(t, err)
 
 	userID := doc.ID
