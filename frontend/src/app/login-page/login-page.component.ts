@@ -60,10 +60,9 @@ export class LoginPageComponent {
 
     this.authService.login(this.loginForm.value.username, this.loginForm.value.password).add(() => {
       if (typeof this.authService.getError() !== 'undefined') {
-        console.warn('error');
         this.clicked = false;
         this.removeLoader();
-        this.displayMessage('error');
+        this.displayMessage(this.authService.getError());
       } else {
         this.router.navigate(['/home']);
       }

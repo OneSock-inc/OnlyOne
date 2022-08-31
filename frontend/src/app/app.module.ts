@@ -12,19 +12,20 @@ import { HomePageComponent } from './home-page/home-page.component';
 // Material
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from "@angular/material/form-field";
-import {MatButtonModule} from '@angular/material/button'; 
-import {MatIconModule} from '@angular/material/icon'; 
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 import { AppRoutingModule } from './app-routing.module';
-import {RouterModule} from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ConfigService } from './config/config.service';
 import { LoaderComponent } from './loader/loader.component';
 import { LoaderDirective } from './loader/loader.directive';
 import { MessageBannerComponent } from './message-banner/message-banner.component';
 import { MesageBannerDirective } from './message-banner/mesage-banner.directive';
+import { HttpErrorService } from './http-interceptors/http-error.service';
 
 @NgModule({
   declarations: [
@@ -50,9 +51,16 @@ import { MesageBannerDirective } from './message-banner/mesage-banner.directive'
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    HttpClientModule
+    HttpClientModule,
   ],
-  providers: [ConfigService],
-  bootstrap: [AppComponent]
+  providers: [
+    ConfigService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorService,
+      multi: true,
+    },
+  ],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
