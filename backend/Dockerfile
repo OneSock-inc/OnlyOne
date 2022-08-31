@@ -8,7 +8,6 @@ COPY . /app
  
 # Set working directory
 WORKDIR /app
-COPY ~/service-account.json /root
 # Run command as described:
 # go build will build an executable file named server in the current directory
 RUN go build -o server . 
