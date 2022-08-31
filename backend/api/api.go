@@ -4,6 +4,7 @@ import (
 	//import gin
 
 	"backend/db"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -73,7 +74,31 @@ func showUser(c *gin.Context) {
 }
 
 func listSocksOfUser(c *gin.Context) {
-	c.Next()
+	claim := jwt.ExtractClaims(c)
+	userID, ok := claim[jwt.IdentityKey].(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "User is not authentificated",
+		})
+		return
+	}
+
+	socks, err := db.GetUserSocks(userID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	j, err := json.Marshal(socks)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, j)
 }
 
 func addSock(c *gin.Context) {
