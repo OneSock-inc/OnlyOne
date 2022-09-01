@@ -347,3 +347,8 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 		}
 	}
 }
+
+func getCompatibleSocks(sockId string) ([]Sock, error) {
+
+	return nil, nil
+}
