@@ -118,11 +118,9 @@ func GetSockInfo(sockId string) (Sock, error) {
 	//"refusedList": [],
 	//"acceptedList": [],...}
 	if s.AcceptedList == nil {
-		log.Printf("changing type")
 		s.AcceptedList = make([]string, 0)
 	}
 	if s.RefusedList == nil {
-		log.Printf("changing type")
 		s.RefusedList = make([]string, 0)
 	}
 

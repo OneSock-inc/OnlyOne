@@ -187,3 +187,29 @@ func TestGetInfoSock(t *testing.T) {
 	assert.Equal(t, sockBack, s)
 
 }
+
+func TestGetInfoSockNilLists(t *testing.T) {
+	//set a user
+	doc, err := RegisterUser(User{Username: "Henry", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
+	assert.Nil(t, err)
+	owner := doc.ID
+
+	//don't init the slice List therefore we get a null when marshalling struct -> firestore -> struct
+	s := Sock{
+		ShoeSize:    41,
+		Type:        Profile(1),
+		Color:       "#BEDEAD",
+		Description: "I tried selling it on onlyFan, but it didn't work",
+		Picture:     "JHAKHSD==",
+		Owner:       owner,
+	}
+
+	s2, err := NewSock(s.ShoeSize, s.Type, s.Color, s.Description, s.Picture, s.Owner)
+	assert.Nil(t, err)
+	sockId := s2.ID
+	sockBack, err := GetSockInfo(sockId)
+	assert.Nil(t, err)
+	assert.NotNil(t, sockBack.AcceptedList)
+	assert.NotNil(t, sockBack.AcceptedList)
+
+}
