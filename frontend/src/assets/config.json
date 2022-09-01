@@ -1,8 +1,3 @@
 {
-    "backendUrl": "https://api.jsch.ch",
-    "date": "30.09.2022",
-    "apiEndpoints": {
-        "login": "/user/login",
-        "logout": "/user/logout"
-    }
+    "backendUrl": "https://api.jsch.ch"
 }
