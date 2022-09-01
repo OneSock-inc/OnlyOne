@@ -190,6 +190,6 @@ func TestGetUserFromID(t *testing.T) {
 	assert.Equal(t, user.Address, user2.Address)
 
 	user2, err = GetUserFromID("invalid")
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 	assert.Equal(t, User{}, user2)
 }
