@@ -84,8 +84,28 @@ func getSockInfo(c *gin.Context) {
 func patchAcceptListOfSock(c *gin.Context) {
 	c.Next()
 }
+
 func showUser(c *gin.Context) {
-	c.Next()
+	claim := jwt.ExtractClaims(c)
+	_, ok := claim[jwt.IdentityKey].(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "User is not authentificated",
+		})
+		return
+	}
+
+	doc, err := db.GetUser(c.Param("username"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	var user db.User
+	doc.DataTo(&user)
+
+	c.JSON(http.StatusOK, user)
 }
 
 func listSocksOfUser(c *gin.Context) {
@@ -195,7 +215,7 @@ func register(c *gin.Context) {
 	_, err := db.RegisterUser(tmpUser)
 
 	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
