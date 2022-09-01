@@ -111,6 +111,9 @@ func GetUserFromID(id string) (User, error) {
 		return User{}, err
 	}
 	doc, err := db.Collection("users").Doc(id).Get(context.Background())
+	if err != nil {
+		return User{}, err
+	}
 
 	var user User
 	doc.DataTo(&user)
