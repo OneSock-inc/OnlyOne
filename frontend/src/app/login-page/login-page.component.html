@@ -16,14 +16,19 @@
     </mat-form-field>
 
     <button [disabled]="loginForm.invalid" mat-flat-button class="form-group" color="primary" id="login">Login</button>
-    <ng-template appMesageBanner id="banner" ></ng-template>
+    
+    <div id="errorMsg" class="banner hidden" >class="banner"> </div> 
+
+
+    <ng-template appMessageBanner id="banner" ></ng-template>
   </form>
+
   <ng-template #loggedIn >
   <p id="loggedIn">
     Already logged in !!!
   </p>
   </ng-template>
-
+  
   <ng-template appLoader ></ng-template>
 
 

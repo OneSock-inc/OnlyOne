@@ -1,7 +1,7 @@
 import { Directive, ViewContainerRef } from '@angular/core';
 
 @Directive({
-  selector: '[appMesageBanner]'
+  selector: '[appMessageBanner]'
 })
 export class MesageBannerDirective {
 

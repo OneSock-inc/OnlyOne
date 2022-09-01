@@ -35,15 +35,15 @@ import { AccessControlService } from './services/authService/access-control.serv
 
 @NgModule({
   declarations: [
+    LoaderComponent,
+    LoaderDirective,
+    MessageBannerComponent,
+    HomePageComponent,
     AppComponent,
     TitleComponent,
     ButtonComponent,
     LoginPageComponent,
     PageNotFoundComponent,
-    HomePageComponent,
-    LoaderComponent,
-    LoaderDirective,
-    MessageBannerComponent,
     MesageBannerDirective,
     SignupPageComponent,
   ],
