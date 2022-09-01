@@ -31,7 +31,7 @@ export class AuthService {
       .post<JWToken>(this.backendLink.getLoginUrl(), { username, password })
       .subscribe({
         next: (data: JWToken) => {
-          this.tokenService.setAutoriuationToken(data);
+          this.tokenService.setAuthorizationToken(data);
           // TODO: jwt token validator
           // this.jwt = { ...data };
         }, // success path
@@ -39,6 +39,11 @@ export class AuthService {
           this.error = error; // error path
         }
       });
+  }
+
+  logout(){
+    localStorage.clear();
+    this.tokenService.clearToken();
   }
 
   isLoggedIn(): boolean {

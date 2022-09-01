@@ -29,7 +29,7 @@ describe('TokenServiceService', () => {
     expect(tokenService).toBeTruthy();
   });
 
-  it('should retrive token from localStorage', () => {
+  it('should retrieve token from localStorage', () => {
     localStorage.setItem('jwtoken', JSON.stringify(token));
     expect(tokenService.getAuthorizationToken()).toEqual('123456789');
     localStorage.clear();
