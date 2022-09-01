@@ -161,3 +161,35 @@ func TestGetUserSocks(t *testing.T) {
 	assert.Equal(t, 1, len(socks))
 	assert.Equal(t, sockID, socks[0].ID)
 }
+
+func TestGetUser(t *testing.T) {
+	user := User{Username: "jamy", Password: "123", Firstname: "Jamy", Surname: "Yuy", Address: Address{Street: "Arf", Country: "CH", City: "Lausanne", PostalCode: "1000"}}
+	doc, err := RegisterUser(user)
+	assert.Nil(t, err)
+
+	userID := doc.ID
+	docr, err := GetUser("jamy")
+	assert.Nil(t, err)
+	assert.Equal(t, userID, docr.Ref.ID)
+
+	docr, err = GetUser("invalid")
+	assert.NotNil(t, err)
+}
+
+func TestGetUserFromID(t *testing.T) {
+	user := User{Username: "ronron", Password: "123", Firstname: "Ron", Surname: "Ron", Address: Address{Street: "Rond", Country: "CH", City: "Lausanne", PostalCode: "1000"}}
+	doc, err := RegisterUser(user)
+	assert.Nil(t, err)
+
+	userID := doc.ID
+	user2, err := GetUserFromID(userID)
+	assert.Nil(t, err)
+	assert.Equal(t, user.Username, user2.Username)
+	assert.Equal(t, user.Firstname, user2.Firstname)
+	assert.Equal(t, user.Surname, user2.Surname)
+	assert.Equal(t, user.Address, user2.Address)
+
+	user2, err = GetUserFromID("invalid")
+	assert.Nil(t, err)
+	assert.Equal(t, User{}, user2)
+}
