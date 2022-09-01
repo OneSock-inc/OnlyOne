@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 import { JWToken } from 'src/app/dataModel/jwt.model';
 import { TokenService } from './token-service.service';
+import { Subscription } from 'rxjs';
 
 // Inspired by : https://blog.angular-university.io/angular-jwt-authentication/
 
@@ -29,7 +30,7 @@ export class AuthService {
    * @param password provided by front end user
    * @returns Observable
    */
-  login(username?: string, password?: string) {
+  login(username?: string, password?: string): Subscription {
     return this.http
       .post<JWToken>(this.backendLink.getLoginUrl(), { username, password })
       .subscribe({
