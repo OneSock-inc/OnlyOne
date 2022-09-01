@@ -1,26 +1,37 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, HostListener } from '@angular/core';
 import {AbstractControl, ValidatorFn, Validators, FormControl, FormGroup } from '@angular/forms';
+import { MatAutocomplete } from '@angular/material/autocomplete';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import { BackendLinkService } from '../services/backendservice/backend-link.service';
 
 import jsonFile from './countries.json';
 
+import { User } from './../dataModel/index.model';
+
+interface Response {
+  message: string;
+}
 
 @Component({
   selector: 'app-signup-page',
   templateUrl: './signup-page.component.html',
   styleUrls: ['./signup-page.component.scss'],
-  host: {'class': 'default-layout'}
+  host: {'class': 'default-layout'},
 })
 export class SignupPageComponent implements OnInit {
+  constructor(private http: HttpClient, private backendLink: BackendLinkService) {
+    const usrStr = localStorage.getItem('newUser');
+    if (typeof usrStr === 'string') {
+      this.newUser = JSON.parse(usrStr);
+    } else {
+      this.newUser = new User();
+    }
+  }
 
-  username!: string;
-  password!: string;
-  firstname!: string;
-  surname!: string;
-  street!: string;
-  country!: string;
-  postalCode!: string;
+  private newUser: User;
+  
 
   //// Validators
 
@@ -69,13 +80,9 @@ export class SignupPageComponent implements OnInit {
 
   signupForm!: FormGroup;
 
-  constructor() { }
 
   ngOnInit(): void {
     this.signupForm = new FormGroup({
-      country : new FormControl('', {
-        validators: [this.countryValidator(this.countries), Validators.required] 
-      }),
       username: new FormControl('', {
         validators: [Validators.required]
       }),
@@ -88,8 +95,12 @@ export class SignupPageComponent implements OnInit {
       surname: new FormControl('', {
         validators: [Validators.required]
       }),
+
       street: new FormControl('', {
         validators: [Validators.required]
+      }),
+      country : new FormControl('', {
+        validators: [this.countryValidator(this.countries), Validators.required] 
       }),
       postalCode: new FormControl('', {
         validators: [Validators.required, this.postalCodeValidator()]
@@ -97,6 +108,17 @@ export class SignupPageComponent implements OnInit {
       city: new FormControl('', {
         validators: [Validators.required]
       })
+    });
+
+    this.signupForm.setValue({
+      username: this.newUser.username,
+      firstname: this.newUser.firstname,
+      surname: this.newUser.surname,
+      password: this.newUser.password,
+      street: this.newUser.address.street,
+      country: this.newUser.address.country,
+      city: this.newUser.address.city,
+      postalCode: this.newUser.address.postalCode
     });
 
     this.filteredCountries = this.signupForm.controls['country'].valueChanges.pipe(
@@ -111,13 +133,33 @@ export class SignupPageComponent implements OnInit {
     return this.countries.filter(country => country.toLowerCase().includes(filterValue));
   }
 
-  onSubmit(form: any): void {
-    alert("Account created successfully");
-    // send to api
-    //form.countryValidator
-    //form.username
-    //form.password
-
+  onSubmit(form: FormGroup) {
+    //this.newUser = this.formFieldsToObject(form);
+    //console.log(this.newUser);
+    const value = form.value;
+    this.newUser = {
+      username: value.username,
+      firstname: value.firstname,
+      surname: value.surname,
+      password: value.password,
+      address: {
+        street: value.street,
+        country: value.country,
+        city: value.city,
+        postalCode: value.postalCode 
+      }
+    }
+    localStorage.setItem('newUser', JSON.stringify(this.newUser));
+    return this.http
+      .post<Response>(this.backendLink.getRegisterUrl(), this.newUser).subscribe({
+        next: (data: Response) => {
+          console.log(data);
+          
+        },
+        error: (err) => {
+          console.error(err)
+        }
+      });
   }
 
 }

@@ -8,7 +8,7 @@ import { Config } from '../../dataModel/config.model';
 })
 export class BackendLinkService {
 
-  config?: Config;
+  config!: Config;
   error: any;
 
   constructor(private configService: ConfigService) { 
@@ -19,11 +19,15 @@ export class BackendLinkService {
   }
 
   getLoginUrl(): string {
-    return this.config?.backendUrl + "/user/login"
+    return this.config.backendUrl + "/user/login"
   }
 
   getLogoutUrl(): string {
-    return this.config?.backendUrl + "/user/logout";
+    return this.config.backendUrl + "/user/logout";
+  }
+
+  getRegisterUrl(): string {
+    return this.config.backendUrl + "/user/register";
   }
 
 }

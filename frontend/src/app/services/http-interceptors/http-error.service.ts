@@ -2,6 +2,10 @@ import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 
+/**
+ * Service dedicated to http errors handling. All request pass throught this inteceptor.
+ * See https://angular.io/api/common/http/HttpInterceptor
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -13,19 +17,14 @@ export class HttpErrorService implements HttpInterceptor {
   }
 
   private handleError(error: HttpErrorResponse) {
-    let errMsg: string = 'Something bad happened; please try again later.';
-
+    let errMsg: string = '';
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
       errMsg = 'A client-side error occured. Please verify your connection.';
-    } else if (error.status === 401) {
-      // Login failure
-      errMsg = 'Login failed. Invalid username or password.'
-    } else if (error.status >= 402 && error.status < 500) {
-      errMsg = 'Unothorized action.'
     } else {
-      errMsg = 'Server error. Please retry later.'
+      errMsg = error.error?.message ? error.error.message : error.message;
     }
+
     // Return an observable with a user-facing error message.
     return throwError(() => new Error(errMsg));
   }

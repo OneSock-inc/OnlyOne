@@ -1,7 +1,8 @@
 import { Address } from "./address.model";
-export interface User {
-    fisrtname: string;
-    surname: string;
-    username: string;
-    shippingAddress: Address;
+export class User {
+    firstname: string = '';
+    surname: string = '';
+    username: string = '';
+    password: string = '';
+    address: Address = new Address();
 }
