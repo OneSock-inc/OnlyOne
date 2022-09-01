@@ -86,15 +86,6 @@ func patchAcceptListOfSock(c *gin.Context) {
 }
 
 func showUser(c *gin.Context) {
-	claim := jwt.ExtractClaims(c)
-	_, ok := claim[jwt.IdentityKey].(string)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "User is not authentificated",
-		})
-		return
-	}
-
 	doc, err := db.GetUser(c.Param("username"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
