@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"cloud.google.com/go/firestore"
+	"github.com/sjwhitworth/golearn/kdtree"
+	"github.com/sjwhitworth/golearn/metrics/pairwise"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/api/iterator"
 )
@@ -398,6 +400,8 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 }
 
 func GetCompatibleSocks(sockId string) ([]Sock, error) {
+	tree := kdtree.New()
+
 	client, err := GetDBConnection()
 	if err != nil {
 		return nil, err
@@ -406,30 +410,74 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 	if err != nil {
 		return nil, err
 	}
-	var s Sock
-	doc.DataTo(&s)
+	var sockOP Sock
+	doc.DataTo(&sockOP)
 	socks := make([]Sock, 0, 4)
-	it := client.Collection(SocksCollection).Query.Where("shoeSize", "==", s.ShoeSize).Where("type", "==", s.Type).Where("isMatched", "==", false).Documents(context.Background())
+
+	it := client.Collection(SocksCollection).DocumentRefs(context.Background())
+	datas := make([][]float64, 0)
+	//Query.Where("shoeSize", "==", s.ShoeSize).Where("type", "==", s.Type).Where("isMatched", "==", false).Documents(context.Background())
+	i := 0
 	for {
 		//if we are done
 		doc, err := it.Next()
 		if err == iterator.Done {
 			break
 		}
-		//we don't want our own sock
-		if doc.Ref.ID == sockId {
+		ref, err := doc.Get(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		if !ref.Exists() || ref.Ref.ID == sockId {
+			//sock doesn't exist or it's the sock we are looking at
 			continue
 		}
-		//an unexpected error occured
+		dockSnapShot, err := ref.Ref.Get(context.Background())
 		if err != nil {
 			return nil, fmt.Errorf("while iterating compatible sock: %v", err)
 		}
-		//get data, add to result set
-		var compatibleSock Sock
-		doc.DataTo(compatibleSock)
-		compatibleSock.ID = doc.Ref.ID
-		socks = append(socks, compatibleSock)
+
+		var currentSock Sock
+		dockSnapShot.DataTo(currentSock)
+		rgb, _ := utils.ParseHexColor(currentSock.Color)
+		//because rgb is [0;255] and shoesize is max 75, we need to multiple them to give them more importance
+		datas = append(datas, []float64{
+			float64(currentSock.ShoeSize) * 125 * 4,
+			float64(currentSock.Type) * 250 * 4,
+			float64(rgb.A),
+			float64(rgb.R),
+			float64(rgb.G),
+			float64(rgb.B),
+		})
+
+		currentSock.ID = dockSnapShot.Ref.ID
+		socks = append(socks, currentSock)
+		i++
 	}
 
-	return socks, nil
+	if err = tree.Build(datas); err != nil {
+		return nil, nil
+	}
+	if i > 4 {
+		i = 4
+	}
+	euclide := pairwise.NewEuclidean()
+	rgb, _ := utils.ParseHexColor(sockOP.Color)
+	//search 4 sock similar (euclide) to s.attribut
+	rows, _ /*pairwise distance from sockOP to currentSock_i*/ /*err*/, _ := tree.Search(i, euclide, []float64{
+		float64(sockOP.ShoeSize) * 125 * 4,
+		float64(sockOP.Type) * 250 * 4,
+		float64(rgb.A),
+		float64(rgb.R),
+		float64(rgb.G),
+		float64(rgb.B),
+	})
+
+	res := make([]Sock, 0, 4)
+	for _, s := range rows {
+		//add the i best rows limit to 4
+		res = append(res, socks[s])
+	}
+
+	return res, nil
 }

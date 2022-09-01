@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"testing"
 
@@ -308,8 +309,8 @@ func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 		assert.Nil(t, err)
 		owner := doc.ID
 		s := Sock{
-			ShoeSize:     41,
-			Type:         Profile(1),
+			ShoeSize:     uint8(41 - i),
+			Type:         Profile(1 - i%2),
 			Color:        "#BEDEAD",
 			Description:  "I tried selling it on onlyFan, but it didn't work",
 			Picture:      "==JHAKHSD",
@@ -322,8 +323,8 @@ func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 		assert.Nil(t, err)
 
 		s1 := Sock{
-			ShoeSize:     41,
-			Type:         Profile(1),
+			ShoeSize:     uint8(41 + i),
+			Type:         Profile(0 + i%2),
 			Color:        "#FFF",
 			Description:  fmt.Sprintf("i'm owned by %s", user.Username),
 			Picture:      "==",
@@ -343,7 +344,12 @@ func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 	//create two similar socks with their owner beeing the new user
 	socks, err := GetCompatibleSocks(sockId)
 	assert.Nil(t, err)
-	//we created two sock by user 10 times we should get all of them - the one we asked the list for
-	assert.True(t, len(socks) == 19)
-	// assert.True(t, socks[0].ID == s.ID)
+	//we created two sock by user 10 times we should get 4 of them (defined as the maximum for a sock)
+	assert.True(t, len(socks) == 4)
+	assert.True(t, socks[0].ID != "")
+	assert.True(t, math.Abs(float64(socks[0].ShoeSize)-float64(socks[1].ShoeSize)) < 2)
+	for i := 1; i < 4; i++ {
+		//assert than the shoesSize are similar when looking at two similar shoes
+		assert.True(t, math.Abs(float64(socks[i-1].ShoeSize)-float64(socks[i].ShoeSize)) < 2)
+	}
 }
