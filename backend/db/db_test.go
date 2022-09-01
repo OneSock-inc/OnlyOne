@@ -162,7 +162,6 @@ func TestGetUserSocks(t *testing.T) {
 	assert.Equal(t, sockID, socks[0].ID)
 }
 
-
 func TestGetInfoSock(t *testing.T) {
 	//set a user
 	doc, err := RegisterUser(User{Username: "jackob", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
@@ -212,7 +211,7 @@ func TestGetInfoSockNilLists(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, sockBack.AcceptedList)
 	assert.NotNil(t, sockBack.AcceptedList)
-
+}
 
 func TestGetUser(t *testing.T) {
 	user := User{Username: "jamy", Password: "123", Firstname: "Jamy", Surname: "Yuy", Address: Address{Street: "Arf", Country: "CH", City: "Lausanne", PostalCode: "1000"}}
