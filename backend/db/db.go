@@ -348,7 +348,39 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 	}
 }
 
-func getCompatibleSocks(sockId string) ([]Sock, error) {
+func GetCompatibleSocks(sockId string) ([]Sock, error) {
+	client, err := GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	doc, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	var s Sock
+	doc.DataTo(&s)
+	socks := make([]Sock, 0, 4)
+	it := client.Collection(SocksCollection).Query.Where("shoeSize", "==", s.ShoeSize).Where("type", "==", s.Type).Where("isMatched", "==", false).Documents(context.Background())
+	for {
+		//if we are done
+		doc, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		//we don't want our own sock
+		if doc.Ref.ID == sockId {
+			continue
+		}
+		//an unexpected error occured
+		if err != nil {
+			return nil, fmt.Errorf("while iterating compatible sock: %v", err)
+		}
+		//get data, add to result set
+		var compatibleSock Sock
+		doc.DataTo(compatibleSock)
+		compatibleSock.ID = doc.Ref.ID
+		socks = append(socks, compatibleSock)
+	}
 
-	return nil, nil
+	return socks, nil
 }

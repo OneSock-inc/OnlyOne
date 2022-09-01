@@ -181,13 +181,16 @@ func addSock(c *gin.Context) {
 
 func listMatchesOfSock(c *gin.Context) {
 	sockId := c.Param("sockId")
-	_, err := db.GetCompatibleSocks(sockId)
+	socks, err := db.GetCompatibleSocks(sockId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"socks": socks,
+	})
 
 }
 
