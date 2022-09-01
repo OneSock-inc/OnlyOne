@@ -154,6 +154,10 @@ func getValidBase64Image() string {
 	return "aHR0cHM6Ly9kbGFuZy5vcmcK"
 }
 
+func useLess() {
+
+}
+
 func TestListSocksOfUser(t *testing.T) {
 	jwtToken := makeLogedinUser()
 	log.Printf("%s", jwtToken)
