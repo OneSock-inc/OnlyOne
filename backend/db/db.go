@@ -104,6 +104,19 @@ func GetUser(username string) (*firestore.DocumentSnapshot, error) {
 	}
 	return users[0], nil
 }
+
+func GetUserFromID(id string) (User, error) {
+	db, err := GetDBConnection()
+	if err != nil {
+		return User{}, err
+	}
+	doc, err := db.Collection("users").Doc(id).Get(context.Background())
+
+	var user User
+	doc.DataTo(&user)
+	return user, nil
+}
+
 func editMatchingSock(sockID string, otherSockID string, accept bool) error {
 	return nil
 }
