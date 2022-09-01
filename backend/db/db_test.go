@@ -180,11 +180,12 @@ func TestGetInfoSock(t *testing.T) {
 	}
 
 	s2, err := NewSock(s.ShoeSize, s.Type, s.Color, s.Description, s.Picture, s.Owner)
+	s.ID = s2.ID
 	assert.Nil(t, err)
 	sockId := s2.ID
 	sockBack, err := GetSockInfo(sockId)
 	assert.Nil(t, err)
-	assert.Equal(t, sockBack, s)
+	assert.Equal(t, s, sockBack)
 
 }
 
@@ -211,6 +212,8 @@ func TestGetInfoSockNilLists(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, sockBack.AcceptedList)
 	assert.NotNil(t, sockBack.AcceptedList)
+	s.ID = s2.ID
+	assert.Equal(t, s, sockBack)
 }
 
 func TestGetUser(t *testing.T) {

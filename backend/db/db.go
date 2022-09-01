@@ -155,7 +155,7 @@ func GetSockInfo(sockId string) (Sock, error) {
 	if s.RefusedList == nil {
 		s.RefusedList = make([]string, 0)
 	}
-
+	s.ID = ref.Ref.ID
 	return s, nil
 }
 
