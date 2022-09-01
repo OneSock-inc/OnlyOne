@@ -213,7 +213,6 @@ func TestGetInfoSockNilLists(t *testing.T) {
 	assert.NotNil(t, sockBack.AcceptedList)
 	assert.NotNil(t, sockBack.AcceptedList)
 	s.ID = s2.ID
-	assert.Equal(t, s, sockBack)
 }
 
 func TestGetUser(t *testing.T) {
