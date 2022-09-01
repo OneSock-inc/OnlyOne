@@ -56,7 +56,7 @@ type Sock struct {
 	Owner        string   `firestore:"owner" json:"owner"`
 	RefusedList  []string `firestore:"refusedList" json:"refusedList"`
 	AcceptedList []string `firestore:"acceptedList" json:"acceptedList"`
-	IsMatched    bool     `firestore:"isMatched" json:"isMatched"`
+	Match        string   `firestore:"match" json:"match"`
 }
 
 //return all the socks of a user identified by it's cookie session
@@ -122,7 +122,49 @@ func GetUserFromID(id string) (User, error) {
 	return user, nil
 }
 
-func editMatchingSock(sockID string, otherSockID string, accept bool) error {
+func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
+	otherSock, err := GetSockInfo(otherSock.ID)
+	if err != nil {
+		return err
+	}
+
+	if sock.Owner == otherSock.Owner {
+		return fmt.Errorf("User cannot accept or refuse a sock he owns")
+	}
+	if utils.Contains(sock.AcceptedList, otherSock.ID) {
+		return fmt.Errorf("Sock already in the accepted list")
+	}
+	if utils.Contains(sock.RefusedList, otherSock.ID) {
+		return fmt.Errorf("Sock already in the refused list")
+	}
+
+	for _, s := range []Sock{sock, otherSock} {
+		if s.Match != "" {
+			return fmt.Errorf("Sock `" + s.ID + "` already has a match")
+		}
+	}
+
+	db, err := GetDBConnection()
+	if err != nil {
+		return err
+	}
+
+	sock.AcceptedList = append(sock.AcceptedList, otherSock.ID)
+	if utils.Contains(otherSock.AcceptedList, sock.ID) {
+		sock.Match = otherSock.ID
+		otherSock.Match = sock.ID
+
+		_, err = db.Collection(SocksCollection).Doc(otherSock.ID).Set(context.Background(), otherSock)
+		if err != nil {
+			return err
+		}
+		// TODO: alert user there is a match
+	}
+	_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -201,7 +243,7 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		Owner:        owner,
 		RefusedList:  make([]string, 0),
 		AcceptedList: make([]string, 0),
-		IsMatched:    false,
+		Match:        "",
 	}
 	docRef, _, err := client.Collection("socks").Add(*ctx, s)
 	s.ID = docRef.ID
