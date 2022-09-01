@@ -34,4 +34,9 @@ describe('LoginPageComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should not crash on first call of removeMessage()', () => {
+    component.removeMessage();
+    expect(component).toBeTruthy();
+  })
 });

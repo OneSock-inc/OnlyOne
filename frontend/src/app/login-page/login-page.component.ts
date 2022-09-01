@@ -36,6 +36,7 @@ export class LoginPageComponent {
 
   hide = true;
   clicked = false;
+  private isDisplayingMessage = false;
   loginForm: FormGroup;
   loginFormInputs = { username: '', password: '' };
 
@@ -81,8 +82,9 @@ export class LoginPageComponent {
     );
     elem.instance.message = message;
   }
+
   removeMessage() {
-    this.dynamicBanner.vcref.clear();
+    if (this.isDisplayingMessage) this.dynamicBanner.vcref.clear();
   }
 
   notLogged(): boolean {
