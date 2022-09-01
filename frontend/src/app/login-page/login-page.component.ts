@@ -30,7 +30,6 @@ export class LoginPageComponent {
 
   hide = true;
   loginForm: FormGroup;
-  isDisplayingMessage = false;
 
   private clicked = false;
   private loginFormInputs = { username: '', password: '' };
