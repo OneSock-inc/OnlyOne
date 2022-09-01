@@ -30,15 +30,23 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('User must not be logged', () => {
+  it('User must be logged', () => {
+    
+    // Fakes login
     expect(service.isLoggedIn()).toBeFalsy();
+    localStorage.setItem('jwtoken', JSON.stringify(token));
+    tokenService.getAuthorizationToken();
+
+    expect(service.isLoggedIn()).toBeTruthy();
+    localStorage.clear();
   })
 
-  it('User must be logged', () => {
+  it('User must be logged out', () => {
     localStorage.setItem('jwtoken', JSON.stringify(token));
     tokenService.getAuthorizationToken();
     expect(service.isLoggedIn()).toBeTruthy();
-    localStorage.clear();
+    service.logout();
+    expect(service.isLoggedIn()).toBeFalsy();
   })
   
 });

@@ -15,7 +15,7 @@ export class TokenService {
    */
   getAuthorizationToken(): string {
     if (typeof this.token === 'undefined') {
-      this.setSessionFromLocalStorage();
+      this.sessionFromLocalStorage();
     }
     if (this.token?.token) {
       return this.token.token;
@@ -24,9 +24,13 @@ export class TokenService {
     }
   }
 
-  setAutoriuationToken(token: JWToken): void {
+  setAuthorizationToken(token: JWToken): void {
     this.token = token;
     this.setSession(token);
+  }
+
+  clearToken() {
+    this.token = undefined;
   }
 
   private setSession(token: JWToken) {
@@ -35,7 +39,7 @@ export class TokenService {
     localStorage.setItem('jwtoken', JSON.stringify(token));
   }
 
-  private setSessionFromLocalStorage(): void {
+  private sessionFromLocalStorage(): void {
     const strObj: string | null = localStorage.getItem('jwtoken');
     if (strObj !== null) {
       const jsonObj: Object = JSON.parse(strObj);

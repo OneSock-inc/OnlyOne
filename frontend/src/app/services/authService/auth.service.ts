@@ -1,12 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BackendLinkService } from '../backendservice/backend-link.service';
-import { User } from 'src/app/dataModel/user.model';
 import { JWToken } from 'src/app/dataModel/jwt.model';
 import { TokenService } from './token-service.service';
 
 // Inspired by : https://blog.angular-university.io/angular-jwt-authentication/
 
+/**
+ * This service provide some useful methods to login, logout and know if
+ * the user is logged in.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -31,9 +34,8 @@ export class AuthService {
       .post<JWToken>(this.backendLink.getLoginUrl(), { username, password })
       .subscribe({
         next: (data: JWToken) => {
-          this.tokenService.setAutoriuationToken(data);
+          this.tokenService.setAuthorizationToken(data);
           // TODO: jwt token validator
-          // this.jwt = { ...data };
         }, // success path
         error: (error) => { 
           this.error = error; // error path
@@ -41,14 +43,35 @@ export class AuthService {
       });
   }
 
+  /**
+   * Clear the local storage and the token saved in the TokenService 
+   * instance.
+   */
+  logout() {
+    localStorage.clear();
+    this.tokenService.clearToken();
+  }
+
+  /**
+   * Test if user is logged.
+   * @returns true if the current user is logged in.
+   */
   isLoggedIn(): boolean {
     return this.tokenService.getAuthorizationToken() !== '';
   }
 
+  /**
+   * Retrieve error occured on http request if any.
+   * @returns error
+   */
   getError() {
     return this.error;
   }
 
+  /**
+   * Clear the error saved by AuthService instance.
+   * Must be called before made a new call to login method.
+   */
   clearError() {
     this.error = undefined;
   }

@@ -32,6 +32,7 @@ import { AuthService } from './services/authService/auth.service';
 import { AuthInterceptor } from './services/http-interceptors/auth-interceptor.service';
 import { TokenService } from './services/authService/token-service.service';
 import { AccessControlService } from './services/authService/access-control.service';
+import { AuthenticationButtonComponent } from './authentication-button/authentication-button.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { AccessControlService } from './services/authService/access-control.serv
     PageNotFoundComponent,
     MesageBannerDirective,
     SignupPageComponent,
+    AuthenticationButtonComponent,
   ],
   imports: [
     BrowserModule,

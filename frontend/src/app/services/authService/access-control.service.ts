@@ -29,7 +29,7 @@ export class AccessControlService implements CanMatch {
     | UrlTree
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree> {
-    if (segments[0].path == 'login') {
+    if (segments[0].path === 'login') {
       return !this.authService.isLoggedIn() || this.router.parseUrl('/');
     } else {
       return this.authService.isLoggedIn() || this.router.parseUrl('/');
