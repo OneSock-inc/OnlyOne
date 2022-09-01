@@ -1,27 +1,18 @@
 import { Component, ViewChild } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../services/authService/auth.service';
 import { Router } from '@angular/router';
 import { LoaderComponent } from '../loader/loader.component';
 import { LoaderDirective } from '../loader/loader.directive';
-import { MesageBannerDirective } from '../message-banner/mesage-banner.directive';
-import { MessageBannerComponent } from '../message-banner/message-banner.component';
 
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
-  host: { class: 'default-layout' },
+  host: { class: 'default-layout' }
 })
 export class LoginPageComponent {
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {
+  constructor(private router: Router, private authService: AuthService) {
     this.loginForm = new FormGroup({
       username: new FormControl(this.loginFormInputs.username, [
         Validators.required,
@@ -34,17 +25,16 @@ export class LoginPageComponent {
     });
   }
 
-  hide = true;
-  clicked = false;
-  private isDisplayingMessage = false;
-  loginForm: FormGroup;
-  loginFormInputs = { username: '', password: '' };
-
   @ViewChild(LoaderDirective, { static: true })
   dynamicChild!: LoaderDirective;
 
-  @ViewChild(MesageBannerDirective, { static: true })
-  dynamicBanner!: MesageBannerDirective;
+  hide = true;
+  loginForm: FormGroup;
+  isDisplayingMessage = false;
+
+  private clicked = false;
+  private loginFormInputs = { username: '', password: '' };
+
 
   onSubmit() {
     if (this.loginForm.invalid) return;
@@ -55,12 +45,14 @@ export class LoginPageComponent {
     this.authService.clearError();
     this.removeMessage();
 
+    // Call the method that send login request to the server
     this.authService
       .login(this.loginForm.value.username, this.loginForm.value.password)
       .add(() => {
         if (typeof this.authService.getError() !== 'undefined') {
           this.clicked = false;
-          this.removeLoader();          
+          this.removeLoader();
+          this.displayMessage("tadada");
           this.displayMessage(this.authService.getError());
         } else {
           this.router.navigate(['/home']);
@@ -77,14 +69,21 @@ export class LoginPageComponent {
   }
 
   displayMessage(message: string) {
-    const elem = this.dynamicBanner.vcref.createComponent(
-      MessageBannerComponent
-    );
-    elem.instance.message = message;
+    const elem = document.querySelector("#errorMsg");
+    if (elem) {
+      elem.innerHTML = message;
+      elem.classList.add('visible');
+      elem.classList.remove('hidden');
+    }
   }
 
   removeMessage() {
-    if (this.isDisplayingMessage) this.dynamicBanner.vcref.clear();
+    const elem = document.querySelector("#errorMsg");
+    if (elem) {
+      elem.innerHTML = '';
+      elem.classList.remove('visible');
+      elem.classList.add('hidden');
+    }
   }
 
   notLogged(): boolean {
