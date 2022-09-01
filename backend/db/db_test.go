@@ -300,7 +300,6 @@ func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 	client, err := GetDBConnection()
 	assert.Nil(t, err)
 	assert.Nil(t, DeleteCollection(context.Background(), client, client.Collection(SocksCollection), 64))
-	assert.Nil(t, DeleteCollection(context.Background(), client, client.Collection("users"), 64))
 	sockId := ""
 	//create 10 users with two socks each
 	for i := 0; i < 10; i++ {
