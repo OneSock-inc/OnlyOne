@@ -66,6 +66,7 @@ func Setup() *gin.Engine {
 		user.GET("/:username/sock", auth.MiddlewareFunc(), listSocksOfUser)
 	}
 
+	//all these routes need a valide jwt
 	sock := router.Group("/sock").Use(auth.MiddlewareFunc())
 	{
 		sock.POST("/", addSock)
@@ -78,7 +79,20 @@ func Setup() *gin.Engine {
 }
 
 func getSockInfo(c *gin.Context) {
-	c.Next()
+
+	sockId := c.Param("sockId")
+	s, err := db.GetSockInfo(sockId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": s,
+	})
+
 }
 
 func patchAcceptListOfSock(c *gin.Context) {

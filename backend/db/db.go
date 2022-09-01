@@ -8,7 +8,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"time"
 
 	"cloud.google.com/go/firestore"
 	"golang.org/x/crypto/bcrypt"
@@ -18,6 +17,9 @@ import (
 var projectID string = "onlyone-cb08e"
 var dbClient *firestore.Client
 var ctx *context.Context
+
+const UserColl = "users"
+const SocksCollection = "socks"
 
 type Address struct {
 	Street     string `firestore:"street" json:"street"`
@@ -124,8 +126,37 @@ func editMatchingSock(sockID string, otherSockID string, accept bool) error {
 	return nil
 }
 
-func getSockInfo(sockID string) Sock {
-	return Sock{}
+// get a sock struct from the database
+func GetSockInfo(sockId string) (Sock, error) {
+	client, err := GetDBConnection()
+	if err != nil {
+		return Sock{}, err
+	}
+	ref, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
+	if err != nil {
+		return Sock{}, err
+	}
+	if !ref.Exists() {
+		return Sock{}, fmt.Errorf("the given sock id doesn't exist")
+	}
+	var s Sock
+	if err := ref.DataTo(&s); err != nil {
+		return Sock{}, fmt.Errorf("corrupted data, unable to read database")
+	}
+
+	//in order to have an empty json array and not a null when converting from the go struct to the json repr
+	// related to TestGetSockInfo@db_test.go
+	//{..
+	//"refusedList": [],
+	//"acceptedList": [],...}
+	if s.AcceptedList == nil {
+		s.AcceptedList = make([]string, 0)
+	}
+	if s.RefusedList == nil {
+		s.RefusedList = make([]string, 0)
+	}
+
+	return s, nil
 }
 
 func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb64 string, owner string) (*firestore.DocumentRef, error) {
@@ -154,12 +185,11 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		return nil, err
 	}
 	userSnapShot, err := client.Collection("users").Doc(owner).Get(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("user doesn't exist %s", err.Error())
+	}
 	if !userSnapShot.Exists() {
-		errMsg := ""
-		if err != nil {
-			errMsg = err.Error()
-		}
-		return nil, fmt.Errorf("user doesn't exist %s", errMsg)
+		return nil, fmt.Errorf("document doesn't exist")
 	}
 
 	s := Sock{
@@ -169,8 +199,8 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		Description:  desc,
 		Picture:      Pictureb64,
 		Owner:        owner,
-		RefusedList:  []string{},
-		AcceptedList: []string{},
+		RefusedList:  make([]string, 0),
+		AcceptedList: make([]string, 0),
 		IsMatched:    false,
 	}
 	docRef, _, err := client.Collection("socks").Add(*ctx, s)
@@ -217,34 +247,6 @@ func VerifyLogin(username string, password string) (string, error) {
 		return "", fmt.Errorf("password not correct for user `%s`", username)
 	}
 	return doc.Ref.ID, nil
-}
-
-func CheckCookie(cookie string) (*firestore.DocumentRef, error) {
-	client, err := GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	now := time.Now()
-
-	query := client.Collection("users").Query.Where("sessionCookie", "==", cookie)
-	iter := query.Documents(context.Background())
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Printf("Failed to iterate: %v", err)
-			return nil, err
-		}
-		//if cookie is fresh (less than 1 day)
-		if now.Sub(doc.UpdateTime).Hours() < 24 {
-			var user User
-			doc.DataTo(&user)
-			return doc.Ref, nil
-		}
-	}
-	return nil, nil
 }
 
 // register a user in the db, currently the hash field should be a clear password
@@ -306,31 +308,6 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 		return nil, err
 	}
 	return docRef, nil
-}
-
-func SetCookie(cookie string, username string) error {
-	client, err := GetDBConnection()
-	if err != nil {
-		return err
-	}
-
-	query := client.Collection("users").Query.Where("username", "==", username)
-	docs, err := query.Documents(context.Background()).GetAll()
-	if err != nil {
-		log.Printf("error : %v\n", err)
-		return err
-	}
-	//if there are docs with this username
-	if len(docs) != 1 {
-		return fmt.Errorf("user already exists")
-	}
-
-	doc := docs[0]
-	data := doc.Data()
-	data["sessionCookie"] = cookie
-	client.Collection("users").Doc(doc.Ref.ID).Set(context.Background(), data)
-
-	return nil
 }
 
 func DeleteCollection(ctx context.Context, client *firestore.Client,
