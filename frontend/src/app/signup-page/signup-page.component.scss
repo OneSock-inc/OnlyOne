@@ -5,17 +5,11 @@ h1 {
 }
 
 
-form {
+.form {
     grid-column: 1/4;
     grid-row: 2/-1;
-    display: flex;
-    flex-direction: column;
     height: 100%;
-    padding-left: 5rem;
-    padding-right: 5rem;
-    font-size: large;
-    gap: 1rem;
-    justify-content: space-evenly;
+    min-height: 900px;
 }
 
 .title {
@@ -23,11 +17,7 @@ form {
     padding-top: 3rem;
 }
 
-#signupButton {
-    font-size: large;
-    margin-top: 1rem;
-    margin-bottom: 5rem;
-}
+
 
 #arrow-down {
     position: fixed;
