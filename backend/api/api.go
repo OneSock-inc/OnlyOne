@@ -97,14 +97,15 @@ func showUser(c *gin.Context) {
 
 	doc, err := db.GetUser(c.Param("username"))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 	var user db.User
 	doc.DataTo(&user)
-
+	// Do not show the user's hash !
+	user.Password = ""
 	c.JSON(http.StatusOK, user)
 }
 
