@@ -1,4 +1,8 @@
   <app-title class="app-title"></app-title>
+  <div id="btn-0">
+    <app-authentication-button > </app-authentication-button>
+  </div>
   <ng-template ngFor let-link let-i="index" [ngForOf]="links">
-      <a class={{link.classlist}} id="btn-{{ i }}" routerLink="{{link.href}}">{{ link.text }}</a>
+      <a class={{link.classlist}} id="btn-{{ i + 1 }}" routerLink="{{link.href}}">{{ link.text }}</a>
   </ng-template>
+
