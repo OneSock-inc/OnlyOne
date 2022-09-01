@@ -329,36 +329,3 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 		}
 	}
 }
-
-// func GetSockByID(sockId string) (Sock, error) {
-// 	client, err := GetDBConnection()
-// 	if err != nil {
-// 		return Sock{}, err
-// 	}
-// 	ref, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
-// 	if err != nil {
-// 		return Sock{}, err
-// 	}
-// 	if !ref.Exists() {
-// 		return Sock{}, fmt.Errorf("the given sock id doesn't exist")
-// 	}
-// 	var s Sock
-// 	if err := ref.DataTo(&s); err != nil {
-// 		return Sock{}, fmt.Errorf("corrupted data, unable to read database")
-// 	}
-
-// 	//in order to have an empty json array and not a null
-// 	//{..
-// 	//"refusedList": [],
-// 	//"acceptedList": [],...}
-// 	if s.AcceptedList == nil {
-// 		log.Printf("changing type")
-// 		s.AcceptedList = make([]string, 0)
-// 	}
-// 	if s.RefusedList == nil {
-// 		log.Printf("changing type")
-// 		s.RefusedList = make([]string, 0)
-// 	}
-
-// 	return s, nil
-// }

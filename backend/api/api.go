@@ -50,6 +50,7 @@ func Setup() *gin.Engine {
 		user.GET("/:username/sock", auth.MiddlewareFunc(), listSocksOfUser)
 	}
 
+	//all these routes need a valide jwt
 	sock := router.Group("/sock").Use(auth.MiddlewareFunc())
 	{
 		sock.POST("/", addSock)
