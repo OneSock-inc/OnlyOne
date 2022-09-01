@@ -110,21 +110,14 @@ export class SignupPageComponent implements OnInit {
       })
     });
 
-    this.signupForm.setValue({
-      username: this.newUser.username,
-      firstname: this.newUser.firstname,
-      surname: this.newUser.surname,
-      password: this.newUser.password,
-      street: this.newUser.address.street,
-      country: this.newUser.address.country,
-      city: this.newUser.address.city,
-      postalCode: this.newUser.address.postalCode
-    });
-
+    
     this.filteredCountries = this.signupForm.controls['country'].valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
+
+    SignupPageComponent.fillForm(this.newUser, this.signupForm)
+    
   }
 
   private _filter(value: string): string[] {
@@ -136,8 +129,23 @@ export class SignupPageComponent implements OnInit {
   onSubmit(form: FormGroup) {
     //this.newUser = this.formFieldsToObject(form);
     //console.log(this.newUser);
+    this.newUser = SignupPageComponent.formGroupToUserObject(form);
+    localStorage.setItem('newUser', JSON.stringify(this.newUser));
+    return this.http
+      .post<Response>(this.backendLink.getRegisterUrl(), this.newUser).subscribe({
+        next: (data: Response) => {
+          console.log(data);
+          //TODO: show message and redirect
+        },
+        error: (err) => {
+          console.error(err)
+        }
+      });
+  }
+
+  private static formGroupToUserObject(form: FormGroup): User {
     const value = form.value;
-    this.newUser = {
+    return {
       username: value.username,
       firstname: value.firstname,
       surname: value.surname,
@@ -149,18 +157,20 @@ export class SignupPageComponent implements OnInit {
         postalCode: value.postalCode 
       }
     }
-    localStorage.setItem('newUser', JSON.stringify(this.newUser));
-    return this.http
-      .post<Response>(this.backendLink.getRegisterUrl(), this.newUser).subscribe({
-        next: (data: Response) => {
-          console.log(data);
-          
-        },
-        error: (err) => {
-          console.error(err)
-        }
-      });
   }
+
+  private static fillForm(user: User, form: FormGroup): void {
+    form.setValue({
+      username: user.username,
+      firstname: user.firstname,
+      surname: user.surname,
+      password: user.password,
+      street: user.address.street,
+      country: user.address.country,
+      city: user.address.city,
+      postalCode: user.address.postalCode
+    });
+  } 
 
 }
 
