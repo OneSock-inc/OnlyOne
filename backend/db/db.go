@@ -85,8 +85,24 @@ func GetUserSocks(userID string) ([]Sock, error) {
 	return socks, nil
 }
 
-func getUser(username string) (User, error) {
-	return User{}, nil
+func GetUser(username string) (*firestore.DocumentSnapshot, error) {
+	db, err := GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	query := db.Collection("users").Where("username", "==", username)
+	users, err := query.Documents(*ctx).GetAll()
+	if err != nil {
+		log.Printf("error : %v\n", err)
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, fmt.Errorf("user `%s` not found", username)
+	}
+	if len(users) > 1 {
+		return nil, fmt.Errorf("multiple users `%s` found", username)
+	}
+	return users[0], nil
 }
 func editMatchingSock(sockID string, otherSockID string, accept bool) error {
 	return nil
@@ -172,31 +188,19 @@ func GetDBConnection() (*firestore.Client, error) {
 // here we get the document having the username, we then retrieve the salt from the doc and the hashed password from the doc,
 // we check if hash(password+salt) == doc.hash
 func VerifyLogin(username string, password string) (string, error) {
-	db, err := GetDBConnection()
+	doc, err := GetUser(username)
 	if err != nil {
-		return "", err
-	}
-	query := db.Collection("users").Where("username", "==", username)
-	users, err := query.Documents(*ctx).GetAll()
-	if err != nil {
-		log.Printf("error : %v\n", err)
-		return "", err
-	}
-	if len(users) == 0 {
-		return "", fmt.Errorf("user `%s` not found", username)
-	}
-	if len(users) > 1 {
-		return "", fmt.Errorf("multiple users `%s` found", username)
+		return "", fmt.Errorf("password not correct for user `%s`", username)
 	}
 	var user User
-	users[0].DataTo(&user)
+	doc.DataTo(&user)
 	log.Printf("trying to log with %s/%s", username, password)
 	//CompareHashAndPassword take the salt part from the hash and verify using it
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return "", fmt.Errorf("password not correct for user `%s`", username)
 	}
-	return users[0].Ref.ID, nil
+	return doc.Ref.ID, nil
 }
 
 func CheckCookie(cookie string) (*firestore.DocumentRef, error) {
