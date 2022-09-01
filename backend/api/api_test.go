@@ -245,6 +245,7 @@ func TestAddSockBadBase64(t *testing.T) {
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
+
 func makeLogedinUser() string {
 	//creat user
 	res := httptest.NewRecorder()
@@ -276,7 +277,6 @@ func makeLogedinUser() string {
 	}
 	log.Print("token :" + jsonResult.Token)
 	return jsonResult.Token
-
 }
 func TestCreateUser_Login_AddSock(t *testing.T) {
 
@@ -288,4 +288,24 @@ func TestCreateUser_Login_AddSock(t *testing.T) {
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusCreated, w.Code)
+}
+
+func TestShowUser(t *testing.T) {
+	jwtToken := makeLogedinUser()
+	log.Printf("%s", jwtToken)
+	w := httptest.NewRecorder()
+
+	req := httptest.NewRequest("GET", "/user/invalid", nil)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	w = httptest.NewRecorder()
+	req = httptest.NewRequest("GET", "/user/sockMan", nil)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, `{"username":"sockMan","firstname":"first","surname":"surname","password":"","address":{"street":"rue du rhone 1","country":"Swiss","city":"Genève","postalCode":"1212"}}`, w.Body.String())
 }
