@@ -84,4 +84,8 @@ export class LoginPageComponent {
   removeMessage() {
     this.dynamicBanner.vcref.clear();
   }
+
+  notLogged(): boolean {
+    return !this.authService.isLoggedIn();
+  }
 }
