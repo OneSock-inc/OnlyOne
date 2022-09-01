@@ -13,7 +13,7 @@ export class AuthenticationButtonComponent implements OnInit {
 
   signup: LinkElement = {text: 'Sigup', path: '/signup'};
   login: LinkElement = {text: 'Login', path: '/login'};
-  logout: LinkElement = {text: 'Logout', path: '/logout'};
+  logout: LinkElement = {text: 'Logout', path: ''};
 
   isLoggedIn: boolean = this.authService.isLoggedIn()
 
@@ -23,7 +23,7 @@ export class AuthenticationButtonComponent implements OnInit {
 
   onLogout() {
     this.authService.logout();
-    location.reload();
+    location.assign('/');
   }
 
 
