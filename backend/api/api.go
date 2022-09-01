@@ -14,6 +14,21 @@ import (
 
 var router *gin.Engine
 
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
 func jwtSetup() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:      "realm doesn't make sens in the JWT context",
@@ -41,6 +56,7 @@ func jwtSetup() *jwt.GinJWTMiddleware {
 }
 func Setup() *gin.Engine {
 	router = gin.Default()
+	router.Use(CORSMiddleware())
 	auth := jwtSetup()
 	user := router.Group("/user")
 	{
@@ -82,8 +98,20 @@ func getSockInfo(c *gin.Context) {
 func patchAcceptListOfSock(c *gin.Context) {
 	c.Next()
 }
+
 func showUser(c *gin.Context) {
-	c.Next()
+	doc, err := db.GetUser(c.Param("username"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	var user db.User
+	doc.DataTo(&user)
+	// Do not show the user's hash !
+	user.Password = ""
+	c.JSON(http.StatusOK, user)
 }
 
 func listSocksOfUser(c *gin.Context) {
@@ -193,7 +221,7 @@ func register(c *gin.Context) {
 	_, err := db.RegisterUser(tmpUser)
 
 	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
