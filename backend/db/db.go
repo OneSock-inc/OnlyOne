@@ -20,7 +20,7 @@ var projectID string = "onlyone-cb08e"
 var dbClient *firestore.Client
 var ctx *context.Context
 
-const UserColl = "users"
+const UsersCollection = "users"
 const SocksCollection = "socks"
 
 type Address struct {
@@ -69,7 +69,7 @@ func GetUserSocks(userID string) ([]Sock, error) {
 		return nil, err
 	}
 
-	query := client.Collection("socks").Query.Where("owner", "==", userID)
+	query := client.Collection(SocksCollection).Query.Where("owner", "==", userID)
 	iter := query.Documents(context.Background())
 	var socks []Sock
 	for {
@@ -94,7 +94,7 @@ func GetUser(username string) (*firestore.DocumentSnapshot, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := db.Collection("users").Where("username", "==", username)
+	query := db.Collection(UsersCollection).Where("username", "==", username)
 	users, err := query.Documents(*ctx).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
@@ -114,7 +114,7 @@ func GetUserFromID(id string) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
-	doc, err := db.Collection("users").Doc(id).Get(context.Background())
+	doc, err := db.Collection(UsersCollection).Doc(id).Get(context.Background())
 	if err != nil {
 		return User{}, err
 	}
@@ -234,7 +234,7 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 	if err != nil {
 		return Sock{}, err
 	}
-	userSnapShot, err := client.Collection("users").Doc(owner).Get(context.Background())
+	userSnapShot, err := client.Collection(UsersCollection).Doc(owner).Get(context.Background())
 	if err != nil {
 		return Sock{}, fmt.Errorf("user doesn't exist %s", err.Error())
 	}
@@ -253,7 +253,7 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		AcceptedList: make([]string, 0),
 		Match:        "",
 	}
-	docRef, _, err := client.Collection("socks").Add(*ctx, s)
+	docRef, _, err := client.Collection(SocksCollection).Add(*ctx, s)
 	s.ID = docRef.ID
 	return s, err
 }
@@ -333,7 +333,7 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 		return nil, err
 	}
 	//query doc where username's field == `username`
-	query := client.Collection("users").Query.Where("username", "==", u.Username)
+	query := client.Collection(UsersCollection).Query.Where("username", "==", u.Username)
 	docs, err := query.Documents(context.Background()).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
@@ -352,7 +352,7 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 	log.Printf("Hashed password : %s\n", hash)
 	user := u
 	user.Password = string(hash)
-	docRef, _, err := client.Collection("users").Add(*ctx, user)
+	docRef, _, err := client.Collection(UsersCollection).Add(*ctx, user)
 
 	if err != nil {
 		log.Printf("error : %v\n", err)
