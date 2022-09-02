@@ -1,16 +1,32 @@
-<p>
+
   <h1 class="title">Login</h1>
-  <form (submit)="onSubmit(this)">
+  <form *ngIf="notLogged(); else loggedIn" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
     <mat-form-field appearance="legacy" class="form-group" id="username">
       <mat-label>Username</mat-label>
-      <input matInput name="username" placeholder="Enter your username" [(ngModel)]="username">
+      <input id="username" matInput name="username" placeholder="Enter your username" formControlName="username">
     </mat-form-field>
+
     <mat-form-field appearance="legacy" class="form-group" id="password">
       <mat-label>Password</mat-label>
-      <input matInput  name=password [type]="hide ? 'password' : 'text'" placeholder="Enter your password" [(ngModel)]="password">
+      <input id="password" matInput  name=password [type]="hide ? 'password' : 'text'" placeholder="Enter your password" formControlName="password">
       <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" type="button">
         <mat-icon>{{hide ? 'visibility' : 'visibility_off'}}</mat-icon>
       </button>
     </mat-form-field>
-    <button mat-flat-button class="form-group" color="primary" id="login">Login</button>
+
+    <button [disabled]="loginForm.invalid" mat-flat-button class="form-group" color="primary" id="login">Login</button>
+    
+    <div id="errorMsg" class="banner hidden" ></div> 
+
   </form>
+
+  <ng-template #loggedIn >
+  <p id="loggedIn">
+    Already logged in !!!
+  </p>
+  </ng-template>
+  
+  <ng-template appLoader ></ng-template>
+
+

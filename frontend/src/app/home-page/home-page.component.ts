@@ -20,7 +20,6 @@ export class HomePageComponent implements OnInit {
   linksClassList: string = 'center btn';
 
   links: Array<LinkElement> = [
-    {text: "login", href: '/login', classlist: this.linksClassList},
     {text: "Add a lonely sock", href: '/add-sock', classlist: this.linksClassList},
     {text: "My socks", href: '/my-socks', classlist: this.linksClassList}
   ]

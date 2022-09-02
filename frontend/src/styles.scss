@@ -49,3 +49,30 @@ html {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 } 
+
+.hidden {
+    visibility: hidden !important;
+}
+
+.visible {
+    visibility: visible !important;
+}
+
+.banner {
+    width: 100%;
+    color: white;
+    background-color: red;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 1rem;
+    border-radius: .2rem;
+}
+
+.btn-blue {
+    background-color: #3498db;
+    color: white;
+}

@@ -12,15 +12,13 @@ import (
 	"strings"
 	"testing"
 
-	"cloud.google.com/go/firestore"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/api/iterator"
 )
 
 func TestMain(m *testing.M) {
 	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080")
 	client, _ := db.GetDBConnection()
-	err := deleteCollection(context.Background(), client, client.Collection("users"), 64)
+	err := db.DeleteCollection(context.Background(), client, client.Collection("users"), 64)
 	if err != nil {
 		log.Print(err.Error())
 		os.Exit(1)
@@ -31,44 +29,6 @@ func TestMain(m *testing.M) {
 
 	os.Exit(exit)
 
-}
-
-func deleteCollection(ctx context.Context, client *firestore.Client,
-	ref *firestore.CollectionRef, batchSize int) error {
-
-	for {
-		// Get a batch of documents
-		iter := ref.Limit(batchSize).Documents(ctx)
-		numDeleted := 0
-
-		// Iterate through the documents, adding
-		// a delete operation for each one to a
-		// WriteBatch.
-		batch := client.Batch()
-		for {
-			doc, err := iter.Next()
-			if err == iterator.Done {
-				break
-			}
-			if err != nil {
-				return err
-			}
-
-			batch.Delete(doc.Ref)
-			numDeleted++
-		}
-
-		// If there are no documents to delete,
-		// the process is over.
-		if numDeleted == 0 {
-			return nil
-		}
-
-		_, err := batch.Commit(ctx)
-		if err != nil {
-			return err
-		}
-	}
 }
 
 func TestSetup(t *testing.T) {
@@ -105,10 +65,15 @@ func TestLoginFail(t *testing.T) {
 func newUserRegisterRequest(usr string, pwd string) *http.Request {
 	js := fmt.Sprintf(`{
 		"username": "%s",
-		"firstname": "firstname",
-		"surname" : "surname",
-		"password" : "%s",
-		"shippingAddress" : "Planet earth, 3301"
+		"firstname": "first",
+		"surname": "surname",
+		"address": {
+			"street": "rue du rhone 1",
+			"country": "Swiss",
+			"city": "Genève",
+			"postalCode": "1212"
+		},
+		"password": "%s"
 	}`, usr, pwd)
 	r := strings.NewReader(js)
 	req, err := http.NewRequest("POST", "/user/register", r)
@@ -152,7 +117,7 @@ func TestLoginSucess(t *testing.T) {
 	//delete all users
 	client, err := db.GetDBConnection()
 	assert.Nil(t, err)
-	err = deleteCollection(context.Background(), client, client.Collection("users"), 64)
+	err = db.DeleteCollection(context.Background(), client, client.Collection("users"), 64)
 	assert.Nil(t, err)
 
 	const user = "hisUsername"
@@ -187,6 +152,33 @@ func newSockRequest(shoeSize uint16, type_ db.Profile, color string, descr strin
 
 func getValidBase64Image() string {
 	return "aHR0cHM6Ly9kbGFuZy5vcmcK"
+}
+
+func TestListSocksOfUser(t *testing.T) {
+	jwtToken := makeLogedinUser()
+	log.Printf("%s", jwtToken)
+	w := httptest.NewRecorder()
+
+	req := newSockRequest(42, db.Profile(0), "#FFF", "Do not", getValidBase64Image())
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+	var sock db.Sock
+
+	json.Unmarshal(w.Body.Bytes(), &sock)
+	w = httptest.NewRecorder()
+
+	req = httptest.NewRequest("GET", "/user/sockMan/sock", nil)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, `[{"id":"`+
+		sock.ID+
+		`","shoeSize":42,"type":0,"color":"#FFF","description":"Do not","picture":"aHR0cHM6Ly9kbGFuZy5vcmcK","owner":"`+
+		sock.Owner+
+		`","refusedList":null,"acceptedList":null,"isMatched":false}]`, w.Body.String())
 }
 
 func TestAddSockWithoutUser(t *testing.T) {
@@ -253,6 +245,7 @@ func TestAddSockBadBase64(t *testing.T) {
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
+
 func makeLogedinUser() string {
 	//creat user
 	res := httptest.NewRecorder()
@@ -284,7 +277,6 @@ func makeLogedinUser() string {
 	}
 	log.Print("token :" + jsonResult.Token)
 	return jsonResult.Token
-
 }
 func TestCreateUser_Login_AddSock(t *testing.T) {
 
@@ -296,4 +288,24 @@ func TestCreateUser_Login_AddSock(t *testing.T) {
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
 	assert.Equal(t, http.StatusCreated, w.Code)
+}
+
+func TestShowUser(t *testing.T) {
+	jwtToken := makeLogedinUser()
+	log.Printf("%s", jwtToken)
+	w := httptest.NewRecorder()
+
+	req := httptest.NewRequest("GET", "/user/invalid", nil)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	w = httptest.NewRecorder()
+	req = httptest.NewRequest("GET", "/user/sockMan", nil)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, `{"username":"sockMan","firstname":"first","surname":"surname","password":"","address":{"street":"rue du rhone 1","country":"Swiss","city":"Genève","postalCode":"1212"}}`, w.Body.String())
 }

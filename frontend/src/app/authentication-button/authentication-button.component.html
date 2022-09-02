@@ -1,0 +1,12 @@
+<div>
+
+    <div *ngIf="isLoggedIn; else elseBlock" >
+            <button (click)="onLogout()" class="btn btn-blue" > {{ logout.text }}</button>
+    </div>
+    <ng-template #elseBlock >
+        <a class="btn btn-blue" routerLink="{{ login.path }}" > {{ login.text }}</a>
+        <span></span>
+        <a class="btn btn-blue" routerLink="{{ signup.path }}" > {{ signup.text }}</a>
+    </ng-template>
+
+</div>
