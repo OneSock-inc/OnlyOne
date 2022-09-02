@@ -22,6 +22,8 @@ export class SignupFormComponent implements OnInit {
   hidePassword = true;
   passwordMinLength: number = 10;
 
+  newUser: User = this.userService.getUser();
+
   // To display the list of countries
   countries: string[] = jsonFile.listOfCountries.map((country) => country.name);
   filteredCountries!: Observable<string[]>;
@@ -30,53 +32,56 @@ export class SignupFormComponent implements OnInit {
   messageBanner!: MessageBannerDirective;
 
   onSubmit(form: FormGroup): void {
-    this.messageBanner.vcref.clear();
-    console.log(SignupFormComponent.formGroupToUserObject(form));
+    if (!form.valid) return
+    this.messageBanner.hideMessage();
+    //console.log(SignupFormComponent.formGroupToUserObject(form));
+    console.log(this.newUser);
     this.userService.registerNewUser(
       SignupFormComponent.formGroupToUserObject(form),
-      (successMsg: any) => {
-        console.log(successMsg);
-        this.router.navigate(['/login']);
-      }
-      ,
-      (errorMSg: any) => {
-        this.messageBanner.displayMessage(errorMSg);
-      }
+      this.onSuccess,
+      this.onError
     );
+  }
+
+  private onSuccess = (successMsg: any) => {
+    console.log(successMsg);
+    this.router.navigate(['/login']);
+  }
+
+  private onError = (errorMSg: any) => {
+    this.messageBanner.displayMessage(errorMSg);
   }
 
   ngOnInit(): void {
     this.signupForm = new FormGroup({
-      username: new FormControl('', {
+      username: new FormControl( this.newUser.username, {
         validators: [Validators.required],
       }),
-      password: new FormControl('', {
+      password: new FormControl(this.newUser.password, {
         validators: [
           Validators.required,
           Validators.minLength(this.passwordMinLength),
         ],
       }),
-      firstname: new FormControl('', {
+      firstname: new FormControl(this.newUser.firstname, {
         validators: [Validators.required],
       }),
-      surname: new FormControl('', {
+      surname: new FormControl(this.newUser.surname, {
         validators: [Validators.required],
       }),
-      street: new FormControl('', {
+      street: new FormControl(this.newUser.address.street, {
         validators: [Validators.required],
       }),
-      country: new FormControl('', {
+      country: new FormControl(this.newUser.address.country, {
         validators: [countryValidator(this.countries), Validators.required],
       }),
-      postalCode: new FormControl('', {
+      postalCode: new FormControl(this.newUser.address.postalCode, {
         validators: [Validators.required, postalCodeValidator()],
       }),
-      city: new FormControl('', {
+      city: new FormControl(this.newUser.address.city, {
         validators: [Validators.required],
       }),
     });
-
-    SignupFormComponent.fillForm(this.userService.getUser(), this.signupForm);
 
     this.filteredCountries = this.signupForm.controls[
       'country'
@@ -107,19 +112,6 @@ export class SignupFormComponent implements OnInit {
         postalCode: value.postalCode,
       },
     };
-  }
-
-  private static fillForm(user: User, form: FormGroup): void {
-    form.setValue({
-      username: user.username,
-      firstname: user.firstname,
-      surname: user.surname,
-      password: user.password,
-      street: user.address.street,
-      country: user.address.country,
-      city: user.address.city,
-      postalCode: user.address.postalCode,
-    });
   }
   
 }

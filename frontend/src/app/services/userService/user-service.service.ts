@@ -26,6 +26,9 @@ export class UserService {
       });
   }
 
+  /**
+   * @returns Retrieve the user if present in localStorage, return empty user otherwise.
+   */
   getUser(): User {
     return this.user;
   }
