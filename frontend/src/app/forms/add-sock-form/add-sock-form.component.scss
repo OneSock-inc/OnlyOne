@@ -77,13 +77,3 @@ color-picker {
     background-color: white;
     border: 1px solid gray;
   }
-
-  ::ng-deep .color-picker {
-    width: 100% !important;
-    top: -280px !important;
-    left: 0 !important;
-  }
-
-  ::ng-deep color-picker {
-    position: relative;
-  }
