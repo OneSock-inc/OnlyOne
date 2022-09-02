@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from 'src/app/services/userService/user-service.service';
 import { MessageBannerComponent } from 'src/app/message-banner/message-banner.component';
-import { MesageBannerDirective as MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
+import { MessageBannerDirective as MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 
 @Component({
   selector: 'app-abstract-form',

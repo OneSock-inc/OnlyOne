@@ -26,7 +26,7 @@ import { ConfigService } from './services/config/config.service';
 import { LoaderComponent } from './loader/loader.component';
 import { LoaderDirective } from './loader/loader.directive';
 import { MessageBannerComponent } from './message-banner/message-banner.component';
-import { MesageBannerDirective } from './message-banner/mesage-banner.directive';
+import { MessageBannerDirective } from './message-banner/mesage-banner.directive';
 import { HttpErrorService } from './services/http-interceptors/http-error.service';
 import { AuthService } from './services/authService/auth.service';
 import { AuthInterceptor } from './services/http-interceptors/auth-interceptor.service';
@@ -41,13 +41,14 @@ import { LoginFormComponent } from './forms/login-form/login-form.component';
     LoaderComponent,
     LoaderDirective,
     MessageBannerComponent,
+    MessageBannerDirective,
     HomePageComponent,
     AppComponent,
     TitleComponent,
     ButtonComponent,
     LoginPageComponent,
     PageNotFoundComponent,
-    MesageBannerDirective,
+    MessageBannerComponent,
     SignupPageComponent,
     AuthenticationButtonComponent,
     SignupFormComponent,
@@ -58,7 +59,6 @@ import { LoginFormComponent } from './forms/login-form/login-form.component';
     AppRoutingModule,
     RouterModule,
     FormsModule,
-    ReactiveFormsModule,
     BrowserAnimationsModule,
     MatFormFieldModule,
     MatInputModule,

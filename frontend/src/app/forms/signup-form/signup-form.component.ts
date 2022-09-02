@@ -6,7 +6,7 @@ import jsonFile from './countries.json';
 import { Observable } from 'rxjs/internal/Observable';
 import {map, startWith} from 'rxjs/operators';
 import { UserService } from 'src/app/services/userService/user-service.service';
-import { MesageBannerDirective as MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
+import { MessageBannerDirective as MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { Router } from '@angular/router';
 
 @Component({
@@ -30,7 +30,8 @@ export class SignupFormComponent implements OnInit {
   messageBanner!: MessageBannerDirective;
 
   onSubmit(form: FormGroup): void {
-    this.messageBanner.vcref.clear();
+    //this.messageBanner.vcref.clear();
+    this.messageBanner.hideMessage();
     console.log(SignupFormComponent.formGroupToUserObject(form));
     this.userService.registerNewUser(
       SignupFormComponent.formGroupToUserObject(form),
