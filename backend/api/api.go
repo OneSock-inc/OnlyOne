@@ -73,7 +73,6 @@ func Setup() *gin.Engine {
 	sock := router.Group("/sock").Use(auth.MiddlewareFunc())
 	{
 		sock.POST("/", addSock)
-		sock.GET("/:sockId/match", listMatchesOfSock)
 		sock.PATCH("/:sockId", patchAcceptListOfSock)
 		sock.GET("/:sockId", getSockInfo)
 	}
