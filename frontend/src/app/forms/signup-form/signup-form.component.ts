@@ -7,10 +7,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import {map, startWith} from 'rxjs/operators';
 import { UserService } from 'src/app/services/userService/user-service.service';
 import { MesageBannerDirective as MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
-import { MessageBannerComponent } from 'src/app/message-banner/message-banner.component';
-import { Route, Router } from '@angular/router';
-
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup-form',
@@ -33,7 +30,7 @@ export class SignupFormComponent implements OnInit {
   messageBanner!: MessageBannerDirective;
 
   onSubmit(form: FormGroup): void {
-    this.hideError();
+    this.messageBanner.vcref.clear();
     console.log(SignupFormComponent.formGroupToUserObject(form));
     this.userService.registerNewUser(
       SignupFormComponent.formGroupToUserObject(form),
@@ -43,7 +40,7 @@ export class SignupFormComponent implements OnInit {
       }
       ,
       (errorMSg: any) => {
-        this.displayError(errorMSg);
+        this.messageBanner.displayMessage(errorMSg);
       }
     );
   }
@@ -96,17 +93,6 @@ export class SignupFormComponent implements OnInit {
     );
   }
 
-  private displayError(message: string) {
-    const elem = this.messageBanner.vcref.createComponent(
-      MessageBannerComponent
-    );
-    elem.instance.message = message;
-  }
-
-  private hideError() {
-    this.messageBanner.vcref.clear();
-  }
-
   private static formGroupToUserObject(form: FormGroup): User {
     const value = form.value;
     return {
@@ -135,4 +121,5 @@ export class SignupFormComponent implements OnInit {
       postalCode: user.address.postalCode,
     });
   }
+  
 }
