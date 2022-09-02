@@ -97,13 +97,8 @@ func getSockInfo(c *gin.Context) {
 
 func patchAcceptListOfSock(c *gin.Context) {
 	claim := jwt.ExtractClaims(c)
-	userID, ok := claim[jwt.IdentityKey].(string)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "User is not authentificated",
-		})
-		return
-	}
+	// checks already made by the middleware
+	userID, _ := claim[jwt.IdentityKey].(string)
 
 	sock, err := db.GetSockInfo(c.Param("sockId"))
 	if err != nil {
