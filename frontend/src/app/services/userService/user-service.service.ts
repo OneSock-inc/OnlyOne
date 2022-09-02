@@ -3,11 +3,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 
 import { User } from 'src/app/dataModel/user.model';
-import { Subscription } from 'rxjs';
-
-interface Response {
-  message: string;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -18,33 +13,17 @@ export class UserService {
   }
 
   private user: User;
-  private error: any;
-  private successResponse: any;
 
-  registerNewUser(newUser: User): Subscription {
+  registerNewUser(newUser: User, successCb: Function, errorCb: Function): void {
     UserService.registerUserInLocalStorage(newUser);
-    return this.http
+    this.http
       .post<any>(this.backSrv.getRegisterUrl(), newUser)
       .subscribe({
         next: (response) => {
-          this.successResponse = response;
-          console.log(response);
+          successCb(response)
         },
-        error: (error) => (this.error = error),
+        error: (error) => errorCb(error),
       });
-  }
-
-  getLastSuccessResponse() {
-    return this.successResponse;
-  }
-
-  getLastErrorResponse() {
-    return this.error;
-  }
-
-  clearMessages(){
-    this.error = undefined;
-    this.successResponse = undefined;
   }
 
   getUser(): User {
@@ -61,8 +40,10 @@ export class UserService {
   }
 
   private static registerUserInLocalStorage(user: User): void {
-    user.password = '';
-    localStorage.setItem('currentUser', JSON.stringify(user));
+    const usrStr = JSON.stringify(user);
+    const usrClone = JSON.parse(usrStr);
+    usrClone.password = '';
+    localStorage.setItem('currentUser', JSON.stringify(usrClone));
   }
   
 }

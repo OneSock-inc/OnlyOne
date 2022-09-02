@@ -29,36 +29,26 @@ export class SignupFormComponent implements OnInit {
   countries: string[] = jsonFile.listOfCountries.map((country) => country.name);
   filteredCountries!: Observable<string[]>;
 
-  @ViewChild(MessageBannerDirective, {static: true})
+  @ViewChild(MessageBannerDirective, { static: true })
   messageBanner!: MessageBannerDirective;
-
-  displayError(message: string) {
-    const elem = this.messageBanner.vcref.createComponent(MessageBannerComponent);
-    elem.instance.message = message;
-  }
-
-  hideError() {
-    this.messageBanner.vcref.clear();
-  }
 
   onSubmit(form: FormGroup): void {
     this.hideError();
-    this.userService.clearMessages();
-    this.userService
-      .registerNewUser(SignupFormComponent.formGroupToUserObject(form))
-      .add(() => {
-        if (this.userService.getLastErrorResponse()) {
-          console.log(this.userService.getLastErrorResponse());
-          this.displayError(this.userService.getLastErrorResponse());
-        } else {
-          console.log(this.userService.getLastSuccessResponse());
-          this.router.navigate(['/login']);
-        }
-      });
+    console.log(SignupFormComponent.formGroupToUserObject(form));
+    this.userService.registerNewUser(
+      SignupFormComponent.formGroupToUserObject(form),
+      (successMsg: any) => {
+        console.log(successMsg);
+        this.router.navigate(['/login']);
+      }
+      ,
+      (errorMSg: any) => {
+        this.displayError(errorMSg);
+      }
+    );
   }
 
   ngOnInit(): void {
-
     this.signupForm = new FormGroup({
       username: new FormControl('', {
         validators: [Validators.required],
@@ -89,7 +79,7 @@ export class SignupFormComponent implements OnInit {
       }),
     });
 
-    SignupFormComponent.fillForm(this.userService.getUser(), this.signupForm)
+    SignupFormComponent.fillForm(this.userService.getUser(), this.signupForm);
 
     this.filteredCountries = this.signupForm.controls[
       'country'
@@ -104,6 +94,17 @@ export class SignupFormComponent implements OnInit {
     return this.countries.filter((country) =>
       country.toLowerCase().includes(filterValue)
     );
+  }
+
+  private displayError(message: string) {
+    const elem = this.messageBanner.vcref.createComponent(
+      MessageBannerComponent
+    );
+    elem.instance.message = message;
+  }
+
+  private hideError() {
+    this.messageBanner.vcref.clear();
   }
 
   private static formGroupToUserObject(form: FormGroup): User {
