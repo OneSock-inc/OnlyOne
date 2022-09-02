@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/services/authService/auth.service';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { LoaderDirective } from 'src/app/loader/loader.directive';
 import { LoaderComponent } from 'src/app/loader/loader.component';
+import { JWToken } from 'src/app/dataModel/jwt.model';
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',
@@ -40,7 +41,7 @@ export class LoginFormComponent implements OnInit {
   }
 
   onSubmit(form: FormGroup): void {
-    if (this.loginForm.invalid) return;
+    if (form.invalid) return;
     if (this.clicked) return;
     this.clicked = true;
 
@@ -48,19 +49,18 @@ export class LoginFormComponent implements OnInit {
     this.authService.clearError();
     //this.removeMessage();
     this.messageBanner.hideMessage();
-
-    // Call the method that send login request to the server
-    this.authService
-      .login(this.loginForm.value.username, this.loginForm.value.password)
-      .add(() => {
-        if (typeof this.authService.getError() !== 'undefined') {
-          this.clicked = false;
-          //this.removeLoader();
-          this.messageBanner.displayMessage(this.authService.getError());
-        } else {
-          this.router.navigate(['/home']);
-        }
-      });
+    const userName = this.loginForm.value.username;
+    const pwd = form.value.password;
+    this.authService.loginV2(userName, pwd,
+      (response: any) => {
+        this.router.navigate(['/home']);
+      },
+      (error: any) => {
+        this.clicked = false;
+        //this.removeLoader();
+        this.messageBanner.displayMessage(error)
+      }
+      )
   }
 
   // createLoader(): void {

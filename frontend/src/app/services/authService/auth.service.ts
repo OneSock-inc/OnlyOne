@@ -44,6 +44,18 @@ export class AuthService {
       });
   }
 
+  loginV2(username: string, password: string, successCallback: Function, errorCallBack: Function) {
+    this.http.post<JWToken>(this.backendLink.getLoginUrl(), {username, password})
+    .subscribe({
+      next: (response: any) => {
+        successCallback(response);
+      },
+      error: (error: any) => {
+        errorCallBack(error);
+      }
+    })
+  }
+
   /**
    * Clear the local storage and the token saved in the TokenService 
    * instance.
