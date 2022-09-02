@@ -24,14 +24,9 @@ export class SignupPageComponent {
   constructor(private http: HttpClient, private backendLink: BackendLinkService) {
     
   }
-
-  private newUser!: User;
   
-  @ViewChild(SignupPageComponent)
-  signupPageComponent!: SignupPageComponent;
 
   displayArrow: boolean = true;
-
 
   // display down arrow if the user has not scrolled to the bottom of the page
   @HostListener('window:scroll', ['$event'])

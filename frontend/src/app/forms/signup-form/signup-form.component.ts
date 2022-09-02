@@ -34,8 +34,6 @@ export class SignupFormComponent implements OnInit {
   onSubmit(form: FormGroup): void {
     if (!form.valid) return
     this.messageBanner.hideMessage();
-    //console.log(SignupFormComponent.formGroupToUserObject(form));
-    console.log(this.newUser);
     this.userService.registerNewUser(
       SignupFormComponent.formGroupToUserObject(form),
       this.onSuccess,
