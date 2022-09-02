@@ -250,6 +250,7 @@ func TestGetUserFromID(t *testing.T) {
 }
 
 func TestGetCompatibleSocks(t *testing.T) {
+	const LIMIT uint16 = 1
 	//delete all the socks
 	client, err := GetDBConnection()
 	assert.Nil(t, err)
@@ -289,7 +290,7 @@ func TestGetCompatibleSocks(t *testing.T) {
 	s1d, err := NewSock(s1.ShoeSize, s1.Type, s.Color, s1.Description, s1.Picture, s1.Owner)
 	s1.ID = s1d.ID
 	assert.Nil(t, err)
-	socks, err := GetCompatibleSocks(s1.ID)
+	socks, err := GetCompatibleSocks(s1.ID, LIMIT)
 	assert.Nil(t, err)
 	//we created two sock, the list of comptaible for s is [s1]
 	assert.True(t, len(socks) == 1)
@@ -342,14 +343,16 @@ func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 	}
 
 	//create two similar socks with their owner beeing the new user
-	socks, err := GetCompatibleSocks(sockId)
+	const MAX uint16 = 4
+	socks, err := GetCompatibleSocks(sockId, MAX)
 	assert.Nil(t, err)
 	//we created two sock by user 10 times we should get 4 of them (defined as the maximum for a sock)
-	assert.True(t, len(socks) == 4)
+	assert.True(t, len(socks) == int(MAX))
 	assert.True(t, socks[0].ID != "")
-	assert.True(t, math.Abs(float64(socks[0].ShoeSize)-float64(socks[1].ShoeSize)) < 2)
-	for i := 1; i < 4; i++ {
+	assert.True(t, math.Abs(float64(socks[0].ShoeSize)-float64(socks[1].ShoeSize)) <= 2)
+	for i := 1; uint16(i) < MAX; i++ {
 		//assert than the shoesSize are similar when looking at two similar shoes
-		assert.True(t, math.Abs(float64(socks[i-1].ShoeSize)-float64(socks[i].ShoeSize)) < 2)
+		// usually for a sock size 42 type 0 we will get [40,0]
+		assert.True(t, math.Abs(float64(socks[i-1].ShoeSize)-float64(socks[i].ShoeSize)) <= 4)
 	}
 }

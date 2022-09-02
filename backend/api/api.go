@@ -236,8 +236,9 @@ func addSock(c *gin.Context) {
 }
 
 func listMatchesOfSock(c *gin.Context) {
+	var limit uint16 = 4 //chosen by fair random dice roll
 	sockId := c.Param("sockId")
-	socks, err := db.GetCompatibleSocks(sockId)
+	socks, err := db.GetCompatibleSocks(sockId, limit)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

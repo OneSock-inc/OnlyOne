@@ -399,7 +399,11 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 	}
 }
 
-func GetCompatibleSocks(sockId string) ([]Sock, error) {
+/*
+GetCompatibleSocks returns the most similar sock in the
+*/
+func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
+
 	tree := kdtree.New()
 
 	client, err := GetDBConnection()
@@ -412,12 +416,13 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 	}
 	var sockOP Sock
 	doc.DataTo(&sockOP)
-	socks := make([]Sock, 0, 4)
+	socks := make([]Sock, 0, limit)
 
 	it := client.Collection(SocksCollection).DocumentRefs(context.Background())
+	//matrix of sock's features each row is an array of the sock's feature
 	datas := make([][]float64, 0)
 	//Query.Where("shoeSize", "==", s.ShoeSize).Where("type", "==", s.Type).Where("isMatched", "==", false).Documents(context.Background())
-	i := 0
+	var i uint16 = 0
 	for {
 		//if we are done
 		doc, err := it.Next()
@@ -438,7 +443,9 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 		}
 
 		var currentSock Sock
-		dockSnapShot.DataTo(currentSock)
+		dockSnapShot.DataTo(&currentSock)
+
+		log.Printf("%+v", currentSock)
 		rgb, _ := utils.ParseHexColor(currentSock.Color)
 		//because rgb is [0;255] and shoesize is max 75, we need to multiple them to give them more importance
 		datas = append(datas, []float64{
@@ -458,13 +465,31 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 	if err = tree.Build(datas); err != nil {
 		return nil, nil
 	}
-	if i > 4 {
-		i = 4
+	// i := len(socks)
+	if i > limit {
+		i = limit
 	}
+
+	/*
+		This is how to datas in arranged in datas
+		datas = {
+			sock1 : [feature array]
+			sock2 : [feature array]
+			sock3 : [feature array]
+			sock4 : [feature array]
+			sock5 : [feature array]
+			sock6 : [feature array]
+			sock7 : [feature array]
+		}
+	*/
+
 	euclide := pairwise.NewEuclidean()
 	rgb, _ := utils.ParseHexColor(sockOP.Color)
-	//search 4 sock similar (euclide) to s.attribut
-	rows, _ /*pairwise distance from sockOP to currentSock_i*/ /*err*/, _ := tree.Search(i, euclide, []float64{
+	//search limit sock similar (euclide) to s.attribut
+
+	//rows contains the indexes of the most similar socks, fetching socks[rows[0]] gives the best matching sock
+	//fetching datas[rows[0]] gives the feature of the best matching sock
+	rows, _ /*pairwise distance from sockOP to currentSock_i*/ /*err*/, _ := tree.Search(int(i), euclide, []float64{
 		float64(sockOP.ShoeSize) * 125 * 4,
 		float64(sockOP.Type) * 250 * 4,
 		float64(rgb.A),
@@ -473,9 +498,10 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 		float64(rgb.B),
 	})
 
-	res := make([]Sock, 0, 4)
+	//take the limit socks
+	res := make([]Sock, 0, limit)
 	for _, s := range rows {
-		//add the i best rows limit to 4
+		//add the k best socks (limits to limit)
 		res = append(res, socks[s])
 	}
 
