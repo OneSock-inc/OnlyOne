@@ -22,4 +22,12 @@ export class BackendLinkService {
     return this.config.backendUrl + "/user/register";
   }
 
+  postSockUrl(): string {
+    return this.config.backendUrl + "/sock";
+  }
+
+  getSockUrl(): string {
+    return this.postSockUrl();
+  }
+
 }
