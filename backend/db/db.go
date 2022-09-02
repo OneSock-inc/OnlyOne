@@ -444,7 +444,10 @@ func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
 
 		var currentSock Sock
 		dockSnapShot.DataTo(&currentSock)
-
+		//we don't want to match two socks from the same owner or a sock already matched
+		if currentSock.Owner == sockOP.Owner || currentSock.IsMatched {
+			continue
+		}
 		log.Printf("%+v", currentSock)
 		rgb, _ := utils.ParseHexColor(currentSock.Color)
 		//because rgb is [0;255] and shoesize is max 75, we need to multiple them to give them more importance
