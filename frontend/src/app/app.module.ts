@@ -40,6 +40,7 @@ import { TokenService } from './services/authService/token-service.service';
 import { AccessControlService } from './services/authService/access-control.service';
 import { AuthenticationButtonComponent } from './authentication-button/authentication-button.component';
 import { SignupFormComponent } from './forms/signup-form/signup-form.component';
+import { AddSockFormComponent } from './forms/add-sock-form/add-sock-form.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { SignupFormComponent } from './forms/signup-form/signup-form.component';
     AddSockPageComponent,
     AuthenticationButtonComponent,
     SignupFormComponent,
+    AddSockFormComponent,
   ],
   imports: [
     BrowserModule,
