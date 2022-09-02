@@ -19,4 +19,9 @@ describe('ConfigService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('config should be defined', () => {
+    expect(service.getConfig()).toBeTruthy()
+  })
+  
 });

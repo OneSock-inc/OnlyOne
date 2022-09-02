@@ -11,15 +11,14 @@ interface Country {
 @Injectable()
 export class ConfigService {
   constructor(private http: HttpClient) { 
-    this.http.get<Config>(this.configUrl).subscribe(
-      data => {
-        this.config = {...this.config, ...data}
-      }
-    )
+    this.config = {
+      backendUrl: 'https://api.jsch.ch',
+      passwordMinLength: 10
+    }
    }
 
   private configUrl = 'assets/config.json';
-  private config!: Config;
+  private config: Config;
 
   getConfig() {
     return this.config;

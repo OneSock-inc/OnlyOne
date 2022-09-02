@@ -14,8 +14,6 @@ export class BackendLinkService {
   }
   private config: Config;
 
-
-
   getLoginUrl(): string {
     return this.config.backendUrl + "/user/login"
   }
