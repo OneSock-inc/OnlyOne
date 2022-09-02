@@ -21,7 +21,8 @@ export class HomePageComponent implements OnInit {
 
   links: Array<LinkElement> = [
     {text: "Add a lonely sock", href: '/add-sock', classlist: this.linksClassList},
-    {text: "My socks", href: '/my-socks', classlist: this.linksClassList}
+    {text: "My socks", href: '/sock-list', classlist: this.linksClassList},
+    {text: "My account", href: '/my-account', classlist: this.linksClassList},
   ]
 
   ngOnInit(): void {
