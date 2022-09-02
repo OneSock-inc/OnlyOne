@@ -9,6 +9,8 @@ import { AddSockPageComponent } from './add-sock-page/add-sock-page.component';
 import { MatchingSocksComponent } from './matching-socks/matching-socks.component';
 import { MyAccountComponent } from './my-account/my-account.component';
 import { SockListComponent } from './sock-list/sock-list.component';
+import { MatchWinComponent } from './match-win/match-win.component';
+import { MatchLoseComponent } from './match-lose/match-lose.component';
 
 // TODO : add "canMatch" to routes
 const routes: Routes = [
@@ -19,6 +21,8 @@ const routes: Routes = [
   { path: 'matching-socks', component: MatchingSocksComponent },
   { path: 'my-account', component: MyAccountComponent },
   { path: 'sock-list', component: SockListComponent },
+  { path: 'match-win', component: MatchWinComponent },
+  { path: 'match-lose', component: MatchLoseComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent },
 ];
