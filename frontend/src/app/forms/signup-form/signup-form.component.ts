@@ -1,11 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { User } from 'src/app/dataModel/user.model';
 import { countryValidator, postalCodeValidator } from './../customValidators';
 import jsonFile from './countries.json';
-import { MatAutocomplete } from '@angular/material/autocomplete';
 import { Observable } from 'rxjs/internal/Observable';
 import {map, startWith} from 'rxjs/operators';
+import { UserService } from 'src/app/services/userService/user-service.service';
+import { MesageBannerDirective as MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
+import { MessageBannerComponent } from 'src/app/message-banner/message-banner.component';
+import { Route, Router } from '@angular/router';
 
 
 
@@ -15,26 +18,47 @@ import {map, startWith} from 'rxjs/operators';
   styleUrls: ['./signup-form.component.scss'],
 })
 export class SignupFormComponent implements OnInit {
-  constructor() { }
+  constructor(private userService: UserService, private router: Router) {}
 
-  private newUser!: User;
-  
   // Accessed in template
   signupForm!: FormGroup;
   hidePassword = true;
   passwordMinLength: number = 10;
-  
+
   // To display the list of countries
-  countries: string[]= jsonFile.listOfCountries.map(country => country.name);
+  countries: string[] = jsonFile.listOfCountries.map((country) => country.name);
   filteredCountries!: Observable<string[]>;
 
-  onSubmit(form: FormGroup): User {
-    this.newUser = SignupFormComponent.formGroupToUserObject(form);
-    console.log(this.newUser);
-    return this.newUser;
+  @ViewChild(MessageBannerDirective, {static: true})
+  messageBanner!: MessageBannerDirective;
+
+  displayError(message: string) {
+    const elem = this.messageBanner.vcref.createComponent(MessageBannerComponent);
+    elem.instance.message = message;
+  }
+
+  hideError() {
+    this.messageBanner.vcref.clear();
+  }
+
+  onSubmit(form: FormGroup): void {
+    this.hideError();
+    this.userService.clearMessages();
+    this.userService
+      .registerNewUser(SignupFormComponent.formGroupToUserObject(form))
+      .add(() => {
+        if (this.userService.getLastErrorResponse()) {
+          console.log(this.userService.getLastErrorResponse());
+          this.displayError(this.userService.getLastErrorResponse());
+        } else {
+          console.log(this.userService.getLastSuccessResponse());
+          this.router.navigate(['/login']);
+        }
+      });
   }
 
   ngOnInit(): void {
+
     this.signupForm = new FormGroup({
       username: new FormControl('', {
         validators: [Validators.required],
@@ -65,16 +89,21 @@ export class SignupFormComponent implements OnInit {
       }),
     });
 
-    this.filteredCountries = this.signupForm.controls['country'].valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value || '')),
-    );
+    SignupFormComponent.fillForm(this.userService.getUser(), this.signupForm)
 
+    this.filteredCountries = this.signupForm.controls[
+      'country'
+    ].valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filter(value || ''))
+    );
   }
-  
+
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    return this.countries.filter(country => country.toLowerCase().includes(filterValue));
+    return this.countries.filter((country) =>
+      country.toLowerCase().includes(filterValue)
+    );
   }
 
   private static formGroupToUserObject(form: FormGroup): User {
@@ -88,9 +117,9 @@ export class SignupFormComponent implements OnInit {
         street: value.street,
         country: value.country,
         city: value.city,
-        postalCode: value.postalCode 
-      }
-    }
+        postalCode: value.postalCode,
+      },
+    };
   }
 
   private static fillForm(user: User, form: FormGroup): void {
@@ -102,8 +131,7 @@ export class SignupFormComponent implements OnInit {
       street: user.address.street,
       country: user.address.country,
       city: user.address.city,
-      postalCode: user.address.postalCode
+      postalCode: user.address.postalCode,
     });
   }
-  
 }
