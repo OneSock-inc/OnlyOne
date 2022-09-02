@@ -39,6 +39,7 @@ import { AuthInterceptor } from './services/http-interceptors/auth-interceptor.s
 import { TokenService } from './services/authService/token-service.service';
 import { AccessControlService } from './services/authService/access-control.service';
 import { AuthenticationButtonComponent } from './authentication-button/authentication-button.component';
+import { AddSockFormComponent } from './forms/add-sock-form/add-sock-form.component';
 import { SignupFormComponent } from './forms/signup-form/signup-form.component';
 import { SockListComponent } from './sock-list/sock-list.component';
 import { MatchingSocksComponent } from './matching-socks/matching-socks.component';
@@ -61,6 +62,7 @@ import { MyAccountComponent } from './my-account/my-account.component';
     SignupPageComponent,
     AddSockPageComponent,
     AuthenticationButtonComponent,
+    AddSockFormComponent,
     SignupFormComponent,
     SockListComponent,
     MatchingSocksComponent,
