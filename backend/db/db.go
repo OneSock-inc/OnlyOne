@@ -5,9 +5,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/sjwhitworth/golearn/kdtree"
@@ -22,6 +24,7 @@ var ctx *context.Context
 
 const UsersCollection = "users"
 const SocksCollection = "socks"
+const ResultsCollection = "results"
 
 type Address struct {
 	Street     string `firestore:"street" json:"street"`
@@ -59,7 +62,12 @@ type Sock struct {
 	RefusedList  []string `firestore:"refusedList" json:"refusedList"`
 	AcceptedList []string `firestore:"acceptedList" json:"acceptedList"`
 	Match        string   `firestore:"match" json:"match"`
+	MatchResult  string   `firestore:"matchResult" json:"matchResult"`
 }
+
+// MatchResult status
+const WIN = "win"
+const LOSE = "lose"
 
 //return all the socks of a user identified by it's cookie session
 
@@ -158,10 +166,28 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 		if utils.Contains(otherSock.AcceptedList, sock.ID) {
 			sock.Match = otherSock.ID
 			otherSock.Match = sock.ID
+
+			// Winner/Looser logic
+			rand.Seed(time.Now().UnixNano())
+			result := rand.Int() % 2
+			if result == 1 {
+				sock.MatchResult = WIN
+				otherSock.MatchResult = LOSE
+			} else {
+				sock.MatchResult = LOSE
+				otherSock.MatchResult = WIN
+			}
+
 			_, err = db.Collection(SocksCollection).Doc(otherSock.ID).Set(context.Background(), otherSock)
 			if err != nil {
 				return err
 			}
+
+			_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
+			if err != nil {
+				return err
+			}
+
 			// TODO: alert user there is a match
 		}
 	} else {
