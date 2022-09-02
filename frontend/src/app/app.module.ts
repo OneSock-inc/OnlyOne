@@ -26,7 +26,6 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import {RouterModule} from '@angular/router';
 import { AddSockPageComponent } from './add-sock-page/add-sock-page.component';
 import { AppRoutingModule } from './app-routing.module';
-import { RouterModule } from '@angular/router';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ConfigService } from './services/config/config.service';
