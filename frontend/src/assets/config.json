@@ -1,3 +1,4 @@
 {
-    "backendUrl": "https://api.jsch.ch"
+    "backendUrl": "https://api.jsch.ch",
+    "passwordMinLength": 10
 }

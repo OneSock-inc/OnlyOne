@@ -1,26 +1,34 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-
-import { config, Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
 
 import { Config } from '../../dataModel/config.model';
 
+
+interface Country {
+  name: string;
+  code:string;
+}
 @Injectable()
 export class ConfigService {
-  configUrl = 'assets/config.json';
+  constructor(private http: HttpClient) { 
+    this.config = {
+      backendUrl: 'https://api.jsch.ch',
+      passwordMinLength: 10
+    }
+   }
 
-  constructor(private http: HttpClient) { }
+  private configUrl = 'assets/config.json';
+  private config: Config;
 
   getConfig() {
-    return this.http.get<Config>(this.configUrl);
+    return this.config;
   }
 
-  getConfigResponse(): Observable<HttpResponse<Config>> {
-    return this.http.get<Config>(
-      this.configUrl, { observe: 'response' });
+  getPasswordMinLength(): number {
+    return this.config.passwordMinLength;
   }
+
+
 
 }
 

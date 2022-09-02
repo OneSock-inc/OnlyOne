@@ -9,9 +9,10 @@ import { LoaderDirective } from '../loader/loader.directive';
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
-  host: { class: 'default-layout' }
+  host: { class: 'default-layout' },
 })
 export class LoginPageComponent {
+
   constructor(private router: Router, private authService: AuthService) {
     this.loginForm = new FormGroup({
       username: new FormControl(this.loginFormInputs.username, [
@@ -51,7 +52,6 @@ export class LoginPageComponent {
         if (typeof this.authService.getError() !== 'undefined') {
           this.clicked = false;
           this.removeLoader();
-          this.displayMessage("tadada");
           this.displayMessage(this.authService.getError());
         } else {
           this.router.navigate(['/home']);
