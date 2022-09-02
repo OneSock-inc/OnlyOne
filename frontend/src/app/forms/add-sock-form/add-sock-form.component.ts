@@ -73,5 +73,28 @@ export class AddSockFormComponent implements OnInit {
     
   }
 
+  selectFile(event: any) {
+    if (event.target.files && event.target.files[0]) {
+      let reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.compressFile(event.target.result)
+      }
+      reader.readAsDataURL(event.target.files[0]);
+      this.pictureButtonLabel = "Change picture";
+    }
+    else {
+      this.pictureButtonLabel = "Take picture";
+    }
+    
+  }
+
+  private compressFile(image: DataUrl) {   
+    this.imageCompress.compressFile(image, 1, 100, 100, this.maxPxBorder, this.maxPxBorder).then(
+      result => {
+        this.pictureB64 = result;
+      }
+    );
+  }
+
 
 }
