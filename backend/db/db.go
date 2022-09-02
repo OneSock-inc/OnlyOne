@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"cloud.google.com/go/firestore"
+	"github.com/sjwhitworth/golearn/kdtree"
+	"github.com/sjwhitworth/golearn/metrics/pairwise"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/api/iterator"
 )
@@ -395,4 +397,118 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 			return err
 		}
 	}
+}
+
+func getFeaturesFromSock(s *Sock) []float64 {
+	rgb, _ := utils.ParseHexColor(s.Color)
+	return []float64{
+		float64(s.ShoeSize) * 125 * 4,
+		float64(s.Type) * 250 * 4,
+		float64(rgb.A),
+		float64(rgb.R),
+		float64(rgb.G),
+		float64(rgb.B),
+	}
+}
+
+/*
+GetCompatibleSocks returns the most similar sock in the collection
+*/
+func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
+	tree := kdtree.New()
+
+	client, err := GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	doc, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	var originalSock Sock
+	doc.DataTo(&originalSock)
+	socks := make([]Sock, 0, limit)
+
+	it := client.Collection(SocksCollection).DocumentRefs(context.Background())
+	//matrix of sock's features each row is an array of the sock's feature
+	datas := make([][]float64, 0)
+	//Query.Where("shoeSize", "==", s.ShoeSize).Where("type", "==", s.Type).Where("isMatched", "==", false).Documents(context.Background())
+	var i uint16 = 0
+	for {
+		//if we are done
+		doc, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		ref, err := doc.Get(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		if !ref.Exists() || ref.Ref.ID == sockId {
+			//sock doesn't exist or it's the sock we are looking at
+			continue
+		}
+		dockSnapShot, err := ref.Ref.Get(context.Background())
+		if err != nil {
+			return nil, fmt.Errorf("while iterating compatible sock: %v", err)
+		}
+
+		var currentSock Sock
+		dockSnapShot.DataTo(&currentSock)
+		//we don't want to match two socks from the same owner or a sock already matched
+		if currentSock.Owner == originalSock.Owner || currentSock.Match != "" {
+			continue
+		}
+		log.Printf("%+v", currentSock)
+		datas = append(datas, getFeaturesFromSock(&currentSock))
+
+		currentSock.ID = dockSnapShot.Ref.ID
+		socks = append(socks, currentSock)
+		i++
+	}
+
+	if err = tree.Build(datas); err != nil {
+		return nil, nil
+	}
+	// i := len(socks)
+	if i > limit {
+		i = limit
+	}
+
+	/*
+		This is how to datas in arranged in datas
+		datas = {
+			sock1 : [feature array]
+			sock2 : [feature array]
+			sock3 : [feature array]
+			sock4 : [feature array]
+			sock5 : [feature array]
+			sock6 : [feature array]
+			sock7 : [feature array]
+		}
+	*/
+
+	euclide := pairwise.NewEuclidean()
+	rgb, _ := utils.ParseHexColor(originalSock.Color)
+	//search limit sock similar (euclide) to s.attribut
+
+	//rows contains the indexes of the most similar socks, fetching socks[rows[0]] gives the best matching sock
+	//fetching datas[rows[0]] gives the feature of the best matching sock
+	rows, _ /*pairwise distance from sockOP to currentSock_i*/ /*err*/, _ := tree.Search(int(i), euclide, []float64{
+		float64(originalSock.ShoeSize) * 125 * 4,
+		float64(originalSock.Type) * 250 * 4,
+		float64(rgb.A),
+		float64(rgb.R),
+		float64(rgb.G),
+		float64(rgb.B),
+	})
+
+	//take the limit socks
+	res := make([]Sock, 0, limit)
+	for _, s := range rows {
+		//add the k best socks (limits to limit)
+		res = append(res, socks[s])
+	}
+
+	return res, nil
 }

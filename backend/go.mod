@@ -5,14 +5,19 @@ go 1.19
 require (
 	cloud.google.com/go/firestore v1.6.1
 	github.com/gin-gonic/gin v1.8.1
-	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/crypto v0.0.0-20220824171710-5757bc0c5503
 	google.golang.org/api v0.94.0
 
 )
 
-require github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
+require (
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
+	github.com/gonum/blas v0.0.0-20181208220705-f22b278b28ac // indirect
+	github.com/gonum/lapack v0.0.0-20181123203213-e4cdc5a0bff9 // indirect
+	github.com/gonum/matrix v0.0.0-20181209220409-c518dec07be9 // indirect
+	gonum.org/v1/gonum v0.8.1 // indirect
+)
 
 require (
 	cloud.google.com/go v0.104.0 // indirect
@@ -36,6 +41,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/sjwhitworth/golearn v0.0.0-20211014193759-a8b69c276cd8
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c // indirect
