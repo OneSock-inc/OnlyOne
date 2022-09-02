@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SignupPageComponent, NewUser } from './signup-page.component';
+import { SignupPageComponent } from './signup-page.component';
 
 import { MatAutocomplete } from '@angular/material/autocomplete';
 import { services } from '../services';
@@ -36,25 +36,17 @@ describe('SignupPageComponent', () => {
         MessageBannerComponent,
         LoaderComponent,
         LoaderDirective,
-        MatAutocomplete
       ],
-      providers: [services, MatAutocomplete]
+      providers: [services]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SignupPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-  // TODO:
-  // get error Error: NG0301: Export of name 'matAutocomplete' not found! Find more at https://angular.io/errors/NG0301
-  // when testing. porbably a bug of Angular testing
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
 
-  // it('test form', () => {
-  //   component.signupForm.setValue(newUser);
-  //   const values = component.formFieldsToObject(component.signupForm.value);
-  //   expect(values).toEqual(newUser);
-  // });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
 });
