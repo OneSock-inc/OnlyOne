@@ -140,7 +140,7 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 
 	for _, s := range []Sock{sock, otherSock} {
 		if s.Match != "" {
-			return fmt.Errorf("Sock `" + s.ID + "` already has a match")
+			return fmt.Errorf("Sock `" + s.ID + "` is already in a happy and fulfilling pair")
 		}
 	}
 
@@ -149,17 +149,23 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 		return err
 	}
 
-	sock.AcceptedList = append(sock.AcceptedList, otherSock.ID)
-	if utils.Contains(otherSock.AcceptedList, sock.ID) {
-		sock.Match = otherSock.ID
-		otherSock.Match = sock.ID
+	if accept {
+		sock.AcceptedList = append(sock.AcceptedList, otherSock.ID)
 
-		_, err = db.Collection(SocksCollection).Doc(otherSock.ID).Set(context.Background(), otherSock)
-		if err != nil {
-			return err
+		//if the other sock already accepted us and we are accepting it now, then we got a match
+		if utils.Contains(otherSock.AcceptedList, sock.ID) {
+			sock.Match = otherSock.ID
+			otherSock.Match = sock.ID
+			_, err = db.Collection(SocksCollection).Doc(otherSock.ID).Set(context.Background(), otherSock)
+			if err != nil {
+				return err
+			}
+			// TODO: alert user there is a match
 		}
-		// TODO: alert user there is a match
+	} else {
+		sock.RefusedList = append(sock.RefusedList, otherSock.ID)
 	}
+
 	_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
 	if err != nil {
 		return err
