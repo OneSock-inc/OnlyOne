@@ -25,7 +25,6 @@ export class AddSockFormComponent implements OnInit {
   sockColor: string = "#ffffff";
   colorPickerLabel: string = "Choose color";
 
-  screenWidth!: string;
   textColor: string = "#ffffff";
   
   ngOnInit(): void {
@@ -43,7 +42,6 @@ export class AddSockFormComponent implements OnInit {
         validators: [Validators.required]
       }),
     });
-    this.screenWidth = this.getScreenWidth().toString();
   }
 
   onSubmit(form: FormGroup): void {
@@ -54,14 +52,6 @@ export class AddSockFormComponent implements OnInit {
     //form.description
     //form.password
 
-  }
-
-  getScreenWidth(): number {
-    if (window.innerWidth < 500) {
-      let formWidth = document.getElementsByTagName("form")[0].clientWidth;
-      return Math.floor(formWidth * 0.8); // TODO : find a way to get the width of the form
-    }
-    return 500;
   }
 
   onColorChange(newColor: string): void {
