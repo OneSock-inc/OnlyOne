@@ -9,7 +9,7 @@ import { LoaderDirective } from '../loader/loader.directive';
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
-  host: { class: 'default-layout' }
+  host: { class: 'default-layout' },
 })
 export class LoginPageComponent {
 
