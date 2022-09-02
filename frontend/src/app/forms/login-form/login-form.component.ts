@@ -46,7 +46,6 @@ export class LoginFormComponent implements OnInit {
     this.clicked = true;
 
     //this.createLoader();
-    this.authService.clearError();
     //this.removeMessage();
     this.messageBanner.hideMessage();
     const userName = this.loginForm.value.username;

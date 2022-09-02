@@ -21,30 +21,14 @@ export class AuthService {
     private tokenService: TokenService
   ) { }
 
-  private error: any;
-
   /**
-   * Sends a login request to backend and expects a JWT token in return.
+   * Sends a login request to backend.
    * Set its jwt param value and save it in localStorage.
    * @param username provided by front end user
    * @param password provided by front end user
    * @returns Observable
    */
-  login(username?: string, password?: string): Subscription {
-    return this.http
-      .post<JWToken>(this.backendLink.getLoginUrl(), { username, password })
-      .subscribe({
-        next: (data: JWToken) => {
-          this.tokenService.setAuthorizationToken(data);
-          // TODO: jwt token validator
-        }, // success path
-        error: (error) => { 
-          this.error = error; // error path
-        }
-      });
-  }
-
-  loginV2(username: string, password: string, successCallback: Function, errorCallBack: Function) {
+  loginV2(username: string, password: string, successCallback: Function, errorCallBack: Function): void {
     this.http.post<JWToken>(this.backendLink.getLoginUrl(), {username, password})
     .subscribe({
       next: (response: any) => {
@@ -71,22 +55,6 @@ export class AuthService {
    */
   isLoggedIn(): boolean {
     return this.tokenService.getAuthorizationToken() !== '';
-  }
-
-  /**
-   * Retrieve error occured on http request if any.
-   * @returns error
-   */
-  getError() {
-    return this.error;
-  }
-
-  /**
-   * Clear the error saved by AuthService instance.
-   * Must be called before made a new call to login method.
-   */
-  clearError() {
-    this.error = undefined;
   }
 
 }
