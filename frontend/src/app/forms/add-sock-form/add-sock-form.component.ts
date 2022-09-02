@@ -1,6 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { DataUrl, NgxImageCompressService } from 'ngx-image-compress';
+
+import { Sock, SockType} from 'src/app/dataModel/sock.model';
 
 @Component({
   selector: 'app-add-sock-form',
@@ -9,8 +12,11 @@ import { DataUrl, NgxImageCompressService } from 'ngx-image-compress';
 })
 export class AddSockFormComponent implements OnInit {
 
-  constructor(private imageCompress: NgxImageCompressService) { }
+  constructor(private imageCompress: NgxImageCompressService, private http: HttpClient) { 
+    this.newSock = new Sock();
+  }
 
+  newSock: Sock;
 
   addSockForm!: FormGroup;
 
@@ -41,7 +47,7 @@ export class AddSockFormComponent implements OnInit {
         validators: [Validators.required]
       }),
       sockType: new FormControl('',{
-        validators: [Validators.required]
+        validators: [Validators.required, Validators.min(SockType.low), Validators.max(SockType.high)]
       }),
     });
 
@@ -49,7 +55,21 @@ export class AddSockFormComponent implements OnInit {
   }
 
   onSubmit(form: FormGroup): void {
-    alert("Sock added successfully");
+    if (!form.valid) return;
+    this.newSock.shoeSize = form.value.shoeSize;
+    this.newSock.color = this.sockColor;
+    this.newSock.description = form.value.description;
+    this.newSock.type = form.value.sockType;
+    //this.newSock.picture = this.pictureB64;
+
+    const newSockStr = this.newSockToJson(this.newSock);
+
+    this.http.post<any>("https://api.jsch.ch/sock", newSockStr)
+      .subscribe({
+        next: data => console.log(data),
+        error: err => console.log(err)
+      })
+    //this.newSock.type = 
     // send to api
     //pictureB64
     //sockColor
@@ -99,7 +119,15 @@ export class AddSockFormComponent implements OnInit {
     return 500;
   }
 
-
+  private newSockToJson(newSock: Sock): string {
+    return JSON.stringify(this.newSock, (key, value) => {
+      if (value === ''){
+        return undefined;
+      } else {
+        return value;
+      }
+    });
+  }
 
 
 }
