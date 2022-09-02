@@ -1,7 +1,4 @@
 import { Component, OnInit, HostListener } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import {DataUrl, NgxImageCompressService} from "ngx-image-compress";
-
 
 @Component({
   selector: 'app-add-sock-page',
