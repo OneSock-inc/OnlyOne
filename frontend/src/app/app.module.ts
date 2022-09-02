@@ -16,8 +16,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import {MatButtonModule} from '@angular/material/button'; 
 import {MatIconModule} from '@angular/material/icon';
-import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatDividerModule} from '@angular/material/divider';
+import { ColorPickerModule } from 'ngx-color-picker';
 
+
+import {RouterModule} from '@angular/router';
+import { AddSockPageComponent } from './add-sock-page/add-sock-page.component';
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -48,6 +55,7 @@ import { SignupFormComponent } from './forms/signup-form/signup-form.component';
     PageNotFoundComponent,
     MesageBannerDirective,
     SignupPageComponent,
+    AddSockPageComponent,
     AuthenticationButtonComponent,
     SignupFormComponent,
   ],
@@ -65,6 +73,10 @@ import { SignupFormComponent } from './forms/signup-form/signup-form.component';
     HttpClientModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
+    MatSliderModule,
+    MatButtonToggleModule,
+    ColorPickerModule,
+    MatDividerModule,
   ],
   providers: [
     ConfigService,

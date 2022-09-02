@@ -56,7 +56,7 @@ type Sock struct {
 	Owner        string   `firestore:"owner" json:"owner"`
 	RefusedList  []string `firestore:"refusedList" json:"refusedList"`
 	AcceptedList []string `firestore:"acceptedList" json:"acceptedList"`
-	IsMatched    bool     `firestore:"isMatched" json:"isMatched"`
+	Match        string   `firestore:"match" json:"match"`
 }
 
 //return all the socks of a user identified by it's cookie session
@@ -122,7 +122,55 @@ func GetUserFromID(id string) (User, error) {
 	return user, nil
 }
 
-func editMatchingSock(sockID string, otherSockID string, accept bool) error {
+func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
+	otherSock, err := GetSockInfo(otherSock.ID)
+	if err != nil {
+		return err
+	}
+
+	if sock.Owner == otherSock.Owner {
+		return fmt.Errorf("User cannot accept or refuse a sock he owns")
+	}
+	if utils.Contains(sock.AcceptedList, otherSock.ID) {
+		return fmt.Errorf("Sock already in the accepted list")
+	}
+	if utils.Contains(sock.RefusedList, otherSock.ID) {
+		return fmt.Errorf("Sock already in the refused list")
+	}
+
+	for _, s := range []Sock{sock, otherSock} {
+		if s.Match != "" {
+			return fmt.Errorf("Sock `" + s.ID + "` is already in a happy and fulfilling pair")
+		}
+	}
+
+	db, err := GetDBConnection()
+	if err != nil {
+		return err
+	}
+
+	if accept {
+		sock.AcceptedList = append(sock.AcceptedList, otherSock.ID)
+
+		//if the other sock already accepted us and we are accepting it now, then we got a match
+		if utils.Contains(otherSock.AcceptedList, sock.ID) {
+			sock.Match = otherSock.ID
+			otherSock.Match = sock.ID
+			_, err = db.Collection(SocksCollection).Doc(otherSock.ID).Set(context.Background(), otherSock)
+			if err != nil {
+				return err
+			}
+			// TODO: alert user there is a match
+		}
+	} else {
+		sock.RefusedList = append(sock.RefusedList, otherSock.ID)
+	}
+
+	_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -159,37 +207,37 @@ func GetSockInfo(sockId string) (Sock, error) {
 	return s, nil
 }
 
-func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb64 string, owner string) (*firestore.DocumentRef, error) {
+func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb64 string, owner string) (Sock, error) {
 	if shoeSize > 75 {
-		return nil, fmt.Errorf("show size `%d` is giant ! Are you a giant ? I don't think so", shoeSize)
+		return Sock{}, fmt.Errorf("show size `%d` is giant ! Are you a giant ? I don't think so", shoeSize)
 	}
 	if shoeSize <= 5 {
-		return nil, fmt.Errorf("show size `%d` is very small ! Are you a dwarf ? I don't think so", shoeSize)
+		return Sock{}, fmt.Errorf("show size `%d` is very small ! Are you a dwarf ? I don't think so", shoeSize)
 	}
 	if type_ >= count {
-		return nil, fmt.Errorf("type `%d` is invalid", count)
+		return Sock{}, fmt.Errorf("type `%d` is invalid", count)
 	}
 	_, err := utils.ParseHexColor(color)
 	if err != nil {
-		return nil, err
+		return Sock{}, err
 	}
 	if strings.TrimSpace(desc) == "" {
-		return nil, fmt.Errorf("description is empty")
+		return Sock{}, fmt.Errorf("description is empty")
 	}
 	if strings.TrimSpace(Pictureb64) == "" {
-		return nil, fmt.Errorf("picture is empty")
+		return Sock{}, fmt.Errorf("picture is empty")
 	}
 	// TODO: validate base64 + image data
 	client, err := GetDBConnection()
 	if err != nil {
-		return nil, err
+		return Sock{}, err
 	}
 	userSnapShot, err := client.Collection("users").Doc(owner).Get(context.Background())
 	if err != nil {
-		return nil, fmt.Errorf("user doesn't exist %s", err.Error())
+		return Sock{}, fmt.Errorf("user doesn't exist %s", err.Error())
 	}
 	if !userSnapShot.Exists() {
-		return nil, fmt.Errorf("document doesn't exist")
+		return Sock{}, fmt.Errorf("document doesn't exist")
 	}
 
 	s := Sock{
@@ -201,10 +249,11 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		Owner:        owner,
 		RefusedList:  make([]string, 0),
 		AcceptedList: make([]string, 0),
-		IsMatched:    false,
+		Match:        "",
 	}
 	docRef, _, err := client.Collection("socks").Add(*ctx, s)
-	return docRef, err
+	s.ID = docRef.ID
+	return s, err
 }
 
 func createClient(ctx context.Context) (*firestore.Client, error) {

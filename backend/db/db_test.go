@@ -151,10 +151,10 @@ func TestGetUserSocks(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Zero(t, len(socks))
 
-	doc, err = NewSock(10, low, "#000", "Super sock !", "aGkK", userID)
+	sock, err := NewSock(10, low, "#000", "Super sock !", "aGkK", userID)
 	assert.Nil(t, err)
 
-	sockID := doc.ID
+	sockID := sock.ID
 	socks, err = GetUserSocks(userID)
 
 	assert.Nil(t, err)
@@ -225,7 +225,7 @@ func TestGetUser(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, userID, docr.Ref.ID)
 
-	docr, err = GetUser("invalid")
+	_, err = GetUser("invalid")
 	assert.NotNil(t, err)
 }
 

@@ -47,6 +47,7 @@ func TestRoutes(t *testing.T) {
 	// log.Printf("routes: %v\n", routes)
 
 }
+
 func TestLoginFail(t *testing.T) {
 
 	w := httptest.NewRecorder()
@@ -62,6 +63,7 @@ func TestLoginFail(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	log.Printf("%s", w.Body)
 }
+
 func newUserRegisterRequest(usr string, pwd string) *http.Request {
 	js := fmt.Sprintf(`{
 		"username": "%s",
@@ -82,12 +84,14 @@ func newUserRegisterRequest(usr string, pwd string) *http.Request {
 	}
 	return req
 }
+
 func TestRegisterSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := newUserRegisterRequest("username", "passwd")
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
+
 func TestIllFormedLoginFail(t *testing.T) {
 	js := fmt.Sprintf(`
 	{"pwd": "%s"
@@ -140,6 +144,7 @@ func TestLoginSucess(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
+
 func newSockRequest(shoeSize uint16, type_ db.Profile, color string, descr string, picture string) *http.Request {
 	r := strings.NewReader(fmt.Sprintf(`{
 	"shoeSize": %d,
@@ -155,7 +160,7 @@ func getValidBase64Image() string {
 }
 
 func TestListSocksOfUser(t *testing.T) {
-	jwtToken := makeLogedinUser()
+	jwtToken := loginUser1()
 	log.Printf("%s", jwtToken)
 	w := httptest.NewRecorder()
 
@@ -178,7 +183,7 @@ func TestListSocksOfUser(t *testing.T) {
 		sock.ID+
 		`","shoeSize":42,"type":0,"color":"#FFF","description":"Do not","picture":"aHR0cHM6Ly9kbGFuZy5vcmcK","owner":"`+
 		sock.Owner+
-		`","refusedList":null,"acceptedList":null,"isMatched":false}]`, w.Body.String())
+		`","refusedList":null,"acceptedList":null,"match":""}]`, w.Body.String())
 }
 
 func TestAddSockWithoutUser(t *testing.T) {
@@ -190,7 +195,7 @@ func TestAddSockWithoutUser(t *testing.T) {
 }
 
 func TestAddSockBadShoeSize(t *testing.T) {
-	jwtToken := makeLogedinUser()
+	jwtToken := loginUser1()
 	w := httptest.NewRecorder()
 	req := newSockRequest(0, 0, "#FFF", "In a very good state", getValidBase64Image())
 	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
@@ -200,7 +205,7 @@ func TestAddSockBadShoeSize(t *testing.T) {
 }
 
 func TestAddSockBadType(t *testing.T) {
-	jwtToken := makeLogedinUser()
+	jwtToken := loginUser1()
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 2, "#FFF", "In a very good state", getValidBase64Image())
 	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
@@ -210,7 +215,7 @@ func TestAddSockBadType(t *testing.T) {
 }
 
 func TestAddSockBadColor(t *testing.T) {
-	jwtToken := makeLogedinUser()
+	jwtToken := loginUser1()
 
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 0, "", "In a very good state", getValidBase64Image())
@@ -227,7 +232,7 @@ func TestAddSockBadColor(t *testing.T) {
 }
 
 func TestAddSockBadDescription(t *testing.T) {
-	jwtToken := makeLogedinUser()
+	jwtToken := loginUser1()
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 0, "#FFF", "", getValidBase64Image())
 	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
@@ -237,7 +242,7 @@ func TestAddSockBadDescription(t *testing.T) {
 }
 
 func TestAddSockBadBase64(t *testing.T) {
-	jwtToken := makeLogedinUser()
+	jwtToken := loginUser1()
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 0, "#FFF", "Magnificent !", "")
 	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
@@ -246,19 +251,22 @@ func TestAddSockBadBase64(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
-func makeLogedinUser() string {
-	//creat user
+func registerUser(username string, pwd string) bool {
 	res := httptest.NewRecorder()
-	sockMan := "sockMan"
-	pwd := "onlySock"
-	req := newUserRegisterRequest(sockMan, pwd)
+	req := newUserRegisterRequest(username, pwd)
 	router.ServeHTTP(res, req)
 	log.Printf("%s", res.Body)
+	return res.Code == http.StatusCreated
+}
 
-	//login said user
-	js := fmt.Sprintf(`{"username":"%s","password":"%s"}`, sockMan, pwd)
+func loginUser(username string, pwd string) string {
+	// create the user
+	registerUser(username, pwd)
+
+	// login said user
+	js := fmt.Sprintf(`{"username":"%s","password":"%s"}`, username, pwd)
 	r := strings.NewReader(js)
-	req = httptest.NewRequest("POST", "/user/login", r)
+	req := httptest.NewRequest("POST", "/user/login", r)
 	loginResponse := httptest.NewRecorder()
 	router.ServeHTTP(loginResponse, req)
 	body := loginResponse.Body.String()
@@ -269,7 +277,7 @@ func makeLogedinUser() string {
 		Expire string `json:"expire"`
 		Token  string `json:"token"`
 	}
-	//get cookie session
+	// get the token
 	fmt.Printf("%s", body)
 	var jsonResult result
 	if err := json.Unmarshal([]byte(body), &jsonResult); err != nil {
@@ -278,9 +286,21 @@ func makeLogedinUser() string {
 	log.Print("token :" + jsonResult.Token)
 	return jsonResult.Token
 }
-func TestCreateUser_Login_AddSock(t *testing.T) {
 
-	jwtToken := makeLogedinUser()
+func loginUser1() string {
+	return loginUser("sockMan", "a12345678")
+}
+
+func loginUser2() string {
+	return loginUser("sockWoman", "a12345678")
+}
+
+func loginUser3() string {
+	return loginUser("sockGuy", "petit-poireau")
+}
+
+func TestCreateUser_Login_AddSock(t *testing.T) {
+	jwtToken := loginUser1()
 	log.Printf("%s", jwtToken)
 	w := httptest.NewRecorder()
 	req := newSockRequest(42, 0, "#FFF", "In a very bad state. Also smells", getValidBase64Image())
@@ -291,7 +311,7 @@ func TestCreateUser_Login_AddSock(t *testing.T) {
 }
 
 func TestShowUser(t *testing.T) {
-	jwtToken := makeLogedinUser()
+	jwtToken := loginUser1()
 	log.Printf("%s", jwtToken)
 	w := httptest.NewRecorder()
 
@@ -308,4 +328,317 @@ func TestShowUser(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, `{"username":"sockMan","firstname":"first","surname":"surname","password":"","address":{"street":"rue du rhone 1","country":"Swiss","city":"Genève","postalCode":"1212"}}`, w.Body.String())
+}
+
+func newPatchRequest(sockID string, otherSockID string, accept bool) *http.Request {
+	status := "refuse"
+	if accept {
+		status = "accept"
+	}
+
+	r := strings.NewReader(fmt.Sprintf(`{
+		"status" : "%s",
+		"otherSockID" : "%s"
+	  }`, status, otherSockID))
+	return httptest.NewRequest("PATCH", "/sock/"+sockID, r)
+}
+
+func createSock(t *testing.T, jwt string) db.Sock {
+	w := httptest.NewRecorder()
+	req := newSockRequest(37, 1, "#00BEEF", "A very ugly sock. Gonna cut my eyes into pieces", getValidBase64Image())
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwt)}
+	router.ServeHTTP(w, req)
+	var sock db.Sock
+	err := json.Unmarshal(w.Body.Bytes(), &sock)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusCreated, w.Code)
+
+	return sock
+}
+
+func sendPatchRequest(jwt string, sockID string, otherSockID string, accept bool) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	req := newPatchRequest(sockID, otherSockID, true)
+	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwt)}
+	router.ServeHTTP(w, req)
+	return w
+}
+
+func TestPatchAcceptListOfSock_UserAcceptsTheSameSock(t *testing.T) {
+	jwt1 := loginUser1()
+	sock := createSock(t, jwt1)
+
+	w := sendPatchRequest(jwt1, sock.ID, sock.ID, true)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	sock, err := db.GetSockInfo(sock.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, make([]string, 0), sock.AcceptedList)
+	assert.Equal(t, make([]string, 0), sock.RefusedList)
+	assert.Empty(t, sock.Match)
+}
+
+func TestPatchAcceptListOfSock_UserAcceptsSockHeOwns(t *testing.T) {
+	jwt1 := loginUser1()
+	sock1 := createSock(t, jwt1)
+	sock2 := createSock(t, jwt1)
+
+	w := sendPatchRequest(jwt1, sock1.ID, sock2.ID, true)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	sock1, err := db.GetSockInfo(sock1.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, make([]string, 0), sock1.AcceptedList)
+	assert.Equal(t, make([]string, 0), sock1.RefusedList)
+	assert.Empty(t, sock1.Match)
+
+	sock2, err = db.GetSockInfo(sock2.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, make([]string, 0), sock2.AcceptedList)
+	assert.Equal(t, make([]string, 0), sock2.RefusedList)
+	assert.Empty(t, sock2.Match)
+}
+
+func TestPatchAcceptListOfSock_UserRefusesSockHeOwns(t *testing.T) {
+	jwt1 := loginUser1()
+	sock1 := createSock(t, jwt1)
+	sock2 := createSock(t, jwt1)
+
+	w := sendPatchRequest(jwt1, sock1.ID, sock2.ID, false)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	sock1, err := db.GetSockInfo(sock1.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, make([]string, 0), sock1.AcceptedList)
+	assert.Equal(t, make([]string, 0), sock1.RefusedList)
+	assert.Empty(t, sock1.Match)
+
+	sock2, err = db.GetSockInfo(sock2.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, make([]string, 0), sock2.AcceptedList)
+	assert.Equal(t, make([]string, 0), sock2.RefusedList)
+	assert.Empty(t, sock2.Match)
+}
+
+func TestPatchAcceptListOfSock_WrongUserAcceptsSock(t *testing.T) {
+	jwt1 := loginUser1()
+	jwt2 := loginUser2()
+	sockUsr1A := createSock(t, jwt1)
+	sockUsr1B := createSock(t, jwt1)
+	sockUsr2 := createSock(t, jwt2)
+
+	assertNoChanges := func() {
+		for _, s := range []string{sockUsr1A.ID, sockUsr1B.ID, sockUsr2.ID} {
+			sock, err := db.GetSockInfo(s)
+			assert.Nil(t, err)
+			assert.Equal(t, make([]string, 0), sock.AcceptedList)
+			assert.Equal(t, make([]string, 0), sock.RefusedList)
+			assert.Empty(t, sock.Match)
+		}
+	}
+
+	// sockUsr1A accepts sockUsr2 (User2 doesn't own sockUsr1A)
+	w := sendPatchRequest(jwt2, sockUsr1A.ID, sockUsr2.ID, true)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertNoChanges()
+
+	// sockUsr1A refuses sockUsr2 (User2 doesn't own sockUsr1A)
+	w = sendPatchRequest(jwt2, sockUsr1A.ID, sockUsr2.ID, false)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertNoChanges()
+
+	// sockUsr1A accepts sockUsr1B (User2 doesn't own sockUsr1A)
+	w = sendPatchRequest(jwt2, sockUsr1A.ID, sockUsr2.ID, true)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertNoChanges()
+
+	// sockUsr1A refuses sockUsr1B (User2 doesn't own sockUsr1A)
+	w = sendPatchRequest(jwt2, sockUsr1A.ID, sockUsr2.ID, false)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertNoChanges()
+}
+
+func TestPatchAcceptListOfSock_ValidAcceptThenReacceptShouldFail(t *testing.T) {
+	jwt1 := loginUser1()
+	jwt2 := loginUser2()
+
+	sockUsr1 := createSock(t, jwt1)
+	sockUsr2 := createSock(t, jwt2)
+
+	assertCorrectAcceptList := func() {
+		sockUsr1, err := db.GetSockInfo(sockUsr1.ID)
+		assert.Nil(t, err)
+		assert.Equal(t, []string{sockUsr2.ID}, sockUsr1.AcceptedList)
+		assert.Equal(t, make([]string, 0), sockUsr1.RefusedList)
+		assert.Empty(t, sockUsr1.Match)
+
+		sockUsr2, err = db.GetSockInfo(sockUsr2.ID)
+		assert.Nil(t, err)
+		assert.Equal(t, make([]string, 0), sockUsr2.AcceptedList)
+		assert.Equal(t, make([]string, 0), sockUsr2.RefusedList)
+		assert.Empty(t, sockUsr2.Match)
+	}
+
+	// sockUsr1 accepts sockUsr2 (valid)
+	w := sendPatchRequest(jwt1, sockUsr1.ID, sockUsr2.ID, true)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assertCorrectAcceptList()
+
+	// sockUsr1 accepts sockUsr2 (already in the acceptList)
+	w = sendPatchRequest(jwt1, sockUsr1.ID, sockUsr2.ID, true)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertCorrectAcceptList()
+
+	// sockUsr1 accepts sockUsr2 (Accept then refuse)
+	w = sendPatchRequest(jwt1, sockUsr1.ID, sockUsr2.ID, false)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertCorrectAcceptList()
+}
+
+func TestPatchAcceptListOfSock_ValidAcceptThenRefuseShouldFail(t *testing.T) {
+	jwt1 := loginUser1()
+	jwt2 := loginUser2()
+
+	sockUsr1 := createSock(t, jwt1)
+	sockUsr2 := createSock(t, jwt2)
+
+	assertCorrectAcceptList := func() {
+		sockUsr1, err := db.GetSockInfo(sockUsr1.ID)
+		assert.Nil(t, err)
+		assert.Equal(t, []string{sockUsr2.ID}, sockUsr1.AcceptedList)
+		assert.Equal(t, make([]string, 0), sockUsr1.RefusedList)
+		assert.Empty(t, sockUsr1.Match)
+
+		sockUsr2, err = db.GetSockInfo(sockUsr2.ID)
+		assert.Nil(t, err)
+		assert.Equal(t, make([]string, 0), sockUsr2.AcceptedList)
+		assert.Equal(t, make([]string, 0), sockUsr2.RefusedList)
+		assert.Empty(t, sockUsr2.Match)
+	}
+
+	// sockUsr1 accepts sockUsr2 (valid)
+	w := sendPatchRequest(jwt1, sockUsr1.ID, sockUsr2.ID, true)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assertCorrectAcceptList()
+
+	// sockUsr1 accepts sockUsr2 (accept then refuse)
+	w = sendPatchRequest(jwt1, sockUsr1.ID, sockUsr2.ID, false)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertCorrectAcceptList()
+}
+
+func TestPatchAcceptListOfSock_Match(t *testing.T) {
+	jwt1 := loginUser1()
+	jwt2 := loginUser2()
+
+	sockUsr1 := createSock(t, jwt1)
+	sockUsr2 := createSock(t, jwt2)
+
+	// sockUsr1 accepts sockUsr2
+	w := sendPatchRequest(jwt1, sockUsr1.ID, sockUsr2.ID, true)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	sockUsr1, err := db.GetSockInfo(sockUsr1.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, []string{sockUsr2.ID}, sockUsr1.AcceptedList)
+	assert.Equal(t, make([]string, 0), sockUsr1.RefusedList)
+	assert.Empty(t, sockUsr1.Match)
+
+	sockUsr2, err = db.GetSockInfo(sockUsr2.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, make([]string, 0), sockUsr2.AcceptedList)
+	assert.Equal(t, make([]string, 0), sockUsr2.RefusedList)
+	assert.Empty(t, sockUsr2.Match)
+
+	// sockUsr2 accepts sockUsr1
+	w = sendPatchRequest(jwt2, sockUsr2.ID, sockUsr1.ID, true)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	sockUsr1, err = db.GetSockInfo(sockUsr1.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, []string{sockUsr2.ID}, sockUsr1.AcceptedList)
+	assert.Equal(t, make([]string, 0), sockUsr1.RefusedList)
+	assert.Equal(t, sockUsr2.ID, sockUsr1.Match)
+
+	sockUsr2, err = db.GetSockInfo(sockUsr2.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, []string{sockUsr1.ID}, sockUsr2.AcceptedList)
+	assert.Equal(t, make([]string, 0), sockUsr2.RefusedList)
+	assert.Equal(t, sockUsr1.ID, sockUsr2.Match)
+}
+
+func TestPatchAcceptListOfSock_MatchThenShouldFail(t *testing.T) {
+	jwt1 := loginUser1()
+	jwt2 := loginUser2()
+	jwt3 := loginUser3()
+
+	sockUsr1 := createSock(t, jwt1)
+	sockUsr2 := createSock(t, jwt2)
+	sockUsr3 := createSock(t, jwt3)
+
+	assertCorrectMatch := func() {
+		sockUsr1, err := db.GetSockInfo(sockUsr1.ID)
+		assert.Nil(t, err)
+		assert.Equal(t, []string{sockUsr2.ID}, sockUsr1.AcceptedList)
+		assert.Equal(t, make([]string, 0), sockUsr1.RefusedList)
+		assert.Equal(t, sockUsr2.ID, sockUsr1.Match)
+
+		sockUsr2, err = db.GetSockInfo(sockUsr2.ID)
+		assert.Nil(t, err)
+		assert.Equal(t, []string{sockUsr1.ID}, sockUsr2.AcceptedList)
+		assert.Equal(t, make([]string, 0), sockUsr2.RefusedList)
+		assert.Equal(t, sockUsr1.ID, sockUsr2.Match)
+
+		sockUsr3, err := db.GetSockInfo(sockUsr3.ID)
+		assert.Nil(t, err)
+		assert.Equal(t, make([]string, 0), sockUsr3.AcceptedList)
+		assert.Equal(t, make([]string, 0), sockUsr3.RefusedList)
+		assert.Empty(t, sockUsr3.Match)
+	}
+
+	// sockUsr1 accepts sockUsr2
+	w := sendPatchRequest(jwt1, sockUsr1.ID, sockUsr2.ID, true)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	sockUsr1, err := db.GetSockInfo(sockUsr1.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, []string{sockUsr2.ID}, sockUsr1.AcceptedList)
+	assert.Equal(t, make([]string, 0), sockUsr1.RefusedList)
+	assert.Empty(t, sockUsr1.Match)
+
+	sockUsr2, err = db.GetSockInfo(sockUsr2.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, make([]string, 0), sockUsr2.AcceptedList)
+	assert.Equal(t, make([]string, 0), sockUsr2.RefusedList)
+	assert.Empty(t, sockUsr2.Match)
+
+	// sockUsr2 accepts sockUsr1
+	w = sendPatchRequest(jwt2, sockUsr2.ID, sockUsr1.ID, true)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assertCorrectMatch()
+
+	// sockUsr2 accepts sockUsr1 (a match already exists between them)
+	w = sendPatchRequest(jwt2, sockUsr2.ID, sockUsr1.ID, true)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertCorrectMatch()
+
+	// sockUsr3 accepts sockUsr1 (sockUsr1 already has a match)
+	w = sendPatchRequest(jwt3, sockUsr3.ID, sockUsr1.ID, true)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertCorrectMatch()
+
+	// sockUsr1 accepts sockUsr3 (sockUsr1 already has a match)
+	w = sendPatchRequest(jwt1, sockUsr1.ID, sockUsr3.ID, true)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertCorrectMatch()
+
+	// sockUsr3 refuses sockUsr1 (sockUsr1 already has a match)
+	w = sendPatchRequest(jwt3, sockUsr3.ID, sockUsr1.ID, false)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertCorrectMatch()
+
+	// sockUsr1 refuses sockUsr3 (sockUsr1 already has a match)
+	w = sendPatchRequest(jwt1, sockUsr1.ID, sockUsr3.ID, false)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertCorrectMatch()
 }

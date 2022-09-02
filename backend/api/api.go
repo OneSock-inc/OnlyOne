@@ -71,7 +71,7 @@ func Setup() *gin.Engine {
 	{
 		sock.POST("/", addSock)
 		sock.GET("/:sockId/match", listMatchesOfSock)
-		sock.PATCH("/:sockId/", patchAcceptListOfSock)
+		sock.PATCH("/:sockId", patchAcceptListOfSock)
 		sock.GET("/:sockId", getSockInfo)
 	}
 
@@ -96,7 +96,63 @@ func getSockInfo(c *gin.Context) {
 }
 
 func patchAcceptListOfSock(c *gin.Context) {
-	c.Next()
+	claim := jwt.ExtractClaims(c)
+	// checks already made by the middleware
+	userID, _ := claim[jwt.IdentityKey].(string)
+
+	sock, err := db.GetSockInfo(c.Param("sockId"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if sock.Owner != userID {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "User does not own sock ID `" + sock.ID + "`",
+		})
+		return
+	}
+
+	type TmpPatchReq struct {
+		Status      string `json:"status"`
+		OtherSockID string `json:"otherSockID"`
+	}
+
+	tmpPatch := TmpPatchReq{}
+	err = c.BindJSON(&tmpPatch)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	var status bool
+	if tmpPatch.Status == "accept" {
+		status = true
+	} else if tmpPatch.Status == "refuse" {
+		status = false
+	} else {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Status is incorrect",
+		})
+		return
+	}
+
+	otherSock, err := db.GetSockInfo(tmpPatch.OtherSockID)
+
+	err = db.EditMatchingSock(sock, otherSock, status)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+	})
 }
 
 func showUser(c *gin.Context) {
