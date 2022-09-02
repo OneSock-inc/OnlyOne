@@ -4,6 +4,7 @@ import (
 	//import gin
 
 	"backend/db"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -13,6 +14,8 @@ import (
 )
 
 var router *gin.Engine
+
+const msg = "message"
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -84,13 +87,13 @@ func getSockInfo(c *gin.Context) {
 	s, err := db.GetSockInfo(sockId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": s,
+		msg: s,
 	})
 
 }
@@ -103,14 +106,14 @@ func patchAcceptListOfSock(c *gin.Context) {
 	sock, err := db.GetSockInfo(c.Param("sockId"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
 
 	if sock.Owner != userID {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "User does not own sock ID `" + sock.ID + "`",
+			msg: "User does not own sock ID `" + sock.ID + "`",
 		})
 		return
 	}
@@ -124,7 +127,7 @@ func patchAcceptListOfSock(c *gin.Context) {
 	err = c.BindJSON(&tmpPatch)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -135,23 +138,28 @@ func patchAcceptListOfSock(c *gin.Context) {
 		status = false
 	} else {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "Status is incorrect",
+			msg: "Status is incorrect",
 		})
 		return
 	}
 
 	otherSock, err := db.GetSockInfo(tmpPatch.OtherSockID)
-
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: fmt.Errorf("other sock id doesn't exist\n%s", err.Error()),
+		})
+		return
+	}
 	err = db.EditMatchingSock(sock, otherSock, status)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Success",
+		msg: "Success",
 	})
 }
 
@@ -159,7 +167,7 @@ func showUser(c *gin.Context) {
 	doc, err := db.GetUser(c.Param("username"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -175,7 +183,7 @@ func listSocksOfUser(c *gin.Context) {
 	userID, ok := claim[jwt.IdentityKey].(string)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "User is not authentificated",
+			msg: "User is not authentificated",
 		})
 		return
 	}
@@ -183,7 +191,7 @@ func listSocksOfUser(c *gin.Context) {
 	socks, err := db.GetUserSocks(userID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -206,7 +214,7 @@ func addSock(c *gin.Context) {
 	err := c.BindJSON(&tmpSock)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -215,7 +223,7 @@ func addSock(c *gin.Context) {
 	userID, ok := claim[jwt.IdentityKey].(string)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "User not authentificated",
+			msg: "User not authentificated",
 		})
 		return
 	}
@@ -223,7 +231,7 @@ func addSock(c *gin.Context) {
 	doc, err := db.NewSock(tmpSock.ShoeSize, tmpSock.Type, tmpSock.Color, tmpSock.Description, tmpSock.Picture, userID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 
 		return
@@ -241,7 +249,7 @@ func listMatchesOfSock(c *gin.Context) {
 	socks, err := db.GetCompatibleSocks(sockId, limit)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -280,7 +288,7 @@ func register(c *gin.Context) {
 	log.Printf("new user signing up :")
 	if err := c.BindJSON(&tmpUser); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -290,9 +298,9 @@ func register(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": "registration successful"})
+	c.JSON(http.StatusCreated, gin.H{msg: "registration successful"})
 }

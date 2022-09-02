@@ -399,11 +399,22 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 	}
 }
 
+func getFeaturesFromSock(s *Sock) []float64 {
+	rgb, _ := utils.ParseHexColor(s.Color)
+	return []float64{
+		float64(s.ShoeSize) * 125 * 4,
+		float64(s.Type) * 250 * 4,
+		float64(rgb.A),
+		float64(rgb.R),
+		float64(rgb.G),
+		float64(rgb.B),
+	}
+}
+
 /*
-GetCompatibleSocks returns the most similar sock in the
+GetCompatibleSocks returns the most similar sock in the collection
 */
 func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
-
 	tree := kdtree.New()
 
 	client, err := GetDBConnection()
@@ -414,8 +425,8 @@ func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
 	if err != nil {
 		return nil, err
 	}
-	var sockOP Sock
-	doc.DataTo(&sockOP)
+	var originalSock Sock
+	doc.DataTo(&originalSock)
 	socks := make([]Sock, 0, limit)
 
 	it := client.Collection(SocksCollection).DocumentRefs(context.Background())
@@ -445,20 +456,11 @@ func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
 		var currentSock Sock
 		dockSnapShot.DataTo(&currentSock)
 		//we don't want to match two socks from the same owner or a sock already matched
-		if currentSock.Owner == sockOP.Owner || currentSock.IsMatched {
+		if currentSock.Owner == originalSock.Owner || currentSock.Match != "" {
 			continue
 		}
 		log.Printf("%+v", currentSock)
-		rgb, _ := utils.ParseHexColor(currentSock.Color)
-		//because rgb is [0;255] and shoesize is max 75, we need to multiple them to give them more importance
-		datas = append(datas, []float64{
-			float64(currentSock.ShoeSize) * 125 * 4,
-			float64(currentSock.Type) * 250 * 4,
-			float64(rgb.A),
-			float64(rgb.R),
-			float64(rgb.G),
-			float64(rgb.B),
-		})
+		datas = append(datas, getFeaturesFromSock(&currentSock))
 
 		currentSock.ID = dockSnapShot.Ref.ID
 		socks = append(socks, currentSock)
@@ -487,14 +489,14 @@ func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
 	*/
 
 	euclide := pairwise.NewEuclidean()
-	rgb, _ := utils.ParseHexColor(sockOP.Color)
+	rgb, _ := utils.ParseHexColor(originalSock.Color)
 	//search limit sock similar (euclide) to s.attribut
 
 	//rows contains the indexes of the most similar socks, fetching socks[rows[0]] gives the best matching sock
 	//fetching datas[rows[0]] gives the feature of the best matching sock
 	rows, _ /*pairwise distance from sockOP to currentSock_i*/ /*err*/, _ := tree.Search(int(i), euclide, []float64{
-		float64(sockOP.ShoeSize) * 125 * 4,
-		float64(sockOP.Type) * 250 * 4,
+		float64(originalSock.ShoeSize) * 125 * 4,
+		float64(originalSock.Type) * 250 * 4,
 		float64(rgb.A),
 		float64(rgb.R),
 		float64(rgb.G),

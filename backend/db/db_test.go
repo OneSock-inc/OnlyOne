@@ -257,7 +257,10 @@ func TestGetCompatibleSocks(t *testing.T) {
 	assert.Nil(t, DeleteCollection(context.Background(), client, client.Collection(SocksCollection), 64))
 
 	//create a user
-	doc, err := RegisterUser(User{Username: "LucienLaTchoin", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
+	doc, err := RegisterUser(User{Username: "LuienLaTchoin", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
+	assert.Nil(t, err)
+	doc2, err := RegisterUser(User{Username: "LucienLTchoin2", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
+
 	assert.Nil(t, err)
 	owner := doc.ID
 
@@ -284,7 +287,7 @@ func TestGetCompatibleSocks(t *testing.T) {
 		Picture:      "==",
 		RefusedList:  make([]string, 0), //this init the memory see GetSockInfo@db.go for further detail
 		AcceptedList: make([]string, 0),
-		Owner:        owner,
+		Owner:        doc2.ID,
 	}
 
 	s1d, err := NewSock(s1.ShoeSize, s1.Type, s.Color, s1.Description, s1.Picture, s1.Owner)
