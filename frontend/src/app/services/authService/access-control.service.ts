@@ -32,7 +32,7 @@ export class AccessControlService implements CanMatch {
     if (segments[0].path === 'login') {
       return !this.authService.isLoggedIn() || this.router.parseUrl('/');
     } else {
-      return this.authService.isLoggedIn() || this.router.parseUrl('/');
+      return this.authService.isLoggedIn() || this.router.parseUrl('/login');
     }
   }
 }

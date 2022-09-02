@@ -41,6 +41,12 @@ import { AccessControlService } from './services/authService/access-control.serv
 import { AuthenticationButtonComponent } from './authentication-button/authentication-button.component';
 import { AddSockFormComponent } from './forms/add-sock-form/add-sock-form.component';
 import { SignupFormComponent } from './forms/signup-form/signup-form.component';
+import { SockListComponent } from './sock-list/sock-list.component';
+import { MatchingSocksComponent } from './matching-socks/matching-socks.component';
+import { MySockComponent } from './my-sock/my-sock.component';
+import { ProposedSockComponent } from './proposed-sock/proposed-sock.component';
+import { MyAccountComponent } from './my-account/my-account.component';
+
 @NgModule({
   declarations: [
     LoaderComponent,
@@ -57,7 +63,12 @@ import { SignupFormComponent } from './forms/signup-form/signup-form.component';
     AddSockPageComponent,
     AuthenticationButtonComponent,
     AddSockFormComponent,
-    SignupFormComponent
+    SignupFormComponent,
+    SockListComponent,
+    MatchingSocksComponent,
+    MySockComponent,
+    ProposedSockComponent,
+    MyAccountComponent,
   ],
   imports: [
     BrowserModule,
