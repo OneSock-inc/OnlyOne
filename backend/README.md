@@ -48,7 +48,7 @@ The api module is composed of the code setting up the routes and the handlers fo
 Most of these handlers just do a call to the DB module where the heavy lifting (db transaction, commit rollback in case of error) is done. Then the handlers return the response to the client or the error .
 The databases is totaly abstracted from the API viewpoint
 
-The DB module is where all the grpc calls are made to the database. We don't do grpc call ourself we only use the grpc client offered by the firestore lib. The matching algorithmes is implemented there. We also take care of the error handling there, for exemple if the data send by a user to a route / response handler is ill formed or simply missing we detect it there before creating a db record . 
+The DB module is where all the [grpc](https://grpc.io) calls are made to the database. We don't do grpc call ourself, inestead we use the firestore library that do the grpcs call itself. The matching algorithme is implemented there. We also take care of the error handling there, for exemple if the data send by a user to a route / response handler is ill formed or simply missing we detect it there before creating saving it to the database. 
 
 
 ## Running the tests
