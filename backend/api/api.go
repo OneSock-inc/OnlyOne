@@ -80,7 +80,7 @@ func Setup() *gin.Engine {
 	})
 
 	//all these routes need a valide jwt
-	sock := router.Group("/sock").Use(CORSMiddleware(),auth.MiddlewareFunc())
+	sock := router.Group("/sock").Use(CORSMiddleware(), auth.MiddlewareFunc())
 	{
 		sock.POST("", addSock)
 		sock.POST("/", func(c *gin.Context) {
