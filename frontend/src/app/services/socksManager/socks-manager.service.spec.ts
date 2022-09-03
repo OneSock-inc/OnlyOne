@@ -1,7 +1,7 @@
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { services } from '.';
+import { services } from '..';
 
 import { SocksManagerService } from './socks-manager.service';
 

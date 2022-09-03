@@ -1,8 +1,8 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BackendLinkService } from './backendservice/backend-link.service';
-import { Sock } from '../dataModel/sock.model';
-import { UserService } from './userService/user-service.service';
+import { Sock } from 'src/app/dataModel/sock.model';
+import { BackendLinkService } from '../backendservice/backend-link.service';
+import { UserService } from '../userService/user-service.service';
 
 @Injectable({
   providedIn: 'root',
