@@ -68,11 +68,24 @@ func Setup() *gin.Engine {
 		user.GET("/:username", auth.MiddlewareFunc(), showUser)
 		user.GET("/:username/sock", auth.MiddlewareFunc(), listSocksOfUser)
 	}
+	router.NoRoute(CORSMiddleware(), func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{
+			msg: "404 not found",
+		})
+	})
+	router.NoMethod(CORSMiddleware(), func(c *gin.Context) {
+		c.JSON(http.StatusMethodNotAllowed, gin.H{
+			msg: fmt.Sprintf("%s is not allowed on %s", c.Request.Method, c.Request.URL.Path),
+		})
+	})
 
 	//all these routes need a valide jwt
 	sock := router.Group("/sock").Use(CORSMiddleware(),auth.MiddlewareFunc())
 	{
-		sock.POST("/", addSock)
+		sock.POST("", addSock)
+		sock.POST("/", func(c *gin.Context) {
+			c.Redirect(http.StatusTemporaryRedirect, "/sock")
+		})
 		sock.GET("/:sockId/match", listMatchesOfSock)
 		sock.PATCH("/:sockId", patchAcceptListOfSock)
 		sock.GET("/:sockId", getSockInfo)
