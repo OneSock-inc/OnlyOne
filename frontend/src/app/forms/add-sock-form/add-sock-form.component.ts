@@ -18,23 +18,24 @@ export class AddSockFormComponent implements OnInit {
 
   newSock: Sock;
 
+  // Sepcial fields values
+  // Init with thtis.initForm() function
+  sizeValue!: number;
+  pictureB64!: DataUrl;
+  sockColor!: string;
+
+  // Sepcial fields values
+  pictureButtonLabel = "Take picture";
+  colorPickerLabel: string = "Choose color";
+  
+  // Forms model
   addSockForm!: FormGroup;
 
-  pictureButtonLabel = "Take picture";
-
-  sizeValue: number = 36;
-
-  pictureB64: DataUrl = "";
-  
+  // Aspect
   maxPxBorder: number = 500;
-
-  sockColor: string = "#ffffff";
-  colorPickerLabel: string = "Choose color";
-
   textColor: string = "#ffffff";
-
   screenWidth!: string;
-  
+
   ngOnInit(): void {
     this.addSockForm = new FormGroup({
       description: new FormControl('',{
@@ -50,7 +51,7 @@ export class AddSockFormComponent implements OnInit {
         validators: [Validators.required, Validators.min(SockType.low), Validators.max(SockType.high)]
       }),
     });
-
+    this.initForm();
     this.screenWidth = this.getScreenWidth().toString()
   }
 
@@ -59,23 +60,24 @@ export class AddSockFormComponent implements OnInit {
     this.newSock.shoeSize = form.value.shoeSize;
     this.newSock.color = this.sockColor;
     this.newSock.description = form.value.description;
-    this.newSock.type = form.value.sockType;
-    //this.newSock.picture = this.pictureB64;
+    this.newSock.type = Number(form.value.sockType);
+    this.newSock.picture = this.pictureB64.split(',')[1];
 
     const newSockStr = this.newSockToJson(this.newSock);
 
-    this.http.post<any>("https://api.jsch.ch/sock", newSockStr)
+    this.http.post<any>("https://api.jsch.ch/sock/", newSockStr)
       .subscribe({
-        next: data => console.log(data),
-        error: err => console.log(err)
+        next: data => {
+          console.log(data);
+          this.initForm();
+          alert('New sock successfully added !');
+        },
+        error: err => {
+          console.log(err);
+          alert(err.message)
+        }
       })
-    //this.newSock.type = 
-    // send to api
-    //pictureB64
-    //sockColor
-    //form.description
-    //form.password
-
+    
   }
 
   onColorChange(newColor: string): void {
@@ -110,6 +112,12 @@ export class AddSockFormComponent implements OnInit {
     );
   }
 
+  private initForm() {
+    this.sizeValue = 36;
+    this.pictureB64 = '';
+    this.sockColor = "#ffffff";
+  }
+
   private getScreenWidth(): number {
     if (window.innerWidth < 500) {
       let windowWidth = window.screen.width;
@@ -128,6 +136,5 @@ export class AddSockFormComponent implements OnInit {
       }
     });
   }
-
-
+  
 }
