@@ -15,8 +15,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./signup-form.component.scss'],
 })
 export class SignupFormComponent implements OnInit {
-  @Input() textButton: string;
-  @Input() isSignup : boolean;
+  @Input() textButton?: string;
+  @Input() isSignup?: boolean;
   constructor(private userService: UserService, private router: Router) {}
 
   // Accessed in template

@@ -83,7 +83,7 @@ func Setup() *gin.Engine {
 }
 func updateUser(c *gin.Context) {
 	claim := jwt.ExtractClaims(c)
-	userId := claim[jwt.IdentityKey]
+	userId, _ := claim[jwt.IdentityKey].(string)
 	var user db.User
 	c.BindJSON(&user)
 	db.UpdateUser(userId, user)
