@@ -32,6 +32,7 @@ export class AuthService {
     this.http.post<JWToken>(this.backendLink.getLoginUrl(), {username, password})
     .subscribe({
       next: (response: any) => {
+        this.tokenService.setAuthorizationToken(response);
         successCallback(response);
       },
       error: (error: any) => {
