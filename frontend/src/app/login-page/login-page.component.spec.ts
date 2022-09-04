@@ -37,26 +37,21 @@ describe('LoginPageComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should not crash on first call of removeMessage()', () => {
-    component.removeMessage();
-    expect(component).toBeTruthy();
-  });
-
   /**
    * integration tests
    */
 
-  it('Schould create loader', () => {
-    expect(
-      component.dynamicChild?.viewContainerRef.createComponent(LoaderComponent)
-    ).toBeTruthy();
-  });
+  // it('Schould create loader', () => {
+  //   expect(
+  //     component.dynamicChild?.viewContainerRef.createComponent(LoaderComponent)
+  //   ).toBeTruthy();
+  // });
 
-  it('should display message in banner', () => {
-    component.displayMessage('test message');
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.banner')?.textContent).toContain(
-      'test message'
-    );
-  });
+  // it('should display message in banner', () => {
+  //   component.displayMessage('test message');
+  //   const compiled = fixture.nativeElement as HTMLElement;
+  //   expect(compiled.querySelector('.banner')?.textContent).toContain(
+  //     'test message'
+  //   );
+  // });
 });
