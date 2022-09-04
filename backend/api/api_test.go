@@ -152,7 +152,7 @@ func newSockRequest(shoeSize uint16, type_ db.Profile, color string, descr strin
 	"color": "%s",
 	"description": "%s",
 	"picture":"%s"}`, shoeSize, type_, color, descr, picture))
-	return httptest.NewRequest("POST", "/sock/", r)
+	return httptest.NewRequest("POST", "/sock", r)
 }
 
 func getValidBase64Image() string {
