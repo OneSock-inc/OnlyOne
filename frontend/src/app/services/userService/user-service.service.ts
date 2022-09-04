@@ -13,6 +13,14 @@ export class UserService {
   }
 
   private user: User;
+  updateUser(user : User, sucessCallb: Function, errorCallb : Function) : void {
+    this.http.patch<any>(this.backSrv.getUpdateUrl(),user).subscribe({
+      next: (response) => {
+        sucessCallb(response)
+      },
+      error: (error) => errorCallb(error),
+    });
+  }
 
   registerNewUser(newUser: User, successCb: Function, errorCb: Function): void {
     UserService.registerUserInLocalStorage(newUser);

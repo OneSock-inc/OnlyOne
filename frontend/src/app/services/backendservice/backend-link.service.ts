@@ -21,5 +21,8 @@ export class BackendLinkService {
   getRegisterUrl(): string {
     return this.config.backendUrl + "/user/register";
   }
+  getUpdateUrl(): string {
+    return this.config.backendUrl+ "/user/update"
+  }
 
 }

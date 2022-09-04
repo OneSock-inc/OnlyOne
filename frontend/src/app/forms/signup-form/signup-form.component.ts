@@ -45,7 +45,7 @@ export class SignupFormComponent implements OnInit {
   onSubmitSave(form:FormGroup):void {
     if (!form.valid) return
     this.messageBanner.hideMessage();
-    alert("Submit save")
+    alert("Submit save" + JSON.stringify(form.value));
     // this.userService.registerNewUser(
     //   SignupFormComponent.formGroupToUserObject(form),
     //   this.onSuccessSave,

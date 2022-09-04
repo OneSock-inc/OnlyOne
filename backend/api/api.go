@@ -63,6 +63,8 @@ func Setup() *gin.Engine {
 	auth := jwtSetup()
 	user := router.Group("/user")
 	{
+		user.PATCH("/update", auth.MiddlewareFunc(), updateUser)
+		user.PATCH("/update/", auth.MiddlewareFunc(), updateUser)
 		user.POST("/login", auth.LoginHandler)
 		user.POST("/register", register)
 		user.GET("/:username", auth.MiddlewareFunc(), showUser)
@@ -70,7 +72,7 @@ func Setup() *gin.Engine {
 	}
 
 	//all these routes need a valide jwt
-	sock := router.Group("/sock").Use(CORSMiddleware(),auth.MiddlewareFunc())
+	sock := router.Group("/sock").Use(CORSMiddleware(), auth.MiddlewareFunc())
 	{
 		sock.POST("/", addSock)
 		sock.PATCH("/:sockId", patchAcceptListOfSock)
@@ -79,7 +81,13 @@ func Setup() *gin.Engine {
 
 	return router
 }
-
+func updateUser(c *gin.Context) {
+	claim := jwt.ExtractClaims(c)
+	userId := claim[jwt.IdentityKey]
+	var user db.User
+	c.BindJSON(&user)
+	db.UpdateUser(userId, user)
+}
 func getSockInfo(c *gin.Context) {
 
 	sockId := c.Param("sockId")
