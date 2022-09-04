@@ -20,15 +20,11 @@ $title_2_font_size: 2.6;
 $font_family: Roboto, "Helvetica Neue", sans-serif;
 $title_font_family: $font_family;
 
-
-
 @import "reboot";
 
 @import "default_mixin";
 
 @import "css-variables";
-  
-@include default-styling;
 
 .btn {
   background-color: #ccc;

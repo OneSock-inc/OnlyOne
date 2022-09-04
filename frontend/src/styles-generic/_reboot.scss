@@ -1,9 +1,14 @@
 html,
 body {
-  height: 100%;
+  font-family: $font_family;
+  margin: 0;
 }
+
 body {
-  font-family: $font_family;  
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  color: var(--text);
+  min-height: 100vh;
   margin: 0;
 }
 
@@ -22,11 +27,4 @@ html {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-}
-
-body {
-  font-family: var(--font-family);
-  font-size: var(--font-size);
-  color: var(--text);
-  min-height: 100vh;
 }
