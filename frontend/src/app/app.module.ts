@@ -16,10 +16,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import {MatButtonModule} from '@angular/material/button'; 
 import {MatIconModule} from '@angular/material/icon';
-import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatDividerModule} from '@angular/material/divider';
+import { ColorPickerModule } from 'ngx-color-picker';
 
+
+import {RouterModule} from '@angular/router';
+import { AddSockPageComponent } from './add-sock-page/add-sock-page.component';
 import { AppRoutingModule } from './app-routing.module';
-import { RouterModule } from '@angular/router';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ConfigService } from './services/config/config.service';
@@ -35,6 +41,12 @@ import { AccessControlService } from './services/authService/access-control.serv
 import { AuthenticationButtonComponent } from './authentication-button/authentication-button.component';
 import { SignupFormComponent } from './forms/signup-form/signup-form.component';
 import { LoginFormComponent } from './forms/login-form/login-form.component';
+import { AddSockFormComponent } from './forms/add-sock-form/add-sock-form.component';
+import { SockListComponent } from './sock-list/sock-list.component';
+import { MatchingSocksComponent } from './matching-socks/matching-socks.component';
+import { MySockComponent } from './my-sock/my-sock.component';
+import { ProposedSockComponent } from './proposed-sock/proposed-sock.component';
+import { MyAccountComponent } from './my-account/my-account.component';
 
 @NgModule({
   declarations: [
@@ -50,9 +62,17 @@ import { LoginFormComponent } from './forms/login-form/login-form.component';
     PageNotFoundComponent,
     MessageBannerComponent,
     SignupPageComponent,
+    AddSockPageComponent,
     AuthenticationButtonComponent,
     SignupFormComponent,
     LoginFormComponent,
+    AddSockFormComponent,
+    SignupFormComponent,
+    SockListComponent,
+    MatchingSocksComponent,
+    MySockComponent,
+    ProposedSockComponent,
+    MyAccountComponent,
   ],
   imports: [
     BrowserModule,
@@ -67,6 +87,10 @@ import { LoginFormComponent } from './forms/login-form/login-form.component';
     HttpClientModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
+    MatSliderModule,
+    MatButtonToggleModule,
+    ColorPickerModule,
+    MatDividerModule,
   ],
   providers: [
     ConfigService,

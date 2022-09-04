@@ -4,6 +4,7 @@ import (
 	//import gin
 
 	"backend/db"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -13,6 +14,8 @@ import (
 )
 
 var router *gin.Engine
+
+const msg = "message"
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -65,13 +68,26 @@ func Setup() *gin.Engine {
 		user.GET("/:username", auth.MiddlewareFunc(), showUser)
 		user.GET("/:username/sock", auth.MiddlewareFunc(), listSocksOfUser)
 	}
+	router.NoRoute(CORSMiddleware(), func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{
+			msg: "404 not found",
+		})
+	})
+	router.NoMethod(CORSMiddleware(), func(c *gin.Context) {
+		c.JSON(http.StatusMethodNotAllowed, gin.H{
+			msg: fmt.Sprintf("%s is not allowed on %s", c.Request.Method, c.Request.URL.Path),
+		})
+	})
 
 	//all these routes need a valide jwt
-	sock := router.Group("/sock").Use(auth.MiddlewareFunc())
+	sock := router.Group("/sock").Use(CORSMiddleware(), auth.MiddlewareFunc())
 	{
-		sock.POST("/", addSock)
+		sock.POST("", addSock)
+		sock.POST("/", func(c *gin.Context) {
+			c.Redirect(http.StatusTemporaryRedirect, "/sock")
+		})
 		sock.GET("/:sockId/match", listMatchesOfSock)
-		sock.PATCH("/:sockId/", patchAcceptListOfSock)
+		sock.PATCH("/:sockId", patchAcceptListOfSock)
 		sock.GET("/:sockId", getSockInfo)
 	}
 
@@ -84,26 +100,87 @@ func getSockInfo(c *gin.Context) {
 	s, err := db.GetSockInfo(sockId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": s,
+		msg: s,
 	})
 
 }
 
 func patchAcceptListOfSock(c *gin.Context) {
-	c.Next()
+	claim := jwt.ExtractClaims(c)
+	// checks already made by the middleware
+	userID, _ := claim[jwt.IdentityKey].(string)
+
+	sock, err := db.GetSockInfo(c.Param("sockId"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+
+	if sock.Owner != userID {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: "User does not own sock ID `" + sock.ID + "`",
+		})
+		return
+	}
+
+	type TmpPatchReq struct {
+		Status      string `json:"status"`
+		OtherSockID string `json:"otherSockID"`
+	}
+
+	tmpPatch := TmpPatchReq{}
+	err = c.BindJSON(&tmpPatch)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+	var status bool
+	if tmpPatch.Status == "accept" {
+		status = true
+	} else if tmpPatch.Status == "refuse" {
+		status = false
+	} else {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: "Status is incorrect",
+		})
+		return
+	}
+
+	otherSock, err := db.GetSockInfo(tmpPatch.OtherSockID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: fmt.Errorf("other sock id doesn't exist\n%s", err.Error()),
+		})
+		return
+	}
+	err = db.EditMatchingSock(sock, otherSock, status)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		msg: "Success",
+	})
 }
 
 func showUser(c *gin.Context) {
 	doc, err := db.GetUser(c.Param("username"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -119,7 +196,7 @@ func listSocksOfUser(c *gin.Context) {
 	userID, ok := claim[jwt.IdentityKey].(string)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "User is not authentificated",
+			msg: "User is not authentificated",
 		})
 		return
 	}
@@ -127,7 +204,7 @@ func listSocksOfUser(c *gin.Context) {
 	socks, err := db.GetUserSocks(userID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -150,7 +227,7 @@ func addSock(c *gin.Context) {
 	err := c.BindJSON(&tmpSock)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -159,7 +236,7 @@ func addSock(c *gin.Context) {
 	userID, ok := claim[jwt.IdentityKey].(string)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "User not authentificated",
+			msg: "User not authentificated",
 		})
 		return
 	}
@@ -167,7 +244,7 @@ func addSock(c *gin.Context) {
 	doc, err := db.NewSock(tmpSock.ShoeSize, tmpSock.Type, tmpSock.Color, tmpSock.Description, tmpSock.Picture, userID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 
 		return
@@ -180,7 +257,19 @@ func addSock(c *gin.Context) {
 }
 
 func listMatchesOfSock(c *gin.Context) {
-	c.Next()
+	var limit uint16 = 4 //chosen by fair random dice roll
+	sockId := c.Param("sockId")
+	socks, err := db.GetCompatibleSocks(sockId, limit)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"socks": socks,
+	})
+
 }
 
 // create the login function
@@ -212,7 +301,7 @@ func register(c *gin.Context) {
 	log.Printf("new user signing up :")
 	if err := c.BindJSON(&tmpUser); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
@@ -222,9 +311,9 @@ func register(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			msg: err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": "registration successful"})
+	c.JSON(http.StatusCreated, gin.H{msg: "registration successful"})
 }

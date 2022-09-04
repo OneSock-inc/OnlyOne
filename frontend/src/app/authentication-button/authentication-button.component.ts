@@ -11,7 +11,7 @@ export class AuthenticationButtonComponent implements OnInit {
 
   constructor(private authService: AuthService) { }
 
-  signup: LinkElement = {text: 'Sigup', path: '/signup'};
+  signup: LinkElement = {text: 'Signup', path: '/signup'};
   login: LinkElement = {text: 'Login', path: '/login'};
   logout: LinkElement = {text: 'Logout', path: ''};
 

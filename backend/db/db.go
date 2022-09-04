@@ -5,11 +5,15 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/sjwhitworth/golearn/kdtree"
+	"github.com/sjwhitworth/golearn/metrics/pairwise"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/api/iterator"
 )
@@ -18,8 +22,9 @@ var projectID string = "onlyone-cb08e"
 var dbClient *firestore.Client
 var ctx *context.Context
 
-const UserColl = "users"
+const UsersCollection = "users"
 const SocksCollection = "socks"
+const ResultsCollection = "results"
 
 type Address struct {
 	Street     string `firestore:"street" json:"street"`
@@ -56,8 +61,13 @@ type Sock struct {
 	Owner        string   `firestore:"owner" json:"owner"`
 	RefusedList  []string `firestore:"refusedList" json:"refusedList"`
 	AcceptedList []string `firestore:"acceptedList" json:"acceptedList"`
-	IsMatched    bool     `firestore:"isMatched" json:"isMatched"`
+	Match        string   `firestore:"match" json:"match"`
+	MatchResult  string   `firestore:"matchResult" json:"matchResult"`
 }
+
+// MatchResult status
+const WIN = "win"
+const LOSE = "lose"
 
 //return all the socks of a user identified by it's cookie session
 
@@ -67,7 +77,7 @@ func GetUserSocks(userID string) ([]Sock, error) {
 		return nil, err
 	}
 
-	query := client.Collection("socks").Query.Where("owner", "==", userID)
+	query := client.Collection(SocksCollection).Query.Where("owner", "==", userID)
 	iter := query.Documents(context.Background())
 	var socks []Sock
 	for {
@@ -92,7 +102,7 @@ func GetUser(username string) (*firestore.DocumentSnapshot, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := db.Collection("users").Where("username", "==", username)
+	query := db.Collection(UsersCollection).Where("username", "==", username)
 	users, err := query.Documents(*ctx).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
@@ -112,7 +122,7 @@ func GetUserFromID(id string) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
-	doc, err := db.Collection("users").Doc(id).Get(context.Background())
+	doc, err := db.Collection(UsersCollection).Doc(id).Get(context.Background())
 	if err != nil {
 		return User{}, err
 	}
@@ -122,7 +132,73 @@ func GetUserFromID(id string) (User, error) {
 	return user, nil
 }
 
-func editMatchingSock(sockID string, otherSockID string, accept bool) error {
+func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
+	otherSock, err := GetSockInfo(otherSock.ID)
+	if err != nil {
+		return err
+	}
+
+	if sock.Owner == otherSock.Owner {
+		return fmt.Errorf("User cannot accept or refuse a sock he owns")
+	}
+	if utils.Contains(sock.AcceptedList, otherSock.ID) {
+		return fmt.Errorf("Sock already in the accepted list")
+	}
+	if utils.Contains(sock.RefusedList, otherSock.ID) {
+		return fmt.Errorf("Sock already in the refused list")
+	}
+
+	for _, s := range []Sock{sock, otherSock} {
+		if s.Match != "" {
+			return fmt.Errorf("Sock `" + s.ID + "` is already in a happy and fulfilling pair")
+		}
+	}
+
+	db, err := GetDBConnection()
+	if err != nil {
+		return err
+	}
+
+	if accept {
+		sock.AcceptedList = append(sock.AcceptedList, otherSock.ID)
+
+		//if the other sock already accepted us and we are accepting it now, then we got a match
+		if utils.Contains(otherSock.AcceptedList, sock.ID) {
+			sock.Match = otherSock.ID
+			otherSock.Match = sock.ID
+
+			// Winner/Looser logic
+			rand.Seed(time.Now().UnixNano())
+			result := rand.Int() % 2
+			if result == 1 {
+				sock.MatchResult = WIN
+				otherSock.MatchResult = LOSE
+			} else {
+				sock.MatchResult = LOSE
+				otherSock.MatchResult = WIN
+			}
+
+			_, err = db.Collection(SocksCollection).Doc(otherSock.ID).Set(context.Background(), otherSock)
+			if err != nil {
+				return err
+			}
+
+			_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
+			if err != nil {
+				return err
+			}
+
+			// TODO: alert user there is a match
+		}
+	} else {
+		sock.RefusedList = append(sock.RefusedList, otherSock.ID)
+	}
+
+	_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -159,37 +235,37 @@ func GetSockInfo(sockId string) (Sock, error) {
 	return s, nil
 }
 
-func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb64 string, owner string) (*firestore.DocumentRef, error) {
+func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb64 string, owner string) (Sock, error) {
 	if shoeSize > 75 {
-		return nil, fmt.Errorf("show size `%d` is giant ! Are you a giant ? I don't think so", shoeSize)
+		return Sock{}, fmt.Errorf("show size `%d` is giant ! Are you a giant ? I don't think so", shoeSize)
 	}
 	if shoeSize <= 5 {
-		return nil, fmt.Errorf("show size `%d` is very small ! Are you a dwarf ? I don't think so", shoeSize)
+		return Sock{}, fmt.Errorf("show size `%d` is very small ! Are you a dwarf ? I don't think so", shoeSize)
 	}
 	if type_ >= count {
-		return nil, fmt.Errorf("type `%d` is invalid", count)
+		return Sock{}, fmt.Errorf("type `%d` is invalid", count)
 	}
 	_, err := utils.ParseHexColor(color)
 	if err != nil {
-		return nil, err
+		return Sock{}, err
 	}
 	if strings.TrimSpace(desc) == "" {
-		return nil, fmt.Errorf("description is empty")
+		return Sock{}, fmt.Errorf("description is empty")
 	}
 	if strings.TrimSpace(Pictureb64) == "" {
-		return nil, fmt.Errorf("picture is empty")
+		return Sock{}, fmt.Errorf("picture is empty")
 	}
 	// TODO: validate base64 + image data
 	client, err := GetDBConnection()
 	if err != nil {
-		return nil, err
+		return Sock{}, err
 	}
-	userSnapShot, err := client.Collection("users").Doc(owner).Get(context.Background())
+	userSnapShot, err := client.Collection(UsersCollection).Doc(owner).Get(context.Background())
 	if err != nil {
-		return nil, fmt.Errorf("user doesn't exist %s", err.Error())
+		return Sock{}, fmt.Errorf("user doesn't exist %s", err.Error())
 	}
 	if !userSnapShot.Exists() {
-		return nil, fmt.Errorf("document doesn't exist")
+		return Sock{}, fmt.Errorf("document doesn't exist")
 	}
 
 	s := Sock{
@@ -201,10 +277,11 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		Owner:        owner,
 		RefusedList:  make([]string, 0),
 		AcceptedList: make([]string, 0),
-		IsMatched:    false,
+		Match:        "",
 	}
-	docRef, _, err := client.Collection("socks").Add(*ctx, s)
-	return docRef, err
+	docRef, _, err := client.Collection(SocksCollection).Add(*ctx, s)
+	s.ID = docRef.ID
+	return s, err
 }
 
 func createClient(ctx context.Context) (*firestore.Client, error) {
@@ -282,7 +359,7 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 		return nil, err
 	}
 	//query doc where username's field == `username`
-	query := client.Collection("users").Query.Where("username", "==", u.Username)
+	query := client.Collection(UsersCollection).Query.Where("username", "==", u.Username)
 	docs, err := query.Documents(context.Background()).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
@@ -301,7 +378,7 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 	log.Printf("Hashed password : %s\n", hash)
 	user := u
 	user.Password = string(hash)
-	docRef, _, err := client.Collection("users").Add(*ctx, user)
+	docRef, _, err := client.Collection(UsersCollection).Add(*ctx, user)
 
 	if err != nil {
 		log.Printf("error : %v\n", err)
@@ -346,4 +423,118 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 			return err
 		}
 	}
+}
+
+func getFeaturesFromSock(s *Sock) []float64 {
+	rgb, _ := utils.ParseHexColor(s.Color)
+	return []float64{
+		float64(s.ShoeSize) * 125 * 4,
+		float64(s.Type) * 250 * 4,
+		float64(rgb.A),
+		float64(rgb.R),
+		float64(rgb.G),
+		float64(rgb.B),
+	}
+}
+
+/*
+GetCompatibleSocks returns the most similar sock in the collection
+*/
+func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
+	tree := kdtree.New()
+
+	client, err := GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	doc, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	var originalSock Sock
+	doc.DataTo(&originalSock)
+	socks := make([]Sock, 0, limit)
+
+	it := client.Collection(SocksCollection).DocumentRefs(context.Background())
+	//matrix of sock's features each row is an array of the sock's feature
+	datas := make([][]float64, 0)
+	//Query.Where("shoeSize", "==", s.ShoeSize).Where("type", "==", s.Type).Where("isMatched", "==", false).Documents(context.Background())
+	var i uint16 = 0
+	for {
+		//if we are done
+		doc, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		ref, err := doc.Get(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		if !ref.Exists() || ref.Ref.ID == sockId {
+			//sock doesn't exist or it's the sock we are looking at
+			continue
+		}
+		dockSnapShot, err := ref.Ref.Get(context.Background())
+		if err != nil {
+			return nil, fmt.Errorf("while iterating compatible sock: %v", err)
+		}
+
+		var currentSock Sock
+		dockSnapShot.DataTo(&currentSock)
+		//we don't want to match two socks from the same owner or a sock already matched
+		if currentSock.Owner == originalSock.Owner || currentSock.Match != "" {
+			continue
+		}
+		log.Printf("%+v", currentSock)
+		datas = append(datas, getFeaturesFromSock(&currentSock))
+
+		currentSock.ID = dockSnapShot.Ref.ID
+		socks = append(socks, currentSock)
+		i++
+	}
+
+	if err = tree.Build(datas); err != nil {
+		return nil, nil
+	}
+	// i := len(socks)
+	if i > limit {
+		i = limit
+	}
+
+	/*
+		This is how to datas in arranged in datas
+		datas = {
+			sock1 : [feature array]
+			sock2 : [feature array]
+			sock3 : [feature array]
+			sock4 : [feature array]
+			sock5 : [feature array]
+			sock6 : [feature array]
+			sock7 : [feature array]
+		}
+	*/
+
+	euclide := pairwise.NewEuclidean()
+	rgb, _ := utils.ParseHexColor(originalSock.Color)
+	//search limit sock similar (euclide) to s.attribut
+
+	//rows contains the indexes of the most similar socks, fetching socks[rows[0]] gives the best matching sock
+	//fetching datas[rows[0]] gives the feature of the best matching sock
+	rows, _ /*pairwise distance from sockOP to currentSock_i*/ /*err*/, _ := tree.Search(int(i), euclide, []float64{
+		float64(originalSock.ShoeSize) * 125 * 4,
+		float64(originalSock.Type) * 250 * 4,
+		float64(rgb.A),
+		float64(rgb.R),
+		float64(rgb.G),
+		float64(rgb.B),
+	})
+
+	//take the limit socks
+	res := make([]Sock, 0, limit)
+	for _, s := range rows {
+		//add the k best socks (limits to limit)
+		res = append(res, socks[s])
+	}
+
+	return res, nil
 }

@@ -22,6 +22,8 @@ export class SignupFormComponent implements OnInit {
   hidePassword = true;
   passwordMinLength: number = 10;
 
+  newUser: User = this.userService.getUser();
+
   // To display the list of countries
   countries: string[] = jsonFile.listOfCountries.map((country) => country.name);
   filteredCountries!: Observable<string[]>;
