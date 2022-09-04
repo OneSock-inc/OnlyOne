@@ -1,0 +1,40 @@
+
+// Global variables
+$unit: 'rem';
+
+// 1rem = 10px 
+:root {
+  font-size: 62.5%;
+}
+
+// Font-size for texts
+$text_font_size: 1.7;
+
+// Font-size for h1
+$title_1_font_size: 3.4;
+
+// Font-size for h2 to h6
+$title_2_font_size: 2.6;
+
+// Font-family for text
+$font_family: Roboto, "Helvetica Neue", sans-serif;
+$title_font_family: $font_family;
+
+
+
+@import "reboot";
+
+@import "default_mixin";
+
+@import "css-variables";
+  
+@include default-styling;
+
+.btn {
+  background-color: #ccc;
+  text-decoration: none;
+  border: none;
+  padding: 1rem;
+  font-size: 1.7rem;
+  border-radius: .1rem;
+}
