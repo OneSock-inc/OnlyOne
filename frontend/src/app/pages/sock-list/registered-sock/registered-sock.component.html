@@ -1,0 +1,6 @@
+<mat-card matBadge="{{getBadge()}}" matBadgeColor="warn" matBadgeSize="large" id="sockCard" (click)="onSelect()">
+    <mat-card-header>
+        <mat-card-title>{{typeToString(sock)}} {{sock.shoeSize}}</mat-card-title>
+    </mat-card-header>
+    <img src={{sock.picture}} alt="sock" class="sockImg" width="100%">
+</mat-card>
