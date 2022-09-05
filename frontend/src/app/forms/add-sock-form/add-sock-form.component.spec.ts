@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -8,13 +8,13 @@ import { LoaderDirective } from 'src/app/loader/loader.directive';
 import { LoginPageComponent } from 'src/app/login-page/login-page.component';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { MessageBannerComponent } from 'src/app/message-banner/message-banner.component';
-import { services } from 'src/app/services';
+import { SignupFormComponent } from '../signup-form/signup-form.component';
 
-import { SignupFormComponent } from './signup-form.component';
+import { AddSockFormComponent } from './add-sock-form.component';
 
-describe('SignupFormComponent', () => {
-  let component: SignupFormComponent;
-  let fixture: ComponentFixture<SignupFormComponent>;
+describe('AddSockFormComponent', () => {
+  let component: AddSockFormComponent;
+  let fixture: ComponentFixture<AddSockFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -27,10 +27,10 @@ describe('SignupFormComponent', () => {
         LoaderComponent,
         LoaderDirective,
       ],
-      providers: [services]
-    }).compileComponents();
+    })
+    .compileComponents();
 
-    fixture = TestBed.createComponent(SignupFormComponent);
+    fixture = TestBed.createComponent(AddSockFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

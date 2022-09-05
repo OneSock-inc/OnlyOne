@@ -33,7 +33,7 @@ import { ConfigService } from './services/config/config.service';
 import { LoaderComponent } from './loader/loader.component';
 import { LoaderDirective } from './loader/loader.directive';
 import { MessageBannerComponent } from './message-banner/message-banner.component';
-import { MesageBannerDirective } from './message-banner/mesage-banner.directive';
+import { MessageBannerDirective } from './message-banner/mesage-banner.directive';
 import { HttpErrorService } from './services/http-interceptors/http-error.service';
 import { AuthService } from './services/authService/auth.service';
 import { AuthInterceptor } from './services/http-interceptors/auth-interceptor.service';
@@ -41,6 +41,8 @@ import { TokenService } from './services/authService/token-service.service';
 import { AccessControlService } from './services/authService/access-control.service';
 import { AuthenticationButtonComponent } from './authentication-button/authentication-button.component';
 import { SignupFormComponent } from './forms/signup-form/signup-form.component';
+import { LoginFormComponent } from './forms/login-form/login-form.component';
+import { AddSockFormComponent } from './forms/add-sock-form/add-sock-form.component';
 import { SockListComponent } from './sock-list/sock-list.component';
 import { MatchingSocksComponent } from './matching-socks/matching-socks.component';
 import { MySockComponent } from './my-sock/my-sock.component';
@@ -52,16 +54,20 @@ import { MyAccountComponent } from './my-account/my-account.component';
     LoaderComponent,
     LoaderDirective,
     MessageBannerComponent,
+    MessageBannerDirective,
     HomePageComponent,
     AppComponent,
     TitleComponent,
     ButtonComponent,
     LoginPageComponent,
     PageNotFoundComponent,
-    MesageBannerDirective,
+    MessageBannerComponent,
     SignupPageComponent,
     AddSockPageComponent,
     AuthenticationButtonComponent,
+    SignupFormComponent,
+    LoginFormComponent,
+    AddSockFormComponent,
     SignupFormComponent,
     SockListComponent,
     MatchingSocksComponent,
@@ -74,7 +80,6 @@ import { MyAccountComponent } from './my-account/my-account.component';
     AppRoutingModule,
     RouterModule,
     FormsModule,
-    ReactiveFormsModule,
     BrowserAnimationsModule,
     MatFormFieldModule,
     MatInputModule,

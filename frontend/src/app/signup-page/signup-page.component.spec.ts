@@ -10,7 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { LoaderComponent } from '../loader/loader.component';
 import { LoaderDirective } from '../loader/loader.directive';
 import { LoginPageComponent } from '../login-page/login-page.component';
-import { MesageBannerDirective } from '../message-banner/mesage-banner.directive';
+import { MessageBannerDirective } from '../message-banner/mesage-banner.directive';
 import { MessageBannerComponent } from '../message-banner/message-banner.component';
 
 // const newUser: NewUser = {
@@ -32,7 +32,7 @@ describe('SignupPageComponent', () => {
       imports: [HttpClientTestingModule, HttpClientModule, ReactiveFormsModule],
       declarations: [
         LoginPageComponent,
-        MesageBannerDirective,
+        MessageBannerDirective,
         MessageBannerComponent,
         LoaderComponent,
         LoaderDirective,

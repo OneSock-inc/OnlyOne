@@ -152,7 +152,7 @@ func newSockRequest(shoeSize uint16, type_ db.Profile, color string, descr strin
 	"color": "%s",
 	"description": "%s",
 	"picture":"%s"}`, shoeSize, type_, color, descr, picture))
-	return httptest.NewRequest("POST", "/sock/", r)
+	return httptest.NewRequest("POST", "/sock", r)
 }
 
 func getValidBase64Image() string {
@@ -183,7 +183,7 @@ func TestListSocksOfUser(t *testing.T) {
 		sock.ID+
 		`","shoeSize":42,"type":0,"color":"#FFF","description":"Do not","picture":"aHR0cHM6Ly9kbGFuZy5vcmcK","owner":"`+
 		sock.Owner+
-		`","refusedList":null,"acceptedList":null,"match":""}]`, w.Body.String())
+		`","refusedList":null,"acceptedList":null,"match":"","matchResult":""}]`, w.Body.String())
 }
 
 func TestAddSockWithoutUser(t *testing.T) {
@@ -641,4 +641,36 @@ func TestPatchAcceptListOfSock_MatchThenShouldFail(t *testing.T) {
 	w = sendPatchRequest(jwt1, sockUsr1.ID, sockUsr3.ID, false)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assertCorrectMatch()
+}
+
+func TestMatchResult(t *testing.T) {
+	jwt1 := loginUser1()
+	jwt2 := loginUser2()
+
+	sockUsr1 := createSock(t, jwt1)
+	sockUsr2 := createSock(t, jwt2)
+
+	// sockUsr1 accepts sockUsr2
+	w := sendPatchRequest(jwt1, sockUsr1.ID, sockUsr2.ID, true)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// sockUsr2 accepts sockUsr1
+	w = sendPatchRequest(jwt2, sockUsr2.ID, sockUsr1.ID, true)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// Checks win/lose status
+	sockUsr1, err := db.GetSockInfo(sockUsr1.ID)
+	assert.Nil(t, err)
+
+	sockUsr2, err = db.GetSockInfo(sockUsr2.ID)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, sockUsr1.MatchResult)
+
+	if sockUsr1.MatchResult == db.WIN {
+		assert.Equal(t, db.LOSE, sockUsr2.MatchResult)
+	} else if sockUsr1.MatchResult == db.LOSE {
+		assert.Equal(t, db.WIN, sockUsr2.MatchResult)
+	} else {
+		assert.Fail(t, "Invalid matchResult !")
+	}
 }
