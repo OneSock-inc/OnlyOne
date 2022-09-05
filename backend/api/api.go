@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/SherClockHolmes/webpush-go"
+	webpush "github.com/SherClockHolmes/webpush-go"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	jwtgo "github.com/golang-jwt/jwt/v4"
@@ -132,33 +132,15 @@ func subscribe(c *gin.Context) {
 		})
 		return
 	}
-	log.Printf("%+v\n", sub)
-	res, err := webpush.SendNotification([]byte("test"), &sub, &webpush.Options{
-		Subscriber:      "bertil.chapuis@heig-vd.ch",
-		VAPIDPublicKey:  db.VAPID_KP,
-		VAPIDPrivateKey: db.VAPID_K,
-		TTL:             50,
-	})
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"res.code": res.StatusCode,
-			"res.body": res.Body,
-			"err":      err.Error(),
-		})
-	}
-	err = db.RegisterToPush(sub, userId)
+
+	err := db.RegisterToPush(sub, userId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			msg: err.Error(),
 		})
 	}
-	var bod []byte
-	n, err := res.Body.Read(bod)
 	c.JSON(http.StatusCreated, gin.H{
-		msg:          "Subscribed",
-		"respStatus": res.Status,
-		"resp":       bod,
-		"n":          n,
+		msg: "Subscribed",
 	})
 }
 
