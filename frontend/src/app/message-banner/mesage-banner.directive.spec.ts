@@ -1,4 +1,4 @@
-import { MesageBannerDirective } from './mesage-banner.directive';
+import { MessageBannerDirective } from './mesage-banner.directive';
 
 // describe('MesageBannerDirective', () => {
 //   it('should create an instance', () => {

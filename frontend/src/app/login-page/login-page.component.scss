@@ -5,23 +5,16 @@ h1 {
 }
 
 
-form {
+.form {
     grid-column: 1/4;
     grid-row: 3/-1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 5rem;
-    font-size: large;
 }
 
 .title {
     font-size: 5rem;
 }
 
-button {
-    font-size: large;
-}
+
 
 #loggedIn {
     grid-row: 3;

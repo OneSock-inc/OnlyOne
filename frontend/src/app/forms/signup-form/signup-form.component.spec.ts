@@ -6,7 +6,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { LoaderComponent } from 'src/app/loader/loader.component';
 import { LoaderDirective } from 'src/app/loader/loader.directive';
 import { LoginPageComponent } from 'src/app/login-page/login-page.component';
-import { MesageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
+import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { MessageBannerComponent } from 'src/app/message-banner/message-banner.component';
 import { services } from 'src/app/services';
 
@@ -22,7 +22,7 @@ describe('SignupFormComponent', () => {
       declarations: [
         SignupFormComponent,
         LoginPageComponent,
-        MesageBannerDirective,
+        MessageBannerDirective,
         MessageBannerComponent,
         LoaderComponent,
         LoaderDirective,

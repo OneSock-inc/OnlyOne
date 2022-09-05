@@ -47,7 +47,8 @@ type Profile uint8
 const (
 	low Profile = iota
 	high
-	count
+	knee_high
+	Count
 )
 
 type Sock struct {
@@ -242,8 +243,8 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 	if shoeSize <= 5 {
 		return Sock{}, fmt.Errorf("show size `%d` is very small ! Are you a dwarf ? I don't think so", shoeSize)
 	}
-	if type_ >= count {
-		return Sock{}, fmt.Errorf("type `%d` is invalid", count)
+	if type_ >= Count {
+		return Sock{}, fmt.Errorf("type `%d` is invalid", Count)
 	}
 	_, err := utils.ParseHexColor(color)
 	if err != nil {
