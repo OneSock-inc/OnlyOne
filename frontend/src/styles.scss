@@ -1,44 +1,46 @@
 /* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap");
 
 @import "./styles-generic/index";
 
 @mixin defaultLayout {
-    max-width: 900px;
-    margin: auto;
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 15em repeat(4, 1fr);
-    min-height: 100vh;
+  max-width: 900px;
+  margin: auto;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 10rem repeat(4, 1fr);
+  min-height: 100vh;
 }
 
 // For retro-compatibility purpose
 .default-layout {
-    @include defaultLayout();
+  @include defaultLayout();
 }
 
 .mainContent {
-    grid-column: 1/4;
-    grid-row: 2/-1;
-    height: 100%;
-    min-height: 900px;
+  grid-column: 1/4;
+  grid-row: 2/-1;
+  height: 100%;
+  min-height: 900px;
 }
 
 router-outlet + * {
-    @include defaultLayout();
+  @include defaultLayout();
 }
 
 .form-default {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 0 3rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-size: 1.8rem;
+  gap: 1rem;
+  justify-content: space-between;
+
+  button {
     font-size: large;
-    gap: 1rem;
-    justify-content: space-between;
+    margin-top: 1rem;
+    margin-bottom: 5rem;
+  }
 }
-
-
-
