@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Sock } from '../dataModel/sock.model';
+import { Sock, typeToString } from '../dataModel/sock.model';
 
 @Component({
   selector: 'app-proposed-sock',
@@ -9,14 +9,8 @@ import { Sock } from '../dataModel/sock.model';
 export class ProposedSockComponent implements OnInit {
 
   @Input() // to be accessed by the parent component
-  sock : Sock = {
-    id: "",
-    description: "",
-    shoeSize: 0,
-    color: "",
-    picture:""
-  };
-
+  sock = new Sock;
+  typeToString: (sock: Sock) => string = typeToString;
 
   constructor() { }
 

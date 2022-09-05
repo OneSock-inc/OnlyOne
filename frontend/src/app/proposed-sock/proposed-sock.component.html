@@ -1,6 +1,6 @@
 <mat-card>
     <mat-card-header>
-        <mat-card-title>Sockette {{sock.shoeSize}}</mat-card-title>
+        <mat-card-title>{{typeToString(sock)}} {{sock.shoeSize}}</mat-card-title>
     </mat-card-header>
     <div id="sockAndButtons">
         <img src={{sock.picture}} alt="sock" class="sockImg" width="100%">

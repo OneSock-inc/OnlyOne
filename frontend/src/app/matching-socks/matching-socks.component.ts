@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Sock } from '../dataModel/sock.model';
+import { Sock, typeToString } from '../dataModel/sock.model';
 
 @Component({
   selector: 'app-matching-socks',
@@ -9,7 +9,7 @@ import { Sock } from '../dataModel/sock.model';
 })
 export class MatchingSocksComponent implements OnInit {
 
-
+  typeToString: (sock: Sock) => string = typeToString;
 
   constructor() { }
 
@@ -31,6 +31,8 @@ export class MatchingSocksComponent implements OnInit {
     "shoeSize": 44,
     "picture":this.mySockImg,
     "description":"This is a nice sock",
+    "owner": "fjkldsah3",
+    "type": 1
   }
 
   socks: Sock[] = [
@@ -40,6 +42,8 @@ export class MatchingSocksComponent implements OnInit {
       "shoeSize": 45,
       "picture":this.sock3,
       "description":"This is a nice sock",
+      "type": 1,
+      "owner": "fjkfdsa"
     },
     {
       "id": "lkjqk4tdh84",
@@ -47,6 +51,8 @@ export class MatchingSocksComponent implements OnInit {
       "shoeSize": 43,
       "picture":this.sock2,
       "description":"This is a sock in a good shape",
+      "type": 1,
+      "owner": "eifos"
     },
     {
       "id": "j4l52j68ojfds",
@@ -54,6 +60,8 @@ export class MatchingSocksComponent implements OnInit {
       "shoeSize": 46,
       "picture":this.iphone,
       "description":"This is a really long description to know if the text will be cut off or not",
+      "type": 1,
+      "owner": "jfdiu"
     }
   ]
 }
