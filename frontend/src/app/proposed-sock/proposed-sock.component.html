@@ -1,1 +1,22 @@
-<p>proposed-sock works!</p>
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>{{typeToString(sock)}} {{sock.shoeSize}}</mat-card-title>
+    </mat-card-header>
+    <div id="sockAndButtons">
+        <img src={{sock.picture}} alt="sock" class="sockImg" width="100%">
+        <mat-card-content>
+            <p>{{sock.description}}</p>
+        </mat-card-content>
+        <div id="buttons">
+            <button mat-fab color="warn" (click)="refuse(sock.id)">
+                <mat-icon>close</mat-icon>
+            </button>
+            <button mat-fab color="primary" (click)="accept(sock.id)">
+                <mat-icon>check</mat-icon>
+            </button>
+        </div>
+        
+    </div>
+    
+    
+</mat-card>

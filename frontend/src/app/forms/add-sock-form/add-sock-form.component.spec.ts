@@ -1,4 +1,14 @@
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { LoaderComponent } from 'src/app/loader/loader.component';
+import { LoaderDirective } from 'src/app/loader/loader.directive';
+import { LoginPageComponent } from 'src/app/login-page/login-page.component';
+import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
+import { MessageBannerComponent } from 'src/app/message-banner/message-banner.component';
+import { SignupFormComponent } from '../signup-form/signup-form.component';
 
 import { AddSockFormComponent } from './add-sock-form.component';
 
@@ -8,7 +18,15 @@ describe('AddSockFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AddSockFormComponent ]
+      imports: [HttpClientTestingModule, HttpClientModule, ReactiveFormsModule, MatAutocompleteModule],
+      declarations: [
+        SignupFormComponent,
+        LoginPageComponent,
+        MessageBannerDirective,
+        MessageBannerComponent,
+        LoaderComponent,
+        LoaderDirective,
+      ],
     })
     .compileComponents();
 

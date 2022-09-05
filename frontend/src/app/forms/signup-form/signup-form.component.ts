@@ -6,7 +6,7 @@ import jsonFile from './countries.json';
 import { Observable } from 'rxjs/internal/Observable';
 import {map, startWith} from 'rxjs/operators';
 import { UserService } from 'src/app/services/userService/user-service.service';
-import { MesageBannerDirective as MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
+import { MessageBannerDirective as MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { Router } from '@angular/router';
 
 @Component({
@@ -34,12 +34,19 @@ export class SignupFormComponent implements OnInit {
   messageBanner!: MessageBannerDirective;
 
   onSubmit(form: FormGroup): void {
-    if (!form.valid) return
+    //this.messageBanner.vcref.clear();
     this.messageBanner.hideMessage();
+    console.log(SignupFormComponent.formGroupToUserObject(form));
     this.userService.registerNewUser(
       SignupFormComponent.formGroupToUserObject(form),
-      this.onSuccess,
-      this.onError
+      (successMsg: any) => {
+        console.log(successMsg);
+        this.router.navigate(['/login']);
+      }
+      ,
+      (errorMSg: any) => {
+        this.messageBanner.displayMessage(errorMSg);
+      }
     );
   }
   onSubmitSave(form:FormGroup):void {
@@ -64,47 +71,40 @@ export class SignupFormComponent implements OnInit {
     // this.router.navigate(['/login']);
   }
 
-  private onSuccess = (successMsg: any) => {
-    console.log(successMsg);
-    this.router.navigate(['/login']);
-  }
-
-  private onError = (errorMSg: any) => {
-    this.messageBanner.displayMessage(errorMSg);
-  }
-
   ngOnInit(): void {
     this.isSignup = this.isSignup !== undefined;
     console.log(`Boolean attribute is ${this.isSignup ? '' : 'non-'}present!`);
     this.signupForm = new FormGroup({
-      username: new FormControl( this.newUser.username, {
+      username: new FormControl('', {
         validators: [Validators.required],
       }),
-      password: new FormControl(this.newUser.password, {
+      password: new FormControl('', {
         validators: [
           Validators.required,
           Validators.minLength(this.passwordMinLength),
         ],
       }),
-      firstname: new FormControl(this.newUser.firstname, {
+      firstname: new FormControl('', {
         validators: [Validators.required],
       }),
-      surname: new FormControl(this.newUser.surname, {
+      surname: new FormControl('', {
         validators: [Validators.required],
       }),
-      street: new FormControl(this.newUser.address.street, {
+      street: new FormControl('', {
         validators: [Validators.required],
       }),
-      country: new FormControl(this.newUser.address.country, {
+      country: new FormControl('', {
         validators: [countryValidator(this.countries), Validators.required],
       }),
-      postalCode: new FormControl(this.newUser.address.postalCode, {
+      postalCode: new FormControl('', {
         validators: [Validators.required, postalCodeValidator()],
       }),
-      city: new FormControl(this.newUser.address.city, {
+      city: new FormControl('', {
         validators: [Validators.required],
       }),
     });
+
+    SignupFormComponent.fillForm(this.userService.getUser(), this.signupForm);
 
     this.filteredCountries = this.signupForm.controls[
       'country'
@@ -135,6 +135,19 @@ export class SignupFormComponent implements OnInit {
         postalCode: value.postalCode,
       },
     };
+  }
+
+  private static fillForm(user: User, form: FormGroup): void {
+    form.setValue({
+      username: user.username,
+      firstname: user.firstname,
+      surname: user.surname,
+      password: user.password,
+      street: user.address.street,
+      country: user.address.country,
+      city: user.address.city,
+      postalCode: user.address.postalCode,
+    });
   }
   
 }

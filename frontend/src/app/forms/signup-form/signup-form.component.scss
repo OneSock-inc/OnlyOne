@@ -1,5 +1,15 @@
 @import "./../styles";
 
+form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 3rem;
+    font-size: large;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
 #signupButton {
     font-size: large;
     margin-top: 1rem;

@@ -4,9 +4,9 @@ import { MessageBannerComponent } from './message-banner.component';
 @Directive({
   selector: '[appMessageBanner]'
 })
-export class MesageBannerDirective {
+export class MessageBannerDirective {
 
-  constructor(public vcref: ViewContainerRef) {
+  constructor(private vcref: ViewContainerRef) {
 
   }
 

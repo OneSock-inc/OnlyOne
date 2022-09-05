@@ -152,7 +152,7 @@ func newSockRequest(shoeSize uint16, type_ db.Profile, color string, descr strin
 	"color": "%s",
 	"description": "%s",
 	"picture":"%s"}`, shoeSize, type_, color, descr, picture))
-	return httptest.NewRequest("POST", "/sock/", r)
+	return httptest.NewRequest("POST", "/sock", r)
 }
 
 func getValidBase64Image() string {
@@ -207,7 +207,7 @@ func TestAddSockBadShoeSize(t *testing.T) {
 func TestAddSockBadType(t *testing.T) {
 	jwtToken := loginUser1()
 	w := httptest.NewRecorder()
-	req := newSockRequest(42, 2, "#FFF", "In a very good state", getValidBase64Image())
+	req := newSockRequest(42, 3, "#FFF", "In a very good state", getValidBase64Image())
 	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())
