@@ -1,0 +1,22 @@
+#buttons {
+    display: inline-block;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.sockImg {
+    height: 30rem;
+    object-fit: contain;
+}
+
+button {
+    box-shadow: none !important;
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.mat-card-title {
+    margin-top: 1rem;
+}
+
+
