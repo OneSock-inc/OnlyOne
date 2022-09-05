@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { AuthService } from '../services/authService/auth.service';
+import { AuthService } from '../../services/authService/auth.service';
 
 @Component({
   selector: 'app-login-page',

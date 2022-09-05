@@ -5,10 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { TitleComponent } from './title/title.component';
 import { ButtonComponent } from './button/button.component';
-import { LoginPageComponent } from './login-page/login-page.component';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { HomePageComponent } from './home-page/home-page.component';
-import { SignupPageComponent } from './signup-page/signup-page.component';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
+import { SignupPageComponent } from './pages/signup-page/signup-page.component';
 
 // Material
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -25,7 +25,7 @@ import {MatCardModule} from '@angular/material/card';
 
 
 import {RouterModule} from '@angular/router';
-import { AddSockPageComponent } from './add-sock-page/add-sock-page.component';
+import { AddSockPageComponent } from './pages/add-sock-page/add-sock-page.component';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -43,13 +43,12 @@ import { AuthenticationButtonComponent } from './authentication-button/authentic
 import { SignupFormComponent } from './forms/signup-form/signup-form.component';
 import { LoginFormComponent } from './forms/login-form/login-form.component';
 import { AddSockFormComponent } from './forms/add-sock-form/add-sock-form.component';
-import { SockListComponent } from './sock-list/sock-list.component';
-import { MatchingSocksComponent } from './matching-socks/matching-socks.component';
-import { MySockComponent } from './my-sock/my-sock.component';
-import { ProposedSockComponent } from './proposed-sock/proposed-sock.component';
-import { MyAccountComponent } from './my-account/my-account.component';
-import { MatchWinComponent } from './match-win/match-win.component';
-import { MatchLoseComponent } from './match-lose/match-lose.component';
+import { SockListComponent } from './pages/sock-list/sock-list.component';
+import { MatchingSocksComponent } from './pages/matching-socks/matching-socks.component';
+import { ProposedSockComponent } from './pages/matching-socks/proposed-sock/proposed-sock.component';
+import { MyAccountComponent } from './pages/my-account/my-account.component';
+import { MatchWinComponent } from './pages/match-win/match-win.component';
+import { MatchLoseComponent } from './pages/match-lose/match-lose.component';
 
 @NgModule({
   declarations: [
@@ -73,7 +72,6 @@ import { MatchLoseComponent } from './match-lose/match-lose.component';
     SignupFormComponent,
     SockListComponent,
     MatchingSocksComponent,
-    MySockComponent,
     ProposedSockComponent,
     MyAccountComponent,
     MatchWinComponent,

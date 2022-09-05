@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Sock, typeToString } from '../dataModel/sock.model';
+import { Sock, typeToString } from '../../../dataModel/sock.model';
 
 @Component({
   selector: 'app-proposed-sock',
