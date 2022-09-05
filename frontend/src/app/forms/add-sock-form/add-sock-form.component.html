@@ -2,112 +2,86 @@
   (submit)="onSubmit(addSockForm)"
   [formGroup]="addSockForm"
 >
-  <mat-label>Shoe size: {{ sizeValue }}</mat-label>
-  <mat-slider
+<mat-label>Shoe size: {{sizeValue}}</mat-label>
+<mat-slider
     thumbLabel
     formControlName="shoeSize"
     [(ngModel)]="sizeValue"
     step="1"
-    min="19"
+    min="25"
     max="55"
-    aria-label="units"
-  ></mat-slider>
+    aria-label="units"></mat-slider>
 
-  <mat-divider></mat-divider>
+<mat-divider></mat-divider>
 
-  <mat-label>Sock type</mat-label>
-  <mat-button-toggle-group
-    name="favoriteColor"
-    aria-label="Favorite Color"
-    formControlName="sockType"
-  >
-    <mat-button-toggle value="0" class="extendedButton"
-      >Sockette</mat-button-toggle
-    >
-    <mat-button-toggle value="1" class="extendedButton"
-      >Medium</mat-button-toggle
-    >
-    <mat-button-toggle value="1" class="extendedButton"
-      >Knee high</mat-button-toggle
-    >
-  </mat-button-toggle-group>
+<mat-label>Sock type</mat-label>
+<mat-button-toggle-group name="sockType" formControlName="sockType">
+    <mat-button-toggle  value="sockette" class="extendedButton">Sockette</mat-button-toggle>
+    <mat-button-toggle value="medium" class="extendedButton">Medium</mat-button-toggle>
+    <mat-button-toggle value="kneeHigh" class="extendedButton">Knee high</mat-button-toggle>
+</mat-button-toggle-group>
 
-  <mat-divider></mat-divider>
+<mat-divider></mat-divider>
 
-  <mat-label>Sock color</mat-label>
-  <input
-    #colorPicker
-    type="button"
-    id="colorPicker"
-    (colorPickerChange)="onColorChange($event)"
-    [cpDialogDisplay]="'popup'"
-    [(colorPicker)]="sockColor"
-    [cpAlphaChannel]="'disabled'"
-    [cpOutputFormat]="'hex'"
-    [cpOKButtonClass]="'cpButton'"
-    [cpDisableInput]="false"
-    [cpPosition]="'top'"
-    [cpPositionOffset]="'0'"
-    [cpDisableInput]="true"
-    [cpPositionRelativeToArrow]="true"
-    [cpOKButton]="true"
-    [cpOKButtonClass]="'colorPickerOk'"
-    [cpHeight]="'280'"
-    [cpWidth]="screenWidth"
-  />
-  <div id="colorPickerLine">
-    <button
-      type="button"
-      mat-stroked-button
-      color="basic"
-      (click)="colorPicker.click()"
-      class="extendedButton"
-    >
-      {{ colorPickerLabel }}
-      <mat-icon matSuffix>palette</mat-icon>
+<mat-label>Sock color</mat-label>
+<input
+        #colorPicker 
+        type="button" 
+        id="colorPicker"
+        (colorPickerChange)="onColorChange($event)"
+        [cpDialogDisplay]="'popup'"
+        [(colorPicker)]="sockColor"
+        [cpAlphaChannel]="'disabled'"
+        [cpOutputFormat]="'hex'"
+        [cpOKButtonClass]="'cpButton'"
+        [cpDisableInput]=false
+        [cpWidth]="screenWidth"
+        [cpPosition]="'top'"
+        [cpPositionOffset]="'0'"
+        [cpDisableInput]=true
+        [cpPositionRelativeToArrow]=true
+        [cpOKButton]=true
+        [cpOKButtonClass]="'colorPickerOk'"/>
+<div id="colorPickerLine">
+    <button type="button" mat-stroked-button color="basic" (click)="colorPicker.click()" class="extendedButton">
+        {{ colorPickerLabel }}
+        <mat-icon matSuffix>palette</mat-icon>
     </button>
     <button mat-fab id="colorShower" disabled type="button"></button>
-  </div>
 
-  <mat-divider></mat-divider>
+    
+</div>
 
-  <img [src]="pictureB64" alt="Image preview" *ngIf="pictureB64" />
-  <button
-    type="button"
-    mat-stroked-button
-    color="basic"
-    (click)="fileInput.click()"
-  >
+
+<mat-divider></mat-divider>
+
+<img [src]="pictureB64" alt="Image preview" *ngIf="pictureB64">
+<button type="button" mat-stroked-button color="basic" (click)="fileInput.click()">
     {{ pictureButtonLabel }}
     <mat-icon matSuffix>add_a_photo</mat-icon>
-  </button>
-  <input
-    hidden
-    (change)="selectFile($event)"
-    #fileInput
-    type="file"
-    accept="image/*"
-    capture="camera"
-    formControlName="picture"
-    name="picture"
-    value="pictureB64"
-  />
+</button>
+<input hidden
+    (change)="selectFile($event)" 
+    #fileInput 
+    type="file" 
+    accept="image/*" 
+    capture="camera" 
+    formControlName="picture" 
+    name="picture" >
 
-  <mat-divider></mat-divider>
+<mat-divider></mat-divider>
 
-  <mat-form-field appearance="legacy" class="form-group" id="description">
+<mat-form-field appearance="legacy" class="form-group" id="description">
     <mat-label>Description</mat-label>
-    <textarea
-      matInput
-      style="resize: none"
-      name="description"
-      formControlName="description"
-      placeholder="Enter a description"
-    ></textarea>
+    <textarea matInput
+        style="resize: none;"
+        name="description" 
+        formControlName="description"
+        placeholder="Enter a description"></textarea>
     <mat-error *ngIf="this.addSockForm.get('description')">Required</mat-error>
-  </mat-form-field>
+</mat-form-field>
 
-  <button
+<button
     mat-flat-button
     color="primary"
     id="addSockButton"

@@ -1,8 +1,7 @@
 <form (submit)="onSubmit(signupForm)" [formGroup]="signupForm" >
     <mat-form-field appearance="legacy" class="form-group" id="username">
         <mat-label>Username</mat-label>
-        <input matInput 
-            #fds
+        <input matInput
             name="username" 
             formControlName="username"
             placeholder="Enter a username">
@@ -18,7 +17,7 @@
             placeholder="Enter a password">
         <mat-hint align="end">{{passwordInput.value.length || 0}} / {{passwordMinLength}}</mat-hint>
         <mat-error *ngIf="this.signupForm.get('password')">Require at least {{passwordMinLength}} characters</mat-error>
-        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" type="button">
+        <button mat-icon-button matSuffix class="margin-0" (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" type="button">
             <mat-icon>{{hidePassword ? 'visibility' : 'visibility_off'}}</mat-icon>
         </button>
     </mat-form-field>
@@ -87,5 +86,5 @@
 
     <ng-template appMessageBanner id="banner" ></ng-template>
 
-    <button mat-flat-button color="primary" id="signupButton" [disabled]="signupForm.invalid" sytle="margin-top:1rem">Signup</button>
+    <button mat-flat-button color="primary" id="signupButton" [disabled]="signupForm.invalid">Signup</button>
 </form>
