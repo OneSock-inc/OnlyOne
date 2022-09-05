@@ -1,5 +1,5 @@
-<form (submit)="onSubmit(signupForm)" [formGroup]="signupForm" >
-    <mat-form-field appearance="legacy" class="form-group" id="username">
+<form (submit)="!isSignup ? onSubmit(signupForm) : onSubmitSave(signupForm)" [formGroup]="signupForm" >
+    <mat-form-field *ngIf="!isSignup" appearance="legacy" class="form-group" id="username">
         <mat-label>Username</mat-label>
         <input matInput
             name="username" 
@@ -87,4 +87,5 @@
     <ng-template appMessageBanner id="banner" ></ng-template>
 
     <button mat-flat-button color="primary" id="signupButton" [disabled]="signupForm.invalid">Signup</button>
+    
 </form>
