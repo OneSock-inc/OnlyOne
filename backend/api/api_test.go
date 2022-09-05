@@ -207,7 +207,7 @@ func TestAddSockBadShoeSize(t *testing.T) {
 func TestAddSockBadType(t *testing.T) {
 	jwtToken := loginUser1()
 	w := httptest.NewRecorder()
-	req := newSockRequest(42, 2, "#FFF", "In a very good state", getValidBase64Image())
+	req := newSockRequest(42, 3, "#FFF", "In a very good state", getValidBase64Image())
 	req.Header["Authorization"] = []string{fmt.Sprintf(`Bearer %s`, jwtToken)}
 	router.ServeHTTP(w, req)
 	log.Printf("%s", w.Body.String())

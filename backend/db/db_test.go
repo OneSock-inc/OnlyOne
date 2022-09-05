@@ -257,9 +257,9 @@ func TestGetCompatibleSocks(t *testing.T) {
 	assert.Nil(t, DeleteCollection(context.Background(), client, client.Collection(SocksCollection), 64))
 
 	//create a user
-	doc, err := RegisterUser(User{Username: "LuienLaTchoin", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
+	doc, err := RegisterUser(User{Username: "Herbe", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
 	assert.Nil(t, err)
-	doc2, err := RegisterUser(User{Username: "LucienLTchoin2", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
+	doc2, err := RegisterUser(User{Username: "Banane", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}})
 
 	assert.Nil(t, err)
 	owner := doc.ID
@@ -308,7 +308,7 @@ func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 	sockId := ""
 	//create 10 users with two socks each
 	for i := 0; i < 10; i++ {
-		user := User{Username: "LucienLaTchoin" + fmt.Sprint(i), Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}}
+		user := User{Username: "kokoroko" + fmt.Sprint(i), Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}}
 		doc, err := RegisterUser(user)
 		assert.Nil(t, err)
 		owner := doc.ID
@@ -358,4 +358,16 @@ func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 		// usually for a sock size 42 type 0 we will get [40,0]
 		assert.True(t, math.Abs(float64(socks[i-1].ShoeSize)-float64(socks[i].ShoeSize)) <= 4)
 	}
+}
+
+func TestSocksProfiles(t *testing.T) {
+	user := User{Username: "kikiriki", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}}
+	doc, err := RegisterUser(user)
+
+	for i := 0; i < int(Count); i++ {
+		_, err := NewSock(42, Profile(i), "#ABC", "magificent !", "Qydlc3QgcGFzIHRyw6hzIHN5bXBhcyDDp2EgOigK", doc.ID)
+		assert.Nil(t, err)
+	}
+	_, err = NewSock(42, Profile(Count), "#ABC", "magificent !", "Qydlc3QgcGFzIHRyw6hzIHN5bXBhcyDDp2EgOigK", doc.ID)
+	assert.NotNil(t, err)
 }
