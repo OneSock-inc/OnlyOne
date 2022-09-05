@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomePageComponent } from './home-page/home-page.component';
-import { LoginPageComponent } from './login-page/login-page.component';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { AccessControlService } from './services/authService/access-control.service';
-import { SignupPageComponent } from './signup-page/signup-page.component';
-import { AddSockPageComponent } from './add-sock-page/add-sock-page.component';
-import { MatchingSocksComponent } from './matching-socks/matching-socks.component';
-import { MyAccountComponent } from './my-account/my-account.component';
-import { SockListComponent } from './sock-list/sock-list.component';
-import { MatchWinComponent } from './match-win/match-win.component';
-import { MatchLoseComponent } from './match-lose/match-lose.component';
+import { SignupPageComponent } from './pages/signup-page/signup-page.component';
+import { AddSockPageComponent } from './pages/add-sock-page/add-sock-page.component';
+import { MatchingSocksComponent } from './pages/matching-socks/matching-socks.component';
+import { MyAccountComponent } from './pages/my-account/my-account.component';
+import { SockListComponent } from './pages/sock-list/sock-list.component';
+import { MatchWinComponent } from './pages/match-win/match-win.component';
+import { MatchLoseComponent } from './pages/match-lose/match-lose.component';
 
 // TODO : add "canMatch" to routes
 const routes: Routes = [

@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { LoaderComponent } from 'src/app/loader/loader.component';
 import { LoaderDirective } from 'src/app/loader/loader.directive';
-import { LoginPageComponent } from 'src/app/login-page/login-page.component';
+import { LoginPageComponent } from 'src/app/pages/login-page/login-page.component';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { MessageBannerComponent } from 'src/app/message-banner/message-banner.component';
 import { SignupFormComponent } from '../signup-form/signup-form.component';

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, HostListener, ViewChild } from '@angular/core';
-import { BackendLinkService } from '../services/backendservice/backend-link.service';
+import { BackendLinkService } from '../../services/backendservice/backend-link.service';
 
 @Component({
   selector: 'app-signup-page',

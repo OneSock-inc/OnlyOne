@@ -4,12 +4,12 @@ import { LoginPageComponent } from './login-page.component';
 
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { services } from '../services';
+import { services } from '../../services';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LoaderComponent } from '../loader/loader.component';
-import { LoaderDirective } from '../loader/loader.directive';
-import { MessageBannerDirective } from '../message-banner/mesage-banner.directive';
-import { MessageBannerComponent } from '../message-banner/message-banner.component';
+import { LoaderComponent } from '../../loader/loader.component';
+import { LoaderDirective } from '../../loader/loader.directive';
+import { MessageBannerDirective } from '../../message-banner/mesage-banner.directive';
+import { MessageBannerComponent } from '../../message-banner/message-banner.component';
 
 describe('LoginPageComponent', () => {
   let component: LoginPageComponent;
