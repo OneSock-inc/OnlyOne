@@ -113,7 +113,7 @@ export class AddSockFormComponent implements OnInit {
   }
 
   private initForm() {
-    this.sizeValue = 36;
+    this.sizeValue = 40;
     this.pictureB64 = '';
     this.sockColor = "#ffffff";
   }
