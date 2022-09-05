@@ -7,13 +7,13 @@ import { Config } from '../../dataModel/config.model';
   providedIn: 'root'
 })
 export class BackendLinkService {
-
+  
   
   constructor(private configService: ConfigService) { 
     this.config = this.configService.getConfig();
   }
   private config: Config;
-
+  
   getLoginUrl(): string {
     return this.config.backendUrl + "/user/login"
   }
@@ -21,13 +21,12 @@ export class BackendLinkService {
   getRegisterUrl(): string {
     return this.config.backendUrl + "/user/register";
   }
-
+  
+  getSockUrl() {
+    throw new Error('Method not implemented.');
+  }
   postSockUrl(): string {
-    return this.config.backendUrl + "/sock";
+    throw new Error('Method not implemented.');
   }
-
-  getSockUrl(): string {
-    return this.postSockUrl();
-  }
-
+  
 }

@@ -1,0 +1,47 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit(loginForm)">
+  <mat-form-field appearance="legacy" class="form-group" id="username">
+    <mat-label>Username</mat-label>
+    <input
+      id="username"
+      matInput
+      name="username"
+      placeholder="Enter your username"
+      formControlName="username"
+    />
+  </mat-form-field>
+
+  <mat-form-field appearance="legacy" class="form-group" id="password">
+    <mat-label>Password</mat-label>
+    <input
+      id="password"
+      matInput
+      name="password"
+      [type]="hide ? 'password' : 'text'"
+      placeholder="Enter your password"
+      formControlName="password"
+    />
+    <button
+      mat-icon-button
+      matSuffix
+      (click)="hide = !hide"
+      [attr.aria-label]="'Hide password'"
+      [attr.aria-pressed]="hide"
+      type="button"
+    >
+      <mat-icon>{{ hide ? "visibility" : "visibility_off" }}</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <button
+    [disabled]="loginForm.invalid"
+    mat-flat-button
+    class="form-group"
+    color="primary"
+    id="login"
+  >
+    Login
+  </button>
+
+  <ng-template appMessageBanner ></ng-template>
+  <div id="errorMsg" class="banner hidden"></div>
+</form>
