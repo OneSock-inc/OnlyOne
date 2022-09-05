@@ -18,7 +18,7 @@
             placeholder="Enter a password">
         <mat-hint align="end">{{passwordInput.value.length || 0}} / {{passwordMinLength}}</mat-hint>
         <mat-error *ngIf="this.signupForm.get('password')">Require at least {{passwordMinLength}} characters</mat-error>
-        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" type="button">
+        <button class="margin-0" mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" type="button">
             <mat-icon>{{hidePassword ? 'visibility' : 'visibility_off'}}</mat-icon>
         </button>
     </mat-form-field>
