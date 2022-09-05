@@ -120,8 +120,25 @@ func updateUser(c *gin.Context) {
 	claim := jwt.ExtractClaims(c)
 	userId, _ := claim[jwt.IdentityKey].(string)
 	var user db.User
-	c.BindJSON(&user)
-	db.UpdateUser(userId, user)
+	err := c.BindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+
+	err = db.UpdateUser(userId, user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		msg: "updated",
+	})
+
 }
 
 func getSockInfo(c *gin.Context) {
