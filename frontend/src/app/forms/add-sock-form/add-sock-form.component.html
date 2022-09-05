@@ -80,3 +80,13 @@
         placeholder="Enter a description"></textarea>
     <mat-error *ngIf="this.addSockForm.get('description')">Required</mat-error>
 </mat-form-field>
+
+<button
+    mat-flat-button
+    color="primary"
+    id="addSockButton"
+    [disabled]="addSockForm.invalid"
+  >
+    Add sock
+  </button>
+</form>
