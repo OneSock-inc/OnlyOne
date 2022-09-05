@@ -1,5 +1,5 @@
-  <h1 class="title">Login</h1>
-  <app-login-form class="form" *ngIf="notLogged(); else loggedIn"></app-login-form>
+  <h1 class="main-title">Login</h1>
+  <app-login-form class="mainContent" *ngIf="notLogged(); else loggedIn"></app-login-form>
   <ng-template #loggedIn >
   <p id="loggedIn">
     Already logged in !!!

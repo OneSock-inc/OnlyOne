@@ -10,7 +10,7 @@
   justify-content: center;
   align-items: center;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 10rem 10rem repeat(3, 1fr);
+  grid-template-rows: 5rem 8rem repeat(3, 1fr);
   min-height: 100vh;
   padding: 0 3rem 1.5rem 3rem;
 }
@@ -29,11 +29,19 @@
 .mainContent {
   grid-column: 1/4;
   grid-row: 3/-1;
-  min-height: 100%;
+  height: 100%;
+
+  
+}
+
+.flex-column {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
 
+.flex-column-center {
+  justify-content: center!important;
 }
 
 router-outlet + * {
@@ -50,7 +58,5 @@ router-outlet + * {
 
   button {
     font-size: large;
-    margin-top: 1rem;
-    margin-bottom: 5rem;
   }
 }

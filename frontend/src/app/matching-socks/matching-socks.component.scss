@@ -1,31 +1,27 @@
-.title {
-    grid-row: 1;
-    grid-column: 1/4;
-    text-align: center;
-    font-size: 4.5rem;
-    padding-top: 4rem;
-}
+// .title {
+//     grid-row: 1;
+//     grid-column: 1/4;
+//     text-align: center;
+//     font-size: 4.5rem;
+//     padding-top: 4rem;
+// }
 
 
 #mySock {
     width: 100%;
-
 }
 
 #listOfSocks {
     text-align: center;
-    grid-row: 2/-1;
-    grid-column: 1/4;
-    display: flex;
-    flex-wrap: wrap;
-    margin-left: 3rem;
-    margin-right: 3rem;
-    margin-bottom: 5rem;
     gap: 2rem;
+    * {
+        margin: 2rem 0;
+    }
 }
 
 #sockCard {
     width: 100%;
+
 }
 
 #divider {
