@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/SherClockHolmes/webpush-go"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	jwtgo "github.com/golang-jwt/jwt/v4"
@@ -83,6 +84,10 @@ func Setup() *gin.Engine {
 	auth := jwtSetup()
 	user := router.Group("/user")
 	{
+		user.POST("/subscribe", auth.MiddlewareFunc(), subscribe)
+		user.POST("/subscribe/", auth.MiddlewareFunc(), func(c *gin.Context) {
+			c.Redirect(http.StatusMovedPermanently, "/user/subscribe")
+		})
 		user.PATCH("/update", auth.MiddlewareFunc(), updateUser)
 		user.PATCH("/update/", auth.MiddlewareFunc(), updateUser)
 		user.POST("/login", auth.LoginHandler)
@@ -114,6 +119,47 @@ func Setup() *gin.Engine {
 	}
 
 	return router
+}
+
+func subscribe(c *gin.Context) {
+	claim := jwt.ExtractClaims(c)
+	userId := claim[jwt.IdentityKey].(string)
+
+	var sub webpush.Subscription
+	if err := c.ShouldBindJSON(&sub); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+	log.Printf("%+v\n", sub)
+	res, err := webpush.SendNotification([]byte("test"), &sub, &webpush.Options{
+		Subscriber:      "bertil.chapuis@heig-vd.ch",
+		VAPIDPublicKey:  db.VAPID_KP,
+		VAPIDPrivateKey: db.VAPID_K,
+		TTL:             50,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"res.code": res.StatusCode,
+			"res.body": res.Body,
+			"err":      err.Error(),
+		})
+	}
+	err = db.RegisterToPush(sub, userId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+	}
+	var bod []byte
+	n, err := res.Body.Read(bod)
+	c.JSON(http.StatusCreated, gin.H{
+		msg:          "Subscribed",
+		"respStatus": res.Status,
+		"resp":       bod,
+		"n":          n,
+	})
 }
 
 func updateUser(c *gin.Context) {
