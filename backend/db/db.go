@@ -144,7 +144,7 @@ func GetUserFromID(id string) (User, error) {
 	doc.DataTo(&user)
 	return user, nil
 }
-func sendNotificationToMatch(sock *Sock) {
+func sendNotificationOfMatch(sock *Sock) {
 	if sock == nil {
 		return
 	}
@@ -233,8 +233,8 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 				return err
 			}
 
-			sendNotificationToMatch(&sock)
-			sendNotificationToMatch(&otherSock)
+			sendNotificationOfMatch(&sock)
+			sendNotificationOfMatch(&otherSock)
 		}
 	} else {
 		sock.RefusedList = append(sock.RefusedList, otherSock.ID)
