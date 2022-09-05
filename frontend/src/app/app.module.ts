@@ -21,6 +21,7 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatDividerModule} from '@angular/material/divider';
 import { ColorPickerModule } from 'ngx-color-picker';
+import {MatCardModule} from '@angular/material/card'; 
 
 
 import {RouterModule} from '@angular/router';
@@ -91,6 +92,7 @@ import { MyAccountComponent } from './my-account/my-account.component';
     MatButtonToggleModule,
     ColorPickerModule,
     MatDividerModule,
+    MatCardModule
   ],
   providers: [
     ConfigService,
