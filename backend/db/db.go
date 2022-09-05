@@ -539,3 +539,21 @@ func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
 
 	return res, nil
 }
+
+func UpdateUser(userId string, user User) error {
+	client, err := GetDBConnection()
+	if err != nil {
+		return err
+	}
+	doc, err := client.Collection(UsersCollection).Doc(userId).Get(context.Background())
+	if err != nil {
+		return err
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hash)
+	_, err = doc.Ref.Set(context.Background(), user)
+	return err
+}

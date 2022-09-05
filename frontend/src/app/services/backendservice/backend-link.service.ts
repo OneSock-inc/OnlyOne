@@ -21,6 +21,10 @@ export class BackendLinkService {
   getRegisterUrl(): string {
     return this.config.backendUrl + "/user/register";
   }
+
+  getUpdateUrl(): string {
+    return this.config.backendUrl+ "/user/update"
+  }
   
   getSockUrl() {
     throw new Error('Method not implemented.');

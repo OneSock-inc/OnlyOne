@@ -48,6 +48,8 @@ import { MatchingSocksComponent } from './matching-socks/matching-socks.componen
 import { MySockComponent } from './my-sock/my-sock.component';
 import { ProposedSockComponent } from './proposed-sock/proposed-sock.component';
 import { MyAccountComponent } from './my-account/my-account.component';
+import { MatchWinComponent } from './match-win/match-win.component';
+import { MatchLoseComponent } from './match-lose/match-lose.component';
 
 @NgModule({
   declarations: [
@@ -74,6 +76,8 @@ import { MyAccountComponent } from './my-account/my-account.component';
     MySockComponent,
     ProposedSockComponent,
     MyAccountComponent,
+    MatchWinComponent,
+    MatchLoseComponent,
   ],
   imports: [
     BrowserModule,

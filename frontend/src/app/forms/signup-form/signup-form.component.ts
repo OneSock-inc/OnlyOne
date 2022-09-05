@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { User } from 'src/app/dataModel/user.model';
 import { countryValidator, postalCodeValidator } from './../customValidators';
@@ -15,6 +15,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./signup-form.component.scss'],
 })
 export class SignupFormComponent implements OnInit {
+  @Input() textButton?: string;
+  @Input() isSignup?: boolean;
   constructor(private userService: UserService, private router: Router) {}
 
   // Accessed in template
@@ -47,8 +49,31 @@ export class SignupFormComponent implements OnInit {
       }
     );
   }
+  onSubmitSave(form:FormGroup):void {
+    if (!form.valid) return
+    this.messageBanner.hideMessage();
+    alert("Submit save" + JSON.stringify(form.value));
+    // this.userService.registerNewUser(
+    //   SignupFormComponent.formGroupToUserObject(form),
+    //   this.onSuccessSave,
+    //   this.onErrorSave
+    // );
+  }
+
+  private onSuccessSave = (successMsg: any) => {
+    console.log(successMsg);
+    alert("Saved profile !")
+    // this.router.navigate(['/login']);
+  }
+  private onErrorSave = (errorMsg: any) => {
+    console.log(errorMsg);
+    alert("Unable to save profile")
+    // this.router.navigate(['/login']);
+  }
 
   ngOnInit(): void {
+    this.isSignup = this.isSignup !== undefined;
+    console.log(`Boolean attribute is ${this.isSignup ? '' : 'non-'}present!`);
     this.signupForm = new FormGroup({
       username: new FormControl('', {
         validators: [Validators.required],
