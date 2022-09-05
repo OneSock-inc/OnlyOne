@@ -1,78 +1,62 @@
 /* You can add global styles to this file, and also import other style files */
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap");
 
-.content {
-    max-width: 900px;
-    margin: auto;
+@import "./styles-generic/index";
+
+@mixin defaultLayout {
+  max-width: 900px;
+  margin: auto;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 5rem 8rem repeat(3, 1fr);
+  min-height: 100vh;
+  padding: 0 3rem 1.5rem 3rem;
 }
 
-.vh-100 {
-    height: 100vh;
-}
-
-.center {
-    text-align: center;
-}
-
+// For retro-compatibility purpose
 .default-layout {
-    max-width: 900px;
-    margin: auto;
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 15em repeat(4, 1fr);
-    min-height: 100vh;
+  @include defaultLayout();
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap');
-
-@import "./styles-generic/default";
-
-.grid-default {
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(5, 1fr);
+.main-title {
+  grid-column: 1/4;
+  grid-row: 2/3;
+  text-align: center;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.mainContent {
+  grid-column: 1/4;
+  grid-row: 3/-1;
+  height: 100%;
 
- /* Hide scrollbar for Chrome, Safari and Opera */
-html::-webkit-scrollbar {
-    display: none;
+  
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-html {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-} 
-
-.hidden {
-    visibility: hidden !important;
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.visible {
-    visibility: visible !important;
+.flex-column-center {
+  justify-content: center!important;
 }
 
-.banner {
-    width: 100%;
-    color: white;
-    background-color: red;
-    text-align: center;
-    padding: 1rem;
-    margin-top: 1rem;
+router-outlet + * {
+  @include defaultLayout();
 }
 
-.btn {
-    padding: 1rem;
-    border-radius: .2rem;
-}
+.form-default {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-size: 1.8rem;
+  gap: 1rem;
+  justify-content: space-between;
 
-.btn-blue {
-    background-color: #3498db;
-    color: white;
+  button {
+    font-size: large;
+  }
 }

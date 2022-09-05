@@ -1,4 +1,4 @@
-<form (submit)="!isSignup ? onSubmit(signupForm) : onSubmitSave(signupForm)" [formGroup]="signupForm" >
+<form class="form-default" (submit)="!isSignup ? onSubmit(signupForm) : onSubmitSave(signupForm)" [formGroup]="signupForm" >
     <mat-form-field *ngIf="!isSignup" appearance="legacy" class="form-group" id="username">
         <mat-label>Username</mat-label>
         <input matInput
@@ -17,7 +17,7 @@
             placeholder="Enter a password">
         <mat-hint align="end">{{passwordInput.value.length || 0}} / {{passwordMinLength}}</mat-hint>
         <mat-error *ngIf="this.signupForm.get('password')">Require at least {{passwordMinLength}} characters</mat-error>
-        <button mat-icon-button matSuffix class="margin-0" (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" type="button">
+        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" type="button">
             <mat-icon>{{hidePassword ? 'visibility' : 'visibility_off'}}</mat-icon>
         </button>
     </mat-form-field>

@@ -1,0 +1,15 @@
+:root {
+    --font-family: #{$font_family};
+    --font-size: #{$text_font_size}#{$unit};
+    --text: #373737;
+    --accent: #2980b9;
+    --link: #173f85;
+    --primary: rgb(2, 62, 138);
+    --error: red;
+    --danger: #e74c3c;
+    --success: #2ecc71;
+    --hint: #95a5a6;
+    --box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 4px 20px 0 rgba(0, 0, 0, 0.19);
+    --silver: #ccc;
+    --clouds: #ecf0f1;
+  }
