@@ -8,7 +8,7 @@ interface Country {
   name: string;
   code:string;
 }
-@Injectable()
+@Injectable( {providedIn: 'root'} )
 export class ConfigService {
   constructor(private http: HttpClient) { 
     this.config = {

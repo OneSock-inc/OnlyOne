@@ -51,6 +51,7 @@ import { MatchWinComponent } from './pages/match-win/match-win.component';
 import { MatchLoseComponent } from './pages/match-lose/match-lose.component';
 import { RegisteredSockComponent } from './pages/sock-list/registered-sock/registered-sock.component';
 
+
 @NgModule({
   declarations: [
     LoaderComponent,
