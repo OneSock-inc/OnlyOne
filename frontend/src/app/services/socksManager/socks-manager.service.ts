@@ -1,9 +1,14 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 import { Sock } from 'src/app/dataModel/sock.model';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 import { UserService } from '../userService/user-service.service';
 
+export type UserSocks = Sock[];
+export interface PostResponse {
+  id: string;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -13,63 +18,94 @@ export class SocksManagerService {
     private userService: UserService,
     private backendSrv: BackendLinkService
   ) {
-    this.userSocks = new Map();
-    this.matchSocks = new Map();
+    this.userSocks = new Array();
+    this.retrieveSocks();
+
+    this.potencialMatches = new Map();
   }
 
-  private userSocks: Map<string, Sock>;
-  private matchSocks: Map<string, Sock>;
+  private userSocks: UserSocks;
+  private potencialMatches: Map<string, UserSocks>;
+
 
   /**
-   * Try to retrieve sock locally, make a request otherwise
+   * Make an http request to retrieve sock
    * @param sockId
-   * @param successCallback
-   * @param errorCallback
    */
-  getSockById(
-    sockId: string,
-    successCallback: Function,
-    errorCallback: Function
-  ) {
-    if (this.userSocks.has(sockId)) {
-      successCallback(this.userSocks.get(sockId));
-    } else {
-      const url = this.backendSrv.getSockUrl() + '/' + sockId;
-      this.getData(url, successCallback, errorCallback);
-    }
+  getSockById(sockId: string): Observable<Sock> {
+    const url = this.backendSrv.getSockUrl() + '/' + sockId;
+    return this.http.get<Sock>(url);
   }
 
   /**
    * Make a request to backend to register a new sock.
-   * 
+   *
    * @param newSock
-   * @param successCallback
-   * @param errorCallback
    */
-  registerNewSock(
-    newSock: Sock,
-    successCallback: Function,
-    errorCallback: Function
-  ): void {
-    this.postData(
-      this.backendSrv.postSockUrl(),
-      newSock,
-      successCallback,
-      errorCallback
-    );
+  registerNewSock(newSock: Sock): Observable<PostResponse> {
+    return this.http
+      .post<PostResponse>(
+        this.backendSrv.postSockUrl(),
+        this.newSockToJson(newSock)
+      )
+      .pipe(
+        map((data: PostResponse) => {
+          this.getSockById(data.id).subscribe((newSock: Sock) => {
+            this.userSocks.push(newSock);
+          });
+          return data;
+        })
+      );
   }
 
-  private setSocks(): void {
-    const url: string = this.backendSrv.getSockUrl() + this.userService.getUser().username;
-    this.getData(url, (data: Map<string, Sock>) => {
-      this.userSocks = data;
-    }, (error: any) => {
-      console.log("Cannot retrive socks from database");
-    });
+  retrieveSocks(): Observable<UserSocks> {
+    if (this.userSocks.length) {
+      return new Observable<UserSocks>((subscriber) => {
+        subscriber.next(this.userSocks);
+        subscriber.complete();
+      });
+    } else {
+      const url = this.userSocksUrl();
+      return this.http.get<UserSocks>(url).pipe(
+        map((data: UserSocks) => {
+          if (data) {
+            this.userSocks = data;
+            // data.forEach((sock: Sock) => {
+            //   this.getPotencialMatches(sock.id);
+            // });
+            return data;
+          } else {
+            return new Array();
+          }
+        })
+      );
+    }
   }
 
+  getPotencialMatches(sockid: string): Observable<UserSocks> {
+    if (this.potencialMatches.has(sockid)) {
+      return new Observable((subscriber) => {
+        subscriber.next(this.potencialMatches.get(sockid));
+        subscriber.complete();
+      });
+    } else {
+      const url = `${this.backendSrv.getSockUrl()}/${sockid}/match`;
+      return this.http.get<UserSocks>(url).pipe(
+        map((data: UserSocks) => {
+          if(data) {
+            this.potencialMatches.set(sockid, data);
+            return data;
+          } else {
+            return new Array();
+          }
+        })
+      );
+    }
+  }
+  
   private setMatches(): void {
-    const url: string = this.backendSrv.getSockUrl() + this.userService.getUser().username;
+    const url: string =
+      this.backendSrv.getSockUrl() + this.userService.getUser().username;
   }
 
   private getData(
@@ -87,17 +123,22 @@ export class SocksManagerService {
     });
   }
 
-  private postData(
-    url: string,
-    body: any,
-    successCallback: Function,
-    errorCallback: Function
-  ): void {
-    this.http.post<any>(this.backendSrv.postSockUrl(), body).subscribe({
-      next: (response) => {
-        successCallback(response);
-      },
-      error: (error) => errorCallback(error),
+  private newSockToJson(newSock: Sock): string {
+    return JSON.stringify(newSock, (key, value) => {
+      if (value === '') {
+        return undefined;
+      } else {
+        return value;
+      }
     });
+  }
+
+  private userSocksUrl(): string {
+    return (
+      this.backendSrv.getUserUrl() +
+      '/' +
+      +this.userService.getUser().username +
+      '/sock'
+    );
   }
 }
