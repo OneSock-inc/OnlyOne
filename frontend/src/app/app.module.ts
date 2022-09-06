@@ -40,7 +40,6 @@ import { AuthService } from './services/authService/auth.service';
 import { AuthInterceptor } from './services/http-interceptors/auth-interceptor.service';
 import { TokenService } from './services/authService/token-service.service';
 import { AccessControlService } from './services/authService/access-control.service';
-import { AuthenticationButtonComponent } from './authentication-button/authentication-button.component';
 import { SignupFormComponent } from './forms/signup-form/signup-form.component';
 import { LoginFormComponent } from './forms/login-form/login-form.component';
 import { AddSockFormComponent } from './forms/add-sock-form/add-sock-form.component';
@@ -67,7 +66,6 @@ import { RegisteredSockComponent } from './pages/sock-list/registered-sock/regis
     MessageBannerComponent,
     SignupPageComponent,
     AddSockPageComponent,
-    AuthenticationButtonComponent,
     SignupFormComponent,
     LoginFormComponent,
     AddSockFormComponent,
