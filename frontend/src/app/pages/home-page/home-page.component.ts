@@ -17,7 +17,7 @@ export class HomePageComponent implements OnInit {
 
   constructor(private authService: AuthService) {}
 
-  isLoggedIn: boolean = true//this.authService.isLoggedIn()
+  isLoggedIn: boolean = this.authService.isLoggedIn()
 
   addSock: LinkElement = {text: "Add a lonely sock", href: '/add-sock'};
   sockList: LinkElement = {text: "My socks", href: '/sock-list'};

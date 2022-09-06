@@ -1,7 +1,7 @@
   <div *ngIf="isLoggedIn" id="logout">
     <button mat-flat-button color="primary" (click)="onLogout()" > {{ logout.text }}</button>
   </div>
-  <img src="/assets/images/logo-text.png" alt="logo" id="logo">
+  <img src="/assets/images/logo_title_512x512.png" alt="logo" id="logo">
   <p id="idom">"As comfortable as an old sock"</p>
   <div id="btns">
     <ng-container *ngIf="isLoggedIn">
@@ -11,6 +11,6 @@
     </ng-container>
     <ng-container *ngIf="!isLoggedIn">
       <button mat-raised-button color="primary" routerLink="{{ login.href }}" > {{ login.text }}</button>
-      <button mat-raised-button routerLink="{{ signup.href }}" > {{ signup.text }}</button>
+      <button mat-raised-button routerLink="{{ signup.href }}" >{{ signup.text }}</button>
     </ng-container>
   </div>
