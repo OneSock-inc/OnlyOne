@@ -28,5 +28,9 @@ export class Sock {
     picture: string = '';
     type: SockType = SockType.none;
     owner: string='';
+    acceptedList: string[] = [];
+    refusedList: string[] = [];
+    match: string = '';
+    matchResult: string = '';
 }
 
