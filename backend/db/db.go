@@ -326,33 +326,40 @@ func VerifyLogin(username string, password string) (string, error) {
 	}
 	return doc.Ref.ID, nil
 }
+func checkRegisterFormWasValid(u User) error {
+	if strings.TrimSpace(u.Username) == "" {
+		return fmt.Errorf("username is empty")
+	}
+	if strings.TrimSpace(u.Password) == "" {
+		return fmt.Errorf("password is empty")
+	}
+	if strings.TrimSpace(u.Firstname) == "" {
+		return fmt.Errorf("firstname is empty")
+	}
+	if strings.TrimSpace(u.Surname) == "" {
+		return fmt.Errorf("surname is empty")
+	}
+	if strings.TrimSpace(u.Address.City) == "" {
+		return fmt.Errorf("city address is empty")
+	}
+	if strings.TrimSpace(u.Address.Country) == "" {
+		return fmt.Errorf("country address is empty")
+	}
+	if strings.TrimSpace(u.Address.PostalCode) == "" {
+		return fmt.Errorf("postal address is empty")
+	}
+	if strings.TrimSpace(u.Address.Street) == "" {
+		return fmt.Errorf("street address is empty")
+	}
+	return nil
+}
 
 // register a user in the db, currently the hash field should be a clear password
 // unfortunatly we cannot have an option as in rust
 func RegisterUser(u User) (*firestore.DocumentRef, error) {
-	if strings.TrimSpace(u.Username) == "" {
-		return nil, fmt.Errorf("username is empty")
-	}
-	if strings.TrimSpace(u.Password) == "" {
-		return nil, fmt.Errorf("password is empty")
-	}
-	if strings.TrimSpace(u.Firstname) == "" {
-		return nil, fmt.Errorf("firstname is empty")
-	}
-	if strings.TrimSpace(u.Surname) == "" {
-		return nil, fmt.Errorf("surname is empty")
-	}
-	if strings.TrimSpace(u.Address.City) == "" {
-		return nil, fmt.Errorf("city address is empty")
-	}
-	if strings.TrimSpace(u.Address.Country) == "" {
-		return nil, fmt.Errorf("country address is empty")
-	}
-	if strings.TrimSpace(u.Address.PostalCode) == "" {
-		return nil, fmt.Errorf("postal address is empty")
-	}
-	if strings.TrimSpace(u.Address.Street) == "" {
-		return nil, fmt.Errorf("street address is empty")
+	err := checkRegisterFormWasValid(u)
+	if err != nil {
+		return nil, err
 	}
 
 	client, err := GetDBConnection()
@@ -542,6 +549,10 @@ func GetCompatibleSocks(sockId string, limit uint16) ([]Sock, error) {
 
 func UpdateUser(userId string, user User) error {
 	client, err := GetDBConnection()
+	if err != nil {
+		return err
+	}
+	err = checkRegisterFormWasValid(user)
 	if err != nil {
 		return err
 	}
