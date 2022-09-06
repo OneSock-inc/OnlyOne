@@ -1,1 +1,11 @@
-<p>sock-list works!</p>
+<h1 class="main-title">My socks</h1>
+<div class="mainContent" id="listOfSocks">
+    <ng-container *ngIf="socks.length > 0">
+        <div *ngFor="let registeredSock of socks">
+            <app-registered-sock [sock]="registeredSock"></app-registered-sock>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="socks.length === 0">
+        <h2>Register a new sock first</h2>
+    </ng-container>
+</div>
