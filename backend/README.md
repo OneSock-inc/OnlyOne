@@ -48,7 +48,7 @@ The api module is composed of the code setting up the routes and the handlers fo
 Most of these handlers just do a call to the DB module where the heavy lifting (db transaction, commit rollback in case of error) is done. Then the handlers return the response to the client or the error .
 The databases is totaly abstracted from the API viewpoint
 
-The DB module is where all the calls to the database are made. We use the firestore [library](https://pkg.go.dev/google.golang.org/cloud/firestore) . The matching algorithm is implemented in this module currently this is a [knn](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm) search in a [kdtree](https://github.com/sjwhitworth/golearn/blob/master/kdtree/kdtree.go). We also take care of the error handling related to the db there, for example if the data send by a user to a route / response handler is ill formed or simply missing we detect it there before saving it to the database. 
+The DB module is where all the calls to the database are made. We use the firestore [library](https://pkg.go.dev/google.golang.org/cloud/firestore). The matching algorithm is also implemented in this module, and it is currently a [knn](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm) search in a [kdtree](https://github.com/sjwhitworth/golearn/blob/master/kdtree/kdtree.go). We also take care of the error handling related to the database there, for example if the data sent by a user to a route / response handler is ill formed or simply missing, we detect it there before saving it to the database. 
 
 
 ## Running the tests
