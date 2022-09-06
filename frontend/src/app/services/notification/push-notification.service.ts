@@ -6,6 +6,7 @@ import { BackendLinkService } from '../backendservice/backend-link.service';
 @Injectable({
   providedIn: 'root'
 })
+
 export class PushNotificationService {
   readonly VAPID_PUBLIC_KEY : string = "BFGS8tken0rfjH_R04JzZb3eTWqkmAhVQJOvKH-HRN1sor_WEiijXIxahfgzIRr70V1MbB_lU4tLswZmtGmR3q4";
   

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/authService/auth.service';
@@ -7,7 +7,6 @@ import { LoaderDirective } from 'src/app/loader/loader.directive';
 import { LoaderComponent } from 'src/app/loader/loader.component';
 import { JWToken } from 'src/app/dataModel/jwt.model';
 import { PushNotificationService } from 'src/app/services/notification/push-notification.service';
-
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',
