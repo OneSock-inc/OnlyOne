@@ -10,6 +10,7 @@ export class ProposedSockComponent implements OnInit {
 
   @Input() // to be accessed by the parent component
   sock = new Sock;
+  
   typeToString: (sock: Sock) => string = typeToString;
 
   constructor() { }

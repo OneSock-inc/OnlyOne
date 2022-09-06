@@ -83,7 +83,6 @@ import { RegisteredSockComponent } from './pages/sock-list/registered-sock/regis
   imports: [
     BrowserModule,
     AppRoutingModule,
-    RouterModule,
     FormsModule,
     BrowserAnimationsModule,
     MatFormFieldModule,
@@ -99,6 +98,7 @@ import { RegisteredSockComponent } from './pages/sock-list/registered-sock/regis
     MatDividerModule,
     MatCardModule,
     MatBadgeModule,
+    RouterModule,
   ],
   providers: [
     ConfigService,

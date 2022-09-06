@@ -1,5 +1,6 @@
 
 import { Component, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { SocksManagerService, UserSocks } from 'src/app/services/socksManager/socks-manager.service';
@@ -12,7 +13,7 @@ import { Sock, typeToString as tts } from '../../../dataModel/sock.model';
 })
 export class RegisteredSockComponent implements OnInit{
   
-  constructor(private socksManager: SocksManagerService) { }
+  constructor(private socksManager: SocksManagerService, private router: Router) { }
 
   @Input() // to be accessed by the parent component
   sock: Sock = new Sock();
@@ -48,4 +49,11 @@ export class RegisteredSockComponent implements OnInit{
       console.log("Go to possible matches of sock: " + this.sock.id); // TODO api call
     }
   }
+
+  onClick() {
+    this.router.navigate(['/sock', this.sock.id]);
+
+  }
+
+  
 }

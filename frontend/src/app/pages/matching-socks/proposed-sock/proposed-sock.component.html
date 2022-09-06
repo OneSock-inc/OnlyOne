@@ -3,7 +3,7 @@
         <mat-card-title>{{typeToString(sock)}} {{sock.shoeSize}}</mat-card-title>
     </mat-card-header>
     <div id="sockAndButtons">
-        <img src={{sock.picture}} alt="sock" class="sockImg" width="100%">
+        <img src="data:image/png;base64,{{sock.picture}}" alt="sock" class="sockImg" width="100%">
         <mat-card-content>
             <p>{{sock.description}}</p>
         </mat-card-content>
