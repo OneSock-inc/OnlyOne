@@ -1,4 +1,4 @@
 {
-    "backendUrl": "http://localhost:8000",
+    "backendUrl": "https://api.jsch.ch",
     "passwordMinLength": 10
 }
