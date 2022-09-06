@@ -9,13 +9,11 @@ import { catchError, map, Observable, throwError } from 'rxjs';
 })
 export class SockListComponent implements OnInit {
   constructor(private socksManager: SocksManagerService) {}
+  
+  userSocks!: Observable<UserSocks>;
 
   ngOnInit(): void {
     this.userSocks = this.socksManager.retrieveSocks().pipe(
-      map((data) => {
-        console.log(data);
-        return data;
-      }),
       catchError(this.errorHandling)
     );
   }
@@ -25,5 +23,4 @@ export class SockListComponent implements OnInit {
     return throwError(() => new Error(e.message));
   }
 
-  userSocks!: Observable<UserSocks>;
 }
