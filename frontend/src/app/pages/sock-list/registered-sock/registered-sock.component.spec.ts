@@ -1,3 +1,4 @@
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { services } from 'src/app/services';
 
@@ -9,8 +10,9 @@ describe('RegisteredSockComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [HttpClientModule],
       declarations: [ RegisteredSockComponent ],
-      providers: [services]
+      providers: [services, HttpClient]
     })
     .compileComponents();
 
