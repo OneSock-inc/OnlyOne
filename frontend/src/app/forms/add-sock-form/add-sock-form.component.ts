@@ -5,7 +5,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { DataUrl, NgxImageCompressService } from 'ngx-image-compress';
 
 import { Sock, SockType} from 'src/app/dataModel/sock.model';
-import { SocksManagerService } from 'src/app/services/socksManager/socks-manager.service';
+import { PostResponse, SocksManagerService } from 'src/app/services/socksManager/socks-manager.service';
 
 @Component({
   selector: 'app-add-sock-form',
@@ -14,7 +14,7 @@ import { SocksManagerService } from 'src/app/services/socksManager/socks-manager
 })
 export class AddSockFormComponent implements OnInit {
 
-  constructor(private imageCompress: NgxImageCompressService, private http: HttpClient, private socksManager: SocksManagerService) { 
+  constructor(private imageCompress: NgxImageCompressService, private http: HttpClient, private socksMan: SocksManagerService) { 
     this.newSock = new Sock();
   }
 
@@ -67,7 +67,17 @@ export class AddSockFormComponent implements OnInit {
     this.newSock.description = form.value.description;
     this.newSock.type = Number(form.value.sockType);
     this.newSock.picture = this.pictureB64.split(',')[1];
-    this.socksManager.registerNewSock(this.newSock, this.regSuccessCb, this.regErrCb)
+
+    this.socksMan.registerNewSock(this.newSock).subscribe(
+      {
+        next: (response: PostResponse) => {
+          alert(`New sock added (${response.id})`);
+          this.initForm()
+        },
+        error: (e) => alert(`ERROR : ${e.message}`),
+      }
+    );
+    
   }
 
   private regSuccessCb = (data: any) => {

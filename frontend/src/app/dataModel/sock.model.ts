@@ -28,8 +28,8 @@ export class Sock {
     picture: string = '';
     type: SockType = SockType.none;
     owner: string='';
-    acceptedList: string[] = [];
-    refusedList: string[] = [];
+    acceptedList: string[] = new Array();
+    refusedList: string[] = new Array();
     match: string = '';
     matchResult: string = '';
 }
