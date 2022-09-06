@@ -4,6 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { DataUrl, NgxImageCompressService } from 'ngx-image-compress';
 
 import { Sock, SockType} from 'src/app/dataModel/sock.model';
+import { PostResponse, SocksManagerService } from 'src/app/services/socksManager/socks-manager.service';
 
 @Component({
   selector: 'app-add-sock-form',
@@ -12,7 +13,7 @@ import { Sock, SockType} from 'src/app/dataModel/sock.model';
 })
 export class AddSockFormComponent implements OnInit {
 
-  constructor(private imageCompress: NgxImageCompressService, private http: HttpClient) { 
+  constructor(private imageCompress: NgxImageCompressService, private http: HttpClient, private socksMan: SocksManagerService) { 
     this.newSock = new Sock();
   }
 
@@ -63,20 +64,15 @@ export class AddSockFormComponent implements OnInit {
     this.newSock.type = Number(form.value.sockType);
     this.newSock.picture = this.pictureB64.split(',')[1];
 
-    const newSockStr = this.newSockToJson(this.newSock);
-
-    this.http.post<any>("https://api.jsch.ch/sock/", newSockStr)
-      .subscribe({
-        next: data => {
-          console.log(data);
-          this.initForm();
-          alert('New sock successfully added !');
+    this.socksMan.registerNewSock(this.newSock).subscribe(
+      {
+        next: (response: PostResponse) => {
+          alert(`New sock added (${response.id})`);
+          this.initForm()
         },
-        error: err => {
-          console.log(err);
-          alert(err.message)
-        }
-      })
+        error: (e) => alert(`ERROR : ${e.message}`),
+      }
+    );
     
   }
 
@@ -125,16 +121,6 @@ export class AddSockFormComponent implements OnInit {
       return Math.floor(windowWidth * 0.8); // TODO : find a way to get the width of the form
     }
     return 500;
-  }
-
-  private newSockToJson(newSock: Sock): string {
-    return JSON.stringify(this.newSock, (key, value) => {
-      if (value === ''){
-        return undefined;
-      } else {
-        return value;
-      }
-    });
   }
   
 }
