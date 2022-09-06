@@ -96,19 +96,12 @@ import {PushNotificationService} from './services/notification/push-notification
     ColorPickerModule,
     MatDividerModule,
     MatCardModule,
-<<<<<<< HEAD
     MatBadgeModule,
-=======
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production ,      // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
-<<<<<<< HEAD
     })
->>>>>>> 877ee77 (Implement notification using push API)
-=======
-    }),
->>>>>>> 6b8745f (Fixed the import for the tests)
   ],
   providers: [
     PushNotificationService,
