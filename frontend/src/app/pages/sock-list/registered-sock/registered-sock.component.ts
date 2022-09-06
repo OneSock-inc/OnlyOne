@@ -9,7 +9,7 @@ import { Sock, typeToString  } from '../../../dataModel/sock.model';
 export class RegisteredSockComponent implements OnInit {
 
   @Input() // to be accessed by the parent component
-  sock = new Sock;
+  sock!: Sock;
 
   typeToString: (sock: Sock) => string = typeToString;
 

@@ -5,7 +5,7 @@ import { Sock } from 'src/app/dataModel/sock.model';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 import { UserService } from '../userService/user-service.service';
 
-type UserSocks = Sock[];
+export type UserSocks = Sock[];
 export interface PostResponse {
   id: string;
 }
@@ -71,7 +71,14 @@ export class SocksManagerService {
     } else {
       const url = this.userSocksUrl();
       return this.http.get<UserSocks>(url).pipe(
-        map((data: UserSocks) => this.userSocks = data)
+        map((data: UserSocks) => {
+          if (data) {
+            this.userSocks = data;
+            return data;
+          } else {
+            return new Array();
+          }
+        })
       )
     }
   }
