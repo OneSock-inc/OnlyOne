@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Sock, typeToString  } from '../../../dataModel/sock.model';
+import { Sock, typeToString as tts } from '../../../dataModel/sock.model';
 
 @Component({
   selector: 'app-registered-sock',
@@ -9,9 +9,11 @@ import { Sock, typeToString  } from '../../../dataModel/sock.model';
 export class RegisteredSockComponent implements OnInit {
 
   @Input() // to be accessed by the parent component
-  sock!: Sock;
+  sock: Sock = new Sock();
 
-  typeToString: (sock: Sock) => string = typeToString;
+  typeToString(sock: Sock): string {
+    return tts(sock);
+  }
 
   possibleMatches !: Sock[];
 

@@ -11,6 +11,7 @@ import { MessageBannerComponent } from 'src/app/message-banner/message-banner.co
 import { SignupFormComponent } from '../signup-form/signup-form.component';
 
 import { AddSockFormComponent } from './add-sock-form.component';
+import { services } from 'src/app/services';
 
 describe('AddSockFormComponent', () => {
   let component: AddSockFormComponent;
@@ -27,6 +28,7 @@ describe('AddSockFormComponent', () => {
         LoaderComponent,
         LoaderDirective,
       ],
+      providers: services
     })
     .compileComponents();
 

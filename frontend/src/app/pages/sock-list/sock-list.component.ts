@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { SocksManagerService } from 'src/app/services/socksManager/socks-manager.service';
-import { Sock } from '../../dataModel/sock.model';
 import { UserSocks } from 'src/app/services/socksManager/socks-manager.service';
 import { catchError, map, Observable, throwError } from 'rxjs';
 @Component({
