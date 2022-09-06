@@ -27,6 +27,7 @@ export class SocksManagerService {
   private userSocks: UserSocks;
   private potencialMatches: Map<string, UserSocks>;
 
+
   /**
    * Make an http request to retrieve sock
    * @param sockId
@@ -101,7 +102,7 @@ export class SocksManagerService {
       );
     }
   }
-
+  
   private setMatches(): void {
     const url: string =
       this.backendSrv.getSockUrl() + this.userService.getUser().username;

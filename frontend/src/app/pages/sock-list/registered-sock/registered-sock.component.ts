@@ -1,4 +1,6 @@
+
 import { Component, Input, OnInit } from '@angular/core';
+
 import { Observable } from 'rxjs';
 import { SocksManagerService, UserSocks } from 'src/app/services/socksManager/socks-manager.service';
 import { Sock, typeToString as tts } from '../../../dataModel/sock.model';
@@ -26,13 +28,13 @@ export class RegisteredSockComponent implements OnInit{
       this.socksManager.getPotencialMatches(this.sock.id).subscribe(
         (data: UserSocks) => {
           this.possibleMatches = new Observable<String>((subscriber) => {
-            console.log("In registeredComponent");
             if (data.length > 0) {
               subscriber.next(data.length.toString());
             } else {
               subscriber.next("\u{1F5A4}");
             }
             subscriber.complete();
+
           })
         }
       );
