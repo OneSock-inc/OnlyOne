@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewChecked } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SocksManagerService, UserSocks } from 'src/app/services/socksManager/socks-manager.service';
 import { Sock, typeToString as tts } from '../../../dataModel/sock.model';
@@ -8,7 +8,7 @@ import { Sock, typeToString as tts } from '../../../dataModel/sock.model';
   templateUrl: './registered-sock.component.html',
   styleUrls: ['./registered-sock.component.scss']
 })
-export class RegisteredSockComponent implements AfterViewChecked{
+export class RegisteredSockComponent implements OnInit{
   
   constructor(private socksManager: SocksManagerService) { }
 
@@ -21,16 +21,18 @@ export class RegisteredSockComponent implements AfterViewChecked{
 
   possibleMatches!: Observable<String>;
   
-  ngAfterViewChecked(): void {
+  ngOnInit(): void {
     if (this.sock.id !== "") {
       this.socksManager.getPotencialMatches(this.sock.id).subscribe(
         (data: UserSocks) => {
           this.possibleMatches = new Observable<String>((subscriber) => {
+            console.log("In registeredComponent");
             if (data.length > 0) {
               subscriber.next(data.length.toString());
             } else {
               subscriber.next("\u{1F5A4}");
             }
+            subscriber.complete();
           })
         }
       );

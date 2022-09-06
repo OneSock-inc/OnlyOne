@@ -27,7 +27,6 @@ export class SocksManagerService {
   private userSocks: UserSocks;
   private potencialMatches: Map<string, UserSocks>;
 
-
   /**
    * Make an http request to retrieve sock
    * @param sockId
@@ -42,35 +41,28 @@ export class SocksManagerService {
    *
    * @param newSock
    */
-  registerNewSock(
-    newSock: Sock
-  ): Observable<PostResponse> {
+  registerNewSock(newSock: Sock): Observable<PostResponse> {
     return this.http
-      .post<PostResponse>(this.backendSrv.postSockUrl(), this.newSockToJson(newSock))
+      .post<PostResponse>(
+        this.backendSrv.postSockUrl(),
+        this.newSockToJson(newSock)
+      )
       .pipe(
-        map(
-          (data: PostResponse) =>
-          {
-            this.getSockById(data.id).subscribe(
-              (newSock: Sock) => {
-                this.userSocks.push(newSock);
-              }
-            )
-            return data;
-          }
-        )
+        map((data: PostResponse) => {
+          this.getSockById(data.id).subscribe((newSock: Sock) => {
+            this.userSocks.push(newSock);
+          });
+          return data;
+        })
       );
   }
 
-
   retrieveSocks(): Observable<UserSocks> {
     if (this.userSocks.length) {
-      return new Observable<UserSocks>(
-        (subscriber) => {
-          subscriber.next(this.userSocks);
-          subscriber.complete();
-        }
-      )
+      return new Observable<UserSocks>((subscriber) => {
+        subscriber.next(this.userSocks);
+        subscriber.complete();
+      });
     } else {
       const url = this.userSocksUrl();
       return this.http.get<UserSocks>(url).pipe(
@@ -85,24 +77,31 @@ export class SocksManagerService {
             return new Array();
           }
         })
-      )
+      );
     }
   }
 
   getPotencialMatches(sockid: string): Observable<UserSocks> {
     if (this.potencialMatches.has(sockid)) {
-      return new Observable((subscriber) => subscriber.next(this.potencialMatches.get(sockid)));
+      return new Observable((subscriber) => {
+        subscriber.next(this.potencialMatches.get(sockid));
+        subscriber.complete();
+      });
     } else {
       const url = `${this.backendSrv.getSockUrl()}/${sockid}/match`;
       return this.http.get<UserSocks>(url).pipe(
         map((data: UserSocks) => {
-          this.potencialMatches.set(sockid, data);
-          return data;
+          if(data) {
+            this.potencialMatches.set(sockid, data);
+            return data;
+          } else {
+            return new Array();
+          }
         })
       );
     }
   }
- 
+
   private setMatches(): void {
     const url: string =
       this.backendSrv.getSockUrl() + this.userService.getUser().username;
@@ -125,7 +124,7 @@ export class SocksManagerService {
 
   private newSockToJson(newSock: Sock): string {
     return JSON.stringify(newSock, (key, value) => {
-      if (value === ''){
+      if (value === '') {
         return undefined;
       } else {
         return value;
@@ -134,8 +133,11 @@ export class SocksManagerService {
   }
 
   private userSocksUrl(): string {
-    return this.backendSrv.getUserUrl() + '/' +
-    + this.userService.getUser().username + '/sock';
+    return (
+      this.backendSrv.getUserUrl() +
+      '/' +
+      +this.userService.getUser().username +
+      '/sock'
+    );
   }
-
 }

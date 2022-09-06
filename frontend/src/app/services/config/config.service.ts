@@ -12,7 +12,7 @@ interface Country {
 export class ConfigService {
   constructor(private http: HttpClient) { 
     this.config = {
-      backendUrl: 'https://api.jsch.ch',
+      backendUrl: 'http://localhost:8000',
       passwordMinLength: 10
     }
    }
