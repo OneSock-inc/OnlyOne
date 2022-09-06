@@ -50,7 +50,7 @@ import { MatchLoseComponent } from './pages/match-lose/match-lose.component';
 import { RegisteredSockComponent } from './pages/sock-list/registered-sock/registered-sock.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-
+import {PushNotificationService} from './services/notification/push-notification.service';
 
 @NgModule({
   declarations: [
@@ -78,6 +78,7 @@ import { environment } from '../environments/environment';
     RegisteredSockComponent,
   ],
   imports: [
+
     BrowserModule,
     AppRoutingModule,
     RouterModule,
@@ -99,14 +100,18 @@ import { environment } from '../environments/environment';
     MatBadgeModule,
 =======
     ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      // Register the ServiceWorker as soon as the application is stable
+      enabled: environment.production ,      // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
+<<<<<<< HEAD
     })
 >>>>>>> 877ee77 (Implement notification using push API)
+=======
+    }),
+>>>>>>> 6b8745f (Fixed the import for the tests)
   ],
   providers: [
+    PushNotificationService,
     ConfigService,
     AuthService,
     TokenService,
