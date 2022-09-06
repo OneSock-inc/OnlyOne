@@ -1,6 +1,6 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, concatAll, map, Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Sock } from 'src/app/dataModel/sock.model';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 import { UserService } from '../userService/user-service.service';
@@ -20,9 +20,12 @@ export class SocksManagerService {
   ) {
     this.userSocks = new Array();
     this.retrieveSocks();
+
+    this.potencialMatches = new Map();
   }
 
   private userSocks: UserSocks;
+  private potencialMatches: Map<string, UserSocks>;
 
 
   /**
@@ -74,6 +77,9 @@ export class SocksManagerService {
         map((data: UserSocks) => {
           if (data) {
             this.userSocks = data;
+            // data.forEach((sock: Sock) => {
+            //   this.getPotencialMatches(sock.id);
+            // });
             return data;
           } else {
             return new Array();
@@ -83,6 +89,19 @@ export class SocksManagerService {
     }
   }
 
+  getPotencialMatches(sockid: string): Observable<UserSocks> {
+    if (this.potencialMatches.has(sockid)) {
+      return new Observable((subscriber) => subscriber.next(this.potencialMatches.get(sockid)));
+    } else {
+      const url = `${this.backendSrv.getSockUrl()}/${sockid}/match`;
+      return this.http.get<UserSocks>(url).pipe(
+        map((data: UserSocks) => {
+          this.potencialMatches.set(sockid, data);
+          return data;
+        })
+      );
+    }
+  }
  
   private setMatches(): void {
     const url: string =
