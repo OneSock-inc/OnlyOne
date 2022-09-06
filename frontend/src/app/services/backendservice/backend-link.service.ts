@@ -22,15 +22,20 @@ export class BackendLinkService {
     return this.config.backendUrl + "/user/register";
   }
 
+  getUserUrl():string {
+    return this.config.backendUrl + "/user"
+  }
+
   getUpdateUrl(): string {
     return this.config.backendUrl+ "/user/update"
   }
   
   getSockUrl() {
-    throw new Error('Method not implemented.');
+    return this.config.backendUrl+ "/sock";
   }
+
   postSockUrl(): string {
-    throw new Error('Method not implemented.');
+    return this.config.backendUrl+ "/sock";
   }
   
 }

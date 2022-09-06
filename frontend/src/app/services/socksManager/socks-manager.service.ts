@@ -1,9 +1,13 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, map, Observable, Subscription } from 'rxjs';
 import { Sock } from 'src/app/dataModel/sock.model';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 import { UserService } from '../userService/user-service.service';
 
+interface PostResponse {
+  id: string;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -13,12 +17,21 @@ export class SocksManagerService {
     private userService: UserService,
     private backendSrv: BackendLinkService
   ) {
+
     this.userSocks = new Map();
+    this.dataSource = new BehaviorSubject<ReadonlyMap<string, Sock>>(this.userSocks);
+    this.retrieveSocks();
+
     this.matchSocks = new Map();
   }
 
+  private dataSource: BehaviorSubject<ReadonlyMap<string, Sock>>;
   private userSocks: Map<string, Sock>;
   private matchSocks: Map<string, Sock>;
+
+  getCurrentUserSocks(): Observable<ReadonlyMap<string, Sock>> {
+    return this.dataSource.asObservable();
+  }
 
   /**
    * Try to retrieve sock locally, make a request otherwise
@@ -41,7 +54,7 @@ export class SocksManagerService {
 
   /**
    * Make a request to backend to register a new sock.
-   * 
+   *
    * @param newSock
    * @param successCallback
    * @param errorCallback
@@ -51,25 +64,53 @@ export class SocksManagerService {
     successCallback: Function,
     errorCallback: Function
   ): void {
-    this.postData(
-      this.backendSrv.postSockUrl(),
-      newSock,
-      successCallback,
-      errorCallback
-    );
+    this.http
+      .post<PostResponse>(this.backendSrv.postSockUrl(), this.newSockToJson(newSock))
+      .subscribe({
+        next: (response: PostResponse) => {
+          this.getSockById(
+            response.id,
+            (data: Sock) => {
+              successCallback(response);
+              this.userSocks.set(response.id, data);
+              this.dataSource.next(this.userSocks);
+            },
+            (e: any) => {
+              console.error(
+                'Seams like new sock was successfully registerd, however something went wrong.'
+              );
+              errorCallback(e);
+            }
+          );
+        },
+        error: (e) => errorCallback(e),
+      });
   }
 
-  private setSocks(): void {
-    const url: string = this.backendSrv.getSockUrl() + this.userService.getUser().username;
-    this.getData(url, (data: Map<string, Sock>) => {
-      this.userSocks = data;
-    }, (error: any) => {
-      console.log("Cannot retrive socks from database");
+  private retrieveSocks(): void {
+    const url: string =
+      this.backendSrv.getUserUrl() + '/' +
+      + this.userService.getUser().username + '/sock';
+    this.getData(url, this.retrCbSuccess, (e: any) => {
+      console.error(
+        'Seams like new sock was successfully registered, however something went wrong.'
+      );
     });
   }
 
+  private retrCbSuccess = (data: Sock[]) => {
+    const dataMap: Map<string, Sock> = new Map(
+      data.map((sock: Sock) => {
+        return [sock.id, sock];
+      })
+    );
+    this.userSocks = dataMap;
+    this.dataSource.next(this.userSocks);
+  };
+
   private setMatches(): void {
-    const url: string = this.backendSrv.getSockUrl() + this.userService.getUser().username;
+    const url: string =
+      this.backendSrv.getSockUrl() + this.userService.getUser().username;
   }
 
   private getData(
@@ -87,17 +128,14 @@ export class SocksManagerService {
     });
   }
 
-  private postData(
-    url: string,
-    body: any,
-    successCallback: Function,
-    errorCallback: Function
-  ): void {
-    this.http.post<any>(this.backendSrv.postSockUrl(), body).subscribe({
-      next: (response) => {
-        successCallback(response);
-      },
-      error: (error) => errorCallback(error),
+  private newSockToJson(newSock: Sock): string {
+    return JSON.stringify(newSock, (key, value) => {
+      if (value === ''){
+        return undefined;
+      } else {
+        return value;
+      }
     });
   }
+
 }
