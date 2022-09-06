@@ -32,7 +32,11 @@ export class MatchingSocksComponent implements OnInit {
     "picture":this.mySockImg,
     "description":"This is a nice sock",
     "owner": "fjkldsah3",
-    "type": 1
+    "type": 1,
+    "refusedList":[],
+    "acceptedList":[],
+    "match": "",
+    "matchResult": ""
   }
 
   socks: Sock[] = [
@@ -43,7 +47,11 @@ export class MatchingSocksComponent implements OnInit {
       "picture":this.sock3,
       "description":"This is a nice sock",
       "type": 1,
-      "owner": "fjkfdsa"
+      "owner": "fjkfdsa",
+      "refusedList":[],
+      "acceptedList":[],
+      "match": "",
+      "matchResult": ""
     },
     {
       "id": "lkjqk4tdh84",
@@ -52,7 +60,11 @@ export class MatchingSocksComponent implements OnInit {
       "picture":this.sock2,
       "description":"This is a sock in a good shape",
       "type": 1,
-      "owner": "eifos"
+      "owner": "eifos",
+      "refusedList":[],
+      "acceptedList":[],
+      "match": "",
+      "matchResult": ""
     },
     {
       "id": "j4l52j68ojfds",
@@ -61,7 +73,11 @@ export class MatchingSocksComponent implements OnInit {
       "picture":this.iphone,
       "description":"This is a really long description to know if the text will be cut off or not",
       "type": 1,
-      "owner": "jfdiu"
+      "owner": "jfdiu",
+      "refusedList":[],
+      "acceptedList":[],
+      "match": "",
+      "matchResult": ""
     }
   ]
 }

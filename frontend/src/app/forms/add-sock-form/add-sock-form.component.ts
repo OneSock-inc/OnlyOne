@@ -1,3 +1,4 @@
+import { formatCurrency } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -17,7 +18,8 @@ export class AddSockFormComponent implements OnInit {
     this.newSock = new Sock();
   }
 
-  newSock: Sock;
+  private newSock: Sock;
+
 
   // Sepcial fields values
   // Init with thtis.initForm() function
@@ -54,10 +56,12 @@ export class AddSockFormComponent implements OnInit {
     });
     this.initForm();
     this.screenWidth = this.getScreenWidth().toString()
+
   }
 
   onSubmit(form: FormGroup): void {
     if (!form.valid) return;
+    form.disable();
     this.newSock.shoeSize = form.value.shoeSize;
     this.newSock.color = this.sockColor;
     this.newSock.description = form.value.description;
@@ -75,6 +79,18 @@ export class AddSockFormComponent implements OnInit {
     );
     
   }
+
+  private regSuccessCb = (data: any) => {
+    this.initForm();
+    alert('New sock successfully added !');
+    this.addSockForm.enable();
+  };
+
+  private regErrCb = (e: any) => {
+    console.log(e);
+    alert(e.message)
+    this.addSockForm.enable();
+  };
 
   onColorChange(newColor: string): void {
     this.colorPickerLabel = "Change color";
@@ -109,6 +125,7 @@ export class AddSockFormComponent implements OnInit {
   }
 
   private initForm() {
+    this.addSockForm.reset();
     this.sizeValue = 40;
     this.pictureB64 = '';
     this.sockColor = "#ffffff";
@@ -117,7 +134,6 @@ export class AddSockFormComponent implements OnInit {
   private getScreenWidth(): number {
     if (window.innerWidth < 500) {
       let windowWidth = window.screen.width;
-      //let formWidth = document.getElementsByTagName("form")[0].clientWidth;
       return Math.floor(windowWidth * 0.8); // TODO : find a way to get the width of the form
     }
     return 500;

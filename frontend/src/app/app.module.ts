@@ -21,7 +21,8 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatDividerModule} from '@angular/material/divider';
 import { ColorPickerModule } from 'ngx-color-picker';
-import {MatCardModule} from '@angular/material/card'; 
+import {MatCardModule} from '@angular/material/card';
+import {MatBadgeModule} from '@angular/material/badge';
 
 
 import {RouterModule} from '@angular/router';
@@ -49,6 +50,7 @@ import { ProposedSockComponent } from './pages/matching-socks/proposed-sock/prop
 import { MyAccountComponent } from './pages/my-account/my-account.component';
 import { MatchWinComponent } from './pages/match-win/match-win.component';
 import { MatchLoseComponent } from './pages/match-lose/match-lose.component';
+import { RegisteredSockComponent } from './pages/sock-list/registered-sock/registered-sock.component';
 
 @NgModule({
   declarations: [
@@ -76,6 +78,7 @@ import { MatchLoseComponent } from './pages/match-lose/match-lose.component';
     MyAccountComponent,
     MatchWinComponent,
     MatchLoseComponent,
+    RegisteredSockComponent,
   ],
   imports: [
     BrowserModule,
@@ -94,7 +97,8 @@ import { MatchLoseComponent } from './pages/match-lose/match-lose.component';
     MatButtonToggleModule,
     ColorPickerModule,
     MatDividerModule,
-    MatCardModule
+    MatCardModule,
+    MatBadgeModule,
   ],
   providers: [
     ConfigService,

@@ -11,6 +11,7 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	jwtgo "github.com/golang-jwt/jwt/v4"
 )
 
 var router *gin.Engine
@@ -32,6 +33,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
 func jwtSetup() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:      "realm doesn't make sens in the JWT context",
@@ -57,6 +59,24 @@ func jwtSetup() *jwt.GinJWTMiddleware {
 	}
 	return authMiddleware
 }
+
+func getIdentity(jwtstr string) (string, error) {
+	secret := []byte("This is the secret key used to sign the identity, hope it doesn't leak ;)")
+	token, err := jwtgo.Parse(jwtstr, func(token *jwtgo.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwtgo.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method")
+		}
+		return secret, nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	claims, _ := token.Claims.(jwtgo.MapClaims)
+	s := claims[jwt.IdentityKey].(string)
+	return s, nil
+}
+
 func Setup() *gin.Engine {
 	router = gin.Default()
 	router.Use(CORSMiddleware())
@@ -95,13 +115,32 @@ func Setup() *gin.Engine {
 
 	return router
 }
+
 func updateUser(c *gin.Context) {
 	claim := jwt.ExtractClaims(c)
 	userId, _ := claim[jwt.IdentityKey].(string)
 	var user db.User
-	c.BindJSON(&user)
-	db.UpdateUser(userId, user)
+	err := c.BindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+
+	err = db.UpdateUser(userId, user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		msg: "updated",
+	})
+
 }
+
 func getSockInfo(c *gin.Context) {
 
 	sockId := c.Param("sockId")
@@ -113,10 +152,7 @@ func getSockInfo(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		msg: s,
-	})
-
+	c.JSON(http.StatusOK, s)
 }
 
 func patchAcceptListOfSock(c *gin.Context) {
@@ -167,7 +203,7 @@ func patchAcceptListOfSock(c *gin.Context) {
 	otherSock, err := db.GetSockInfo(tmpPatch.OtherSockID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			msg: fmt.Errorf("other sock id doesn't exist\n%s", err.Error()),
+			msg: "Other sock ID doesn't exist",
 		})
 		return
 	}
@@ -216,6 +252,10 @@ func listSocksOfUser(c *gin.Context) {
 		})
 		return
 	}
+	if len(socks) == 0 {
+		c.JSON(http.StatusNoContent, "[]")
+		return
+	}
 	c.JSON(http.StatusOK, socks)
 }
 
@@ -261,7 +301,9 @@ func addSock(c *gin.Context) {
 	tmpSock.Owner = userID
 	log.Printf("user %s added sock %+v \n", userID, tmpSock)
 
-	c.JSON(http.StatusCreated, tmpSock)
+	c.JSON(http.StatusCreated, gin.H{
+		"id": tmpSock.ID,
+	})
 }
 
 func listMatchesOfSock(c *gin.Context) {
@@ -274,9 +316,7 @@ func listMatchesOfSock(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"socks": socks,
-	})
+	c.JSON(http.StatusOK, socks)
 
 }
 
