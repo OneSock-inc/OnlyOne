@@ -3,8 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
-import { TitleComponent } from './title/title.component';
-import { ButtonComponent } from './button/button.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
@@ -60,8 +58,6 @@ import { RegisteredSockComponent } from './pages/sock-list/registered-sock/regis
     MessageBannerDirective,
     HomePageComponent,
     AppComponent,
-    TitleComponent,
-    ButtonComponent,
     LoginPageComponent,
     PageNotFoundComponent,
     MessageBannerComponent,
