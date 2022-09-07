@@ -167,7 +167,7 @@ func sendNotificationOfMatch(sock *Sock) {
 		if subscription, ok := data["sub"].(string); ok {
 			json.Unmarshal([]byte(subscription), s)
 			_, _ = webpush.SendNotification([]byte("You got a match"), s, &webpush.Options{
-				Subscriber:      "bertil.chapuis@heig-vd.ch",
+				Subscriber:      "exemple@exemple.com",
 				VAPIDPublicKey:  VAPID_KP,
 				VAPIDPrivateKey: VAPID_K,
 				TTL:             50,
