@@ -10,7 +10,7 @@
             <ng-container *ngIf="pm.length > 0; else noMatch" style="display:grid">
                 <h2>Potential matches</h2>
                 <div *ngFor="let proposedSock of pm" id="sockCard">
-                    <app-proposed-sock [sock]="proposedSock"></app-proposed-sock>
+                    <app-proposed-sock [parentSock]="s" [proposedSock]="proposedSock"></app-proposed-sock>
                 </div>
             </ng-container>
             <ng-template #noMatch>
