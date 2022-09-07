@@ -162,7 +162,7 @@ export class SocksManagerService {
     return (
       this.backendSrv.getUserUrl() +
       '/' +
-      +this.userService.getUser().username +
+      + this.userService.getUser()!.username +
       '/sock'
     );
   }
