@@ -10,10 +10,10 @@ import { concatAll, map, Observable } from 'rxjs';
 })
 export class UserService {
   constructor(private http: HttpClient, private backSrv: BackendLinkService) {
-    this.user = UserService.userFromLocalStorage();
+    this.userFromLocalStorage();
   }
 
-  private user: User;
+  private user!: User;
   
 
   registerNewUser(newUser: User, successCb: Function, errorCb: Function): void {
@@ -31,7 +31,7 @@ export class UserService {
   /**
    * @returns Retrieve the user if present in localStorage, return empty user otherwise.
    */
-  getUser(): User {
+  getUser(): User | undefined{
     return this.user;
   }
 
@@ -76,15 +76,19 @@ export class UserService {
     )
   }
 
-  private static userFromLocalStorage(): User {
+  private userFromLocalStorage(): void {
     const usrStr = localStorage.getItem('fullUser');
     const userN = localStorage.getItem('userName');
     if (typeof usrStr === 'string') {
-      return JSON.parse(usrStr);
+      this.user = JSON.parse(usrStr);
     } else if(typeof userN === 'string') {
-      return new User();
+      this.getUserV2().subscribe(
+        {
+          next: (u: User) => this.user = u,
+        }
+      )
     } else {
-      return new User();
+      this.user = new User();
     }
   }
 
