@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Observable } from 'rxjs';
+import { MatchService } from 'src/app/services/match/match-service.service';
 import {
   SocksManagerService,
   UserSocks,
@@ -16,7 +17,8 @@ import { Sock, typeToString as tts } from '../../../dataModel/sock.model';
 export class RegisteredSockComponent implements OnInit {
   constructor(
     private socksManager: SocksManagerService,
-    private router: Router
+    private router: Router,
+    private matchSrv: MatchService
   ) {}
 
   @Input() // to be accessed by the parent component
@@ -43,6 +45,8 @@ export class RegisteredSockComponent implements OnInit {
           `match-${url}`,
           { queryParams: { mySock: this.sock.id, otherSock: this.sock.match } },
         ];
+        this.matchSrv.selfSock = this.sock;
+        this.matchSrv.otherSockId = this.sock.match; 
       } else {
         this.badgeColor = 'red';
         this.socksManager
