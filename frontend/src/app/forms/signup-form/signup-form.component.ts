@@ -37,6 +37,26 @@ export class SignupFormComponent implements OnInit {
   @ViewChild(MessageBannerDirective, { static: true })
   messageBanner!: MessageBannerDirective;
 
+  ngOnInit(): void {
+    this.isSignup = this.isSignup !== undefined;
+
+    this.user$ = this.userService.getUserV2().pipe(
+      map((data: User) => {
+        this.fillForm(data);
+        return data;
+      })
+    );
+
+    this.createForm();
+
+    this.filteredCountries = this.signupForm.controls[
+      'country'
+    ].valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filter(value || ''))
+    );
+  }
+
   onSubmit(form: FormGroup): void {
     if (!form.valid) return;
     //this.messageBanner.hideMessage();
@@ -74,17 +94,14 @@ export class SignupFormComponent implements OnInit {
       );
   }
 
-
-  ngOnInit(): void {
-    this.isSignup = this.isSignup !== undefined;
-
-    this.user$ = this.userService.getUserV2().pipe(
-      map((data: User) => {
-        this.fillForm(data);
-        return data;
-      })
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    return this.countries.filter((country) =>
+      country.toLowerCase().includes(filterValue)
     );
+  }
 
+  private createForm(): void {
     this.signupForm = new FormGroup({
       username: new FormControl('', {
         validators: [Validators.required],
@@ -114,20 +131,6 @@ export class SignupFormComponent implements OnInit {
         validators: [Validators.required],
       }),
     });
-
-    this.filteredCountries = this.signupForm.controls[
-      'country'
-    ].valueChanges.pipe(
-      startWith(''),
-      map((value) => this._filter(value || ''))
-    );
-  }
-
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    return this.countries.filter((country) =>
-      country.toLowerCase().includes(filterValue)
-    );
   }
 
   private static formGroupToUserObject(form: FormGroup): User {

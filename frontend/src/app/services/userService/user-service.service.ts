@@ -4,12 +4,13 @@ import { BackendLinkService } from '../backendservice/backend-link.service';
 
 import { User } from 'src/app/dataModel/user.model';
 import { concatAll, map, Observable } from 'rxjs';
+import { AuthService } from '../authService/auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private http: HttpClient, private backSrv: BackendLinkService) {
+  constructor(private http: HttpClient, private backSrv: BackendLinkService, private authS: AuthService) {
     this.userFromLocalStorage();
   }
 
@@ -35,7 +36,10 @@ export class UserService {
     return this.user;
   }
 
-  getUserV2(force: boolean = false): Observable<User>{
+  getUserV2(force: boolean = false): Observable<User> {
+    if (!this.authS.isLoggedIn()) {
+      return new Observable<User>((s)=>s.next(new User));
+    }
     if (this.user.username === "" || force) {
       const userName = localStorage.getItem('userName');
       const url: string = `${this.backSrv.getUserUrl()}/${userName}`;
