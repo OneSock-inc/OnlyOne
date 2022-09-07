@@ -1,3 +1,4 @@
+<app-backbutton [page]="'/sock-list'"></app-backbutton>
 <h1 class="main-title">Matching socks</h1>
 <div class="mainContent" id="listOfSocks">
     <ng-container *ngIf="sock | async as s; else loading">

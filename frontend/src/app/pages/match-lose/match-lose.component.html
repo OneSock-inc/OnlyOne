@@ -1,14 +1,15 @@
+<app-backbutton [page]="'/sock-list'"></app-backbutton>
 <h1 class="main-title">You lost ! </h1>
 
 <div class="mainContent flex-column">
     <mat-icon>sentiment_dissatisfied</mat-icon>
-    
+
     <p>Please send your sock to the following address :<br/>{{ address }}</p>
-    
+
     <mat-icon>
         heart_broken
     </mat-icon>
-    
+
     <img src="data:image/png;base64,{{ sock }}" alt="Red dot" />
     <img src="data:image/png;base64,{{ otherSock }}" alt="Red dot" />
 </div>
