@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 
 import { User } from 'src/app/dataModel/user.model';
+import { catchError, map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -39,6 +40,25 @@ export class UserService {
    */
   getUser(): User {
     return this.user;
+  }
+
+  getUserV2(): Observable<User>{
+    if (this.user.username === "") {
+      const userName = localStorage.getItem('userName');
+      const url: string = `${this.backSrv.getUserUrl()}/${userName}`;
+      return this.http.get<User>(url).pipe(
+        map((data: User) => {
+          localStorage.setItem('fullUser', JSON.stringify(data));
+          return data;
+        }),
+      );
+    } else {
+      return new Observable<User>((s) => s.next(this.user));
+    }
+  }
+
+  saveUserName(username: string): void {
+    localStorage.setItem('userName', username);
   }
 
   private static userFromLocalStorage(): User {
