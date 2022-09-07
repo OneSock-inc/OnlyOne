@@ -24,7 +24,11 @@ export class SignupFormComponent implements OnInit {
   hidePassword = true;
   passwordMinLength: number = 10;
 
-  newUser: User = this.userService.getUser();
+  @Input()
+  newUser!: User;
+
+  @Input()
+  submitBtnText!: string;
 
   // To display the list of countries
   countries: string[] = jsonFile.listOfCountries.map((country) => country.name);
@@ -56,11 +60,6 @@ export class SignupFormComponent implements OnInit {
     if (!form.valid) return
     this.messageBanner.hideMessage();
     alert("Submit save" + JSON.stringify(form.value));
-    // this.userService.registerNewUser(
-    //   SignupFormComponent.formGroupToUserObject(form),
-    //   this.onSuccessSave,
-    //   this.onErrorSave
-    // );
   }
 
   private onSuccessSave = (successMsg: any) => {
