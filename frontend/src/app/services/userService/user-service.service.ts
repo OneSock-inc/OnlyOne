@@ -10,37 +10,41 @@ import { AuthService } from '../authService/auth.service';
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private http: HttpClient, private backSrv: BackendLinkService, private authS: AuthService) {
+  constructor(
+    private http: HttpClient,
+    private backSrv: BackendLinkService,
+    private authS: AuthService
+  ) {
     this.userFromLocalStorage();
   }
 
   private user!: User;
-  
 
   registerNewUser(newUser: User, successCb: Function, errorCb: Function): void {
     UserService.registerUserInLocalStorage(newUser);
-    this.http
-      .post<any>(this.backSrv.getRegisterUrl(), newUser)
-      .subscribe({
-        next: (response) => {
-          successCb(response)
-        },
-        error: (error) => errorCb(error),
-      });
+    this.http.post<any>(this.backSrv.getRegisterUrl(), newUser).subscribe({
+      next: (response) => {
+        successCb(response);
+      },
+      error: (error) => errorCb(error),
+    });
   }
 
   /**
    * @returns Retrieve the user if present in localStorage, return empty user otherwise.
    */
-  getUser(): User | undefined{
+  getUser(): User | undefined {
     return this.user;
   }
 
   getUserV2(force: boolean = false): Observable<User> {
+    console.log('In getUserV2...');
+
     if (!this.authS.isLoggedIn()) {
       return new Observable<User>((s)=>s.next(new User));
     }
-    if (this.user.username === "" || force) {
+    if (typeof this.user === 'undefined' || force) {
+      console.log('Fetching user from database...');
       const userName = localStorage.getItem('userName');
       const url: string = `${this.backSrv.getUserUrl()}/${userName}`;
       return this.http.get<User>(url).pipe(
@@ -54,29 +58,34 @@ export class UserService {
     }
   }
 
-  saveUserName(username: string): void {
-    localStorage.setItem('userName', username);
+  cacheUser(userName: string): void {
+    const url: string = `${this.backSrv.getUserUrl()}/${userName}`;
+    localStorage.setItem('userName', userName);
+    this.http.get<User>(url).subscribe(
+      {
+        next: (u: User) => this.user = u,
+      }
+    )
   }
 
+
   /**
-   * 
+   *
    * @param updatedData return updated user
    */
-  saveUser(updatedData: User): Observable<User> {
+  updateUser(updatedData: User): Observable<User> {
     const url = `${this.backSrv.getUserUrl()}/update`;
-    return this.http.patch<any>(url, updatedData)
-    .pipe(
+    return this.http.patch<any>(url, updatedData).pipe(
       map((data: any) => {
-          return this.getUserV2(true)
-            .pipe(
-              map((data:User) => {
-                UserService.registerUserInLocalStorage(data);
-                return data;
-              })
-            );
+        return this.getUserV2(true).pipe(
+          map((data: User) => {
+            UserService.registerUserInLocalStorage(data);
+            return data;
+          })
+        );
       }),
       concatAll()
-    )
+    );
   }
 
   private userFromLocalStorage(): void {
@@ -84,12 +93,10 @@ export class UserService {
     const userN = localStorage.getItem('userName');
     if (typeof usrStr === 'string') {
       this.user = JSON.parse(usrStr);
-    } else if(typeof userN === 'string') {
-      this.getUserV2().subscribe(
-        {
-          next: (u: User) => this.user = u,
-        }
-      )
+    } else if (typeof userN === 'string') {
+      this.getUserV2().subscribe({
+        next: (u: User) => (this.user = u),
+      });
     } else {
       this.user = new User();
     }
@@ -101,5 +108,4 @@ export class UserService {
     usrClone.password = '';
     localStorage.setItem('fullUser', JSON.stringify(usrClone));
   }
-  
 }

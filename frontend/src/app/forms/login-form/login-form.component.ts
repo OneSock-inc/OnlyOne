@@ -50,7 +50,7 @@ export class LoginFormComponent implements OnInit {
     const pwd = form.value.password;
     this.authService.loginV2(userName, pwd,
       (response: any) => {
-        this.userService.saveUserName(userName);
+        this.userService.cacheUser(userName);
         this.router.navigate(['/home']);
       },
       (error: any) => {

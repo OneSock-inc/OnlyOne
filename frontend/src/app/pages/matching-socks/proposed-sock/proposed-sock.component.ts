@@ -20,23 +20,25 @@ export class ProposedSockComponent implements OnInit {
   
   typeToString: (sock: Sock) => string = typeToString;
 
-  notMatchedObs: Observable<boolean> = new Observable<boolean>((subscriber) => subscriber.next(this.notMatched));
-  private notMatched = true;
+  notMatchedObs!: Observable<boolean>; 
+  private notMatched = this.checkMatch();
+
+
 
   ngOnInit(): void {
-
+    this.notMatchedObs = new Observable<boolean>((subscriber) => subscriber.next(this.checkMatch()));  
   }
 
   checkMatch(): boolean {
-    const notAccepted = this.parentSock.acceptedList.every((value: string, index:number) => {
-      value !== this.parentSock.id;
-    })
-    const notRefused = this.parentSock.refusedList.every((value: string, index:number) => {
-      value !== this.parentSock.id;
-    })
-    return notAccepted && notRefused;
+    const inAcceptedList = this.parentSock.acceptedList.includes(this.proposedSock.id);
+    const inRefusedList = this.parentSock.refusedList.includes(this.proposedSock.id);
+    // this.parentSock.acceptedList.includes()
+    // every((value: string, index:number) => {
+    //   value !== this.parentSock.id;
+    // })
+    return inAcceptedList && inRefusedList;
   }
-
+  
   accept(sockId : string) {
     console.log("accepting sock " + sockId);
     this.matchRequest(sockId, "accept");
