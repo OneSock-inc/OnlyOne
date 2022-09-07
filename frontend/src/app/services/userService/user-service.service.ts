@@ -57,7 +57,7 @@ export class UserService {
       return new Observable<User>((s) => s.next(this.user));
     }
   }
-
+  
   cacheUser(userName: string): void {
     const url: string = `${this.backSrv.getUserUrl()}/${userName}`;
     localStorage.setItem('userName', userName);
