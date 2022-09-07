@@ -81,7 +81,7 @@ export class SignupFormComponent implements OnInit {
   onSubmitSave(form: FormGroup): void {
     if (!form.valid) return;
     this.user$ = this.userService
-      .saveUser(SignupFormComponent.formGroupToUserObject(form))
+      .updateUser(SignupFormComponent.formGroupToUserObject(form))
       .pipe(
         map((d: User) => {
           alert(`User ${d.username} successfully saved !`);
