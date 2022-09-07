@@ -27,14 +27,16 @@ export class RegisteredSockComponent implements OnInit {
   }
 
   possibleMatches!: Observable<String>;
+  badgeColor !: string;
 
   private redirectUrl = new Array();
 
   ngOnInit(): void {
     if (this.sock.id !== '') {
       if (this.sock.match !== '') {
+        this.badgeColor = 'transparent';
         this.possibleMatches = new Observable<String>((s) =>
-          s.next('\u{1F5A4}')
+          s.next('\u{2764}')
         );
         const url = this.sock.matchResult;
         this.redirectUrl = [
@@ -42,6 +44,7 @@ export class RegisteredSockComponent implements OnInit {
           { queryParams: { mySock: this.sock.id, otherSock: this.sock.match } },
         ];
       } else {
+        this.badgeColor = 'red';
         this.socksManager
           .getPotencialMatches(this.sock.id)
           .subscribe((data: UserSocks) => {

@@ -1,4 +1,3 @@
-import { formatCurrency } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -65,7 +64,7 @@ export class AddSockFormComponent implements OnInit {
     this.newSock.shoeSize = form.value.shoeSize;
     this.newSock.color = this.sockColor;
     this.newSock.description = form.value.description;
-    this.newSock.type = Number(form.value.sockType);
+    this.newSock.type = Number(SockType[form.value.sockType]);
     this.newSock.picture = this.pictureB64.split(',')[1];
 
     this.socksMan.registerNewSock(this.newSock).subscribe(
@@ -134,7 +133,7 @@ export class AddSockFormComponent implements OnInit {
   private getScreenWidth(): number {
     if (window.innerWidth < 500) {
       let windowWidth = window.screen.width;
-      return Math.floor(windowWidth * 0.8); // TODO : find a way to get the width of the form
+      return Math.floor(windowWidth * 0.8);
     }
     return 500;
   }
