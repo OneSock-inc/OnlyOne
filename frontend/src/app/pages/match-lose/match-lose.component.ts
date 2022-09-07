@@ -3,7 +3,8 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-match-lose',
   templateUrl: './match-lose.component.html',
-  styleUrls: ['./match-lose.component.scss']
+  styleUrls: ['./match-lose.component.scss'],
+  host: {'class': 'default-layout'}
 })
 export class MatchLoseComponent implements OnInit {
 
