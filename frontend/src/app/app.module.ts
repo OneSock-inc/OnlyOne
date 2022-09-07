@@ -48,6 +48,7 @@ import { MyAccountComponent } from './pages/my-account/my-account.component';
 import { MatchWinComponent } from './pages/match-win/match-win.component';
 import { MatchLoseComponent } from './pages/match-lose/match-lose.component';
 import { RegisteredSockComponent } from './pages/sock-list/registered-sock/registered-sock.component';
+import { BackbuttonComponent } from './backbutton/backbutton.component';
 
 
 @NgModule({
@@ -74,11 +75,11 @@ import { RegisteredSockComponent } from './pages/sock-list/registered-sock/regis
     MatchWinComponent,
     MatchLoseComponent,
     RegisteredSockComponent,
+    BackbuttonComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    RouterModule,
     FormsModule,
     BrowserAnimationsModule,
     MatFormFieldModule,
@@ -94,6 +95,7 @@ import { RegisteredSockComponent } from './pages/sock-list/registered-sock/regis
     MatDividerModule,
     MatCardModule,
     MatBadgeModule,
+    RouterModule,
   ],
   providers: [
     ConfigService,

@@ -1,20 +1,26 @@
 <mat-card>
     <mat-card-header>
-        <mat-card-title>{{typeToString(sock)}} {{sock.shoeSize}}</mat-card-title>
+        <mat-card-title>{{typeToString(proposedSock)}} {{proposedSock.shoeSize}}</mat-card-title>
     </mat-card-header>
     <div id="sockAndButtons">
-        <img src={{sock.picture}} alt="sock" class="sockImg" width="100%">
+        <img src="data:image/png;base64,{{proposedSock.picture}}" alt="sock" class="sockImg" width="100%">
         <mat-card-content>
-            <p>{{sock.description}}</p>
+            <p>{{proposedSock.description}}</p>
         </mat-card-content>
-        <div id="buttons">
-            <button mat-fab color="warn" (click)="refuse(sock.id)">
-                <mat-icon>close</mat-icon>
-            </button>
-            <button mat-fab color="primary" (click)="accept(sock.id)">
-                <mat-icon>check</mat-icon>
-            </button>
-        </div>
+        <ng-container *ngIf="notMatchedObs | async ; else already">
+            <div id="buttons">
+                <button mat-fab color="warn" (click)="refuse(proposedSock.id)">
+                    <mat-icon>close</mat-icon>
+                </button>
+                <button mat-fab color="primary" (click)="accept(
+                    proposedSock.id)">
+                    <mat-icon>check</mat-icon>
+                </button>
+            </div>
+        </ng-container>
+        <ng-template #already>
+            <p>Already accepted or refused</p>
+        </ng-template>
         
     </div>
     

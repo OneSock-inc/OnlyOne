@@ -1,3 +1,4 @@
+  <app-backbutton [page]="'/'"></app-backbutton>
   <h1 class="main-title">Login</h1>
   <app-login-form class="mainContent" *ngIf="notLogged(); else loggedIn"></app-login-form>
   <ng-template #loggedIn >
