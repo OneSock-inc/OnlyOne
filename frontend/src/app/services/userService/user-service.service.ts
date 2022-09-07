@@ -60,7 +60,6 @@ export class UserService {
    */
   saveUser(updatedData: User): Observable<User> {
     const url = `${this.backSrv.getUserUrl()}/update`;
-    updatedData.username = this.user.username;
     return this.http.patch<any>(url, updatedData)
     .pipe(
       map((data: any) => {
