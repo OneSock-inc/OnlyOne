@@ -2,3 +2,8 @@
     height: 30rem;
     object-fit: contain;
 }
+
+::ng-deep .mat-badge-content {
+    background: transparent !important;
+    font-size: 2rem !important;
+}

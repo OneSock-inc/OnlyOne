@@ -34,7 +34,7 @@ export class RegisteredSockComponent implements OnInit {
     if (this.sock.id !== '') {
       if (this.sock.match !== '') {
         this.possibleMatches = new Observable<String>((s) =>
-          s.next('\u{1F5A4}')
+          s.next('\u{2665}')
         );
         const url = this.sock.matchResult;
         this.redirectUrl = [
