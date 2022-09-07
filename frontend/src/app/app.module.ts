@@ -81,7 +81,6 @@ import {PushNotificationService} from './services/notification/push-notification
 
     BrowserModule,
     AppRoutingModule,
-    RouterModule,
     FormsModule,
     BrowserAnimationsModule,
     MatFormFieldModule,
@@ -101,7 +100,8 @@ import {PushNotificationService} from './services/notification/push-notification
       enabled: environment.production ,      // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
-    })
+    }),
+    RouterModule,
   ],
   providers: [
     PushNotificationService,

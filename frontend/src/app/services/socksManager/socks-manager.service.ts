@@ -1,13 +1,21 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 import { Sock } from 'src/app/dataModel/sock.model';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 import { UserService } from '../userService/user-service.service';
 
 export type UserSocks = Sock[];
+
+export interface PostMatch {
+  status: string;
+  otherSockId: string;
+}
 export interface PostResponse {
   id: string;
+}
+export interface PatchResponse {
+  message: string;
 }
 @Injectable({
   providedIn: 'root',
@@ -26,7 +34,6 @@ export class SocksManagerService {
 
   private userSocks: UserSocks;
   private potencialMatches: Map<string, UserSocks>;
-
 
   /**
    * Make an http request to retrieve sock
@@ -92,7 +99,7 @@ export class SocksManagerService {
       const url = `${this.backendSrv.getSockUrl()}/${sockid}/match`;
       return this.http.get<UserSocks>(url).pipe(
         map((data: UserSocks) => {
-          if(data) {
+          if (data) {
             this.potencialMatches.set(sockid, data);
             return data;
           } else {
@@ -102,10 +109,28 @@ export class SocksManagerService {
       );
     }
   }
-  
-  private setMatches(): void {
-    const url: string =
-      this.backendSrv.getSockUrl() + this.userService.getUser().username;
+
+  setMatch(sockId: string, match: PostMatch): Observable<any> {
+    const url: string = `${this.backendSrv.getSockUrl()}/${sockId}`;
+    return this.http.patch<PatchResponse>(url, match).pipe(
+      map((res: PatchResponse) => {
+        if (res.message === 'success') {
+          this.userSocks.map((value: Sock, index: number) => {
+            if (value.id === sockId) {
+              switch (match.status) {
+                case 'accept':
+                  value.acceptedList.push(match.otherSockId);
+                  break;
+                case 'refuse':
+                  value.refusedList.push(match.otherSockId);
+                  break;
+              }
+            }
+          });
+        }
+        return res;
+      })
+    );
   }
 
   private getData(
