@@ -3,9 +3,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/authService/auth.service';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
-import { LoaderDirective } from 'src/app/loader/loader.directive';
-import { LoaderComponent } from 'src/app/loader/loader.component';
-import { JWToken } from 'src/app/dataModel/jwt.model';
+import { UserService } from 'src/app/services/userService/user-service.service';
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',
@@ -13,7 +11,7 @@ import { JWToken } from 'src/app/dataModel/jwt.model';
 })
 export class LoginFormComponent implements OnInit {
 
-  constructor(private router: Router, private authService: AuthService) { }
+  constructor(private router: Router, private authService: AuthService, private userService: UserService) { }
 
   @ViewChild(MessageBannerDirective, {static: true})
   messageBanner!: MessageBannerDirective;
@@ -52,6 +50,7 @@ export class LoginFormComponent implements OnInit {
     const pwd = form.value.password;
     this.authService.loginV2(userName, pwd,
       (response: any) => {
+        this.userService.saveUserName(userName);
         this.router.navigate(['/home']);
       },
       (error: any) => {

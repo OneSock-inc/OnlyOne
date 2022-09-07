@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 
 import { User } from 'src/app/dataModel/user.model';
+import { concatAll, map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -13,14 +14,7 @@ export class UserService {
   }
 
   private user: User;
-  updateUser(user : User, sucessCallb: Function, errorCallb : Function) : void {
-    this.http.patch<any>(this.backSrv.getUpdateUrl(),user).subscribe({
-      next: (response) => {
-        sucessCallb(response)
-      },
-      error: (error) => errorCallb(error),
-    });
-  }
+  
 
   registerNewUser(newUser: User, successCb: Function, errorCb: Function): void {
     UserService.registerUserInLocalStorage(newUser);
@@ -41,10 +35,54 @@ export class UserService {
     return this.user;
   }
 
+  getUserV2(force: boolean = false): Observable<User>{
+    if (this.user.username === "" || force) {
+      const userName = localStorage.getItem('userName');
+      const url: string = `${this.backSrv.getUserUrl()}/${userName}`;
+      return this.http.get<User>(url).pipe(
+        map((data: User) => {
+          localStorage.setItem('fullUser', JSON.stringify(data));
+          return data;
+        }),
+      );
+    } else {
+      return new Observable<User>((s) => s.next(this.user));
+    }
+  }
+
+  saveUserName(username: string): void {
+    localStorage.setItem('userName', username);
+  }
+
+  /**
+   * 
+   * @param updatedData return updated user
+   */
+  saveUser(updatedData: User): Observable<User> {
+    const url = `${this.backSrv.getUserUrl()}/update`;
+    updatedData.username = this.user.username;
+    return this.http.patch<any>(url, updatedData)
+    .pipe(
+      map((data: any) => {
+          return this.getUserV2(true)
+            .pipe(
+              map((data:User) => {
+                UserService.registerUserInLocalStorage(data);
+                return data;
+              })
+            );
+      }),
+      concatAll()
+    )
+  }
+
   private static userFromLocalStorage(): User {
-    const usrStr = localStorage.getItem('currentUser');
+    const usrStr = localStorage.getItem('fullUser');
+    const userN = localStorage.getItem('userName');
     if (typeof usrStr === 'string') {
       return JSON.parse(usrStr);
+    } else if(typeof userN === 'string') {
+      return new User();
     } else {
       return new User();
     }
@@ -54,7 +92,7 @@ export class UserService {
     const usrStr = JSON.stringify(user);
     const usrClone = JSON.parse(usrStr);
     usrClone.password = '';
-    localStorage.setItem('currentUser', JSON.stringify(usrClone));
+    localStorage.setItem('fullUser', JSON.stringify(usrClone));
   }
   
 }

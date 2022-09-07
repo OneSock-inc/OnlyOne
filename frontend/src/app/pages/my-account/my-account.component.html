@@ -1,3 +1,13 @@
-<app-backbutton [page]="'/home'"></app-backbutton>
-<h1 class="main-title">my profile</h1>
-<app-signup-form class="mainContent" textButton="Save" [isSignup]="false"></app-signup-form>
+<h1 class="main-title">My profile</h1>
+
+<ng-container *ngIf="user$ | async as u; else loading" >
+    <div class="mainContent">
+        <h2 class="text-center">{{u.username}}</h2>
+        <app-signup-form [submitBtnText]="'Save'" textButton="Save" [isSignup]="false"></app-signup-form>
+    </div>
+</ng-container>
+<ng-template #loading>
+    <div class="mainContent">
+        <h2 class="text-center">Loading...</h2>
+    </div>
+</ng-template>
