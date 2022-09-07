@@ -19,8 +19,6 @@ export class SignupPageComponent {
 
   displayArrow: boolean = true;
 
-  newUser: User = new User();
-
   // display down arrow if the user has not scrolled to the bottom of the page
   @HostListener('window:scroll', ['$event'])
   onScroll(event: Event): void {

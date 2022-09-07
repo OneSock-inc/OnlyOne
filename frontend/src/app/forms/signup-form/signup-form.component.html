@@ -1,91 +1,149 @@
-<form class="form-default" (submit)="!isSignup ? onSubmit(signupForm) : onSubmitSave(signupForm)" [formGroup]="signupForm" >
-    <mat-form-field *ngIf="!isSignup" appearance="legacy" class="form-group" id="username">
-        <mat-label>Username</mat-label>
-        <input matInput
-            name="username" 
-            formControlName="username"
-            placeholder="Enter a username">
-        <mat-error *ngIf="this.signupForm.get('username')">Required</mat-error>
-    </mat-form-field>
+<form
+  *ngIf="user$ | async; else loading"
+  class="form-default"
+  (submit)="!isSignup ? onSubmit(signupForm) : onSubmitSave(signupForm)"
+  [formGroup]="signupForm"
+>
+  <mat-form-field
+    *ngIf="!isSignup"
+    appearance="legacy"
+    class="form-group"
+    id="username"
+  >
+    <mat-label>Username</mat-label>
+    <input
+      matInput
+      name="username"
+      formControlName="username"
+      placeholder="Enter a username"
+    />
+    <mat-error *ngIf="this.signupForm.get('username')">Required</mat-error>
+  </mat-form-field>
 
-    <mat-form-field appearance="legacy" class="form-group" id="password" hintLabel="Min. {{passwordMinLength}} characters">
-        <mat-label>Password</mat-label>
-        <input matInput #passwordInput
-            name=password
-            formControlName="password"
-            [type]="hidePassword ? 'password' : 'text'" 
-            placeholder="Enter a password">
-        <mat-hint align="end">{{passwordInput.value.length || 0}} / {{passwordMinLength}}</mat-hint>
-        <mat-error *ngIf="this.signupForm.get('password')">Require at least {{passwordMinLength}} characters</mat-error>
-        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" type="button">
-            <mat-icon>{{hidePassword ? 'visibility' : 'visibility_off'}}</mat-icon>
-        </button>
-    </mat-form-field>
+  <mat-form-field
+    appearance="legacy"
+    class="form-group"
+    id="password"
+    hintLabel="Min. {{ passwordMinLength }} characters"
+  >
+    <mat-label>Password</mat-label>
+    <input
+      matInput
+      #passwordInput
+      name="password"
+      formControlName="password"
+      [type]="hidePassword ? 'password' : 'text'"
+      placeholder="Enter a password"
+    />
+    <mat-hint align="end"
+      >{{ passwordInput.value.length || 0 }} / {{ passwordMinLength }}</mat-hint
+    >
+    <mat-error *ngIf="this.signupForm.get('password')"
+      >Require at least {{ passwordMinLength }} characters</mat-error
+    >
+    <button
+      mat-icon-button
+      matSuffix
+      (click)="hidePassword = !hidePassword"
+      [attr.aria-label]="'Hide password'"
+      [attr.aria-pressed]="hidePassword"
+      type="button"
+    >
+      <mat-icon>{{ hidePassword ? "visibility" : "visibility_off" }}</mat-icon>
+    </button>
+  </mat-form-field>
 
-    <mat-form-field appearance="legacy" class="form-group" id="firstname">
-        <mat-label>Firstname</mat-label>
-        <input matInput 
-            name="firstname" 
-            formControlName="firstname"
-            placeholder="Enter your firstname">
-        <mat-error *ngIf="this.signupForm.get('firstname')">Required</mat-error>
-    </mat-form-field>
+  <mat-form-field appearance="legacy" class="form-group" id="firstname">
+    <mat-label>Firstname</mat-label>
+    <input
+      matInput
+      name="firstname"
+      formControlName="firstname"
+      placeholder="Enter your firstname"
+    />
+    <mat-error *ngIf="this.signupForm.get('firstname')">Required</mat-error>
+  </mat-form-field>
 
-    <mat-form-field appearance="legacy" class="form-group" id="surname">
-        <mat-label>Surname</mat-label>
-        <input matInput 
-            name="surname" 
-            formControlName="surname"
-            placeholder="Enter your surname">
-        <mat-error *ngIf="this.signupForm.get('surname')">Required</mat-error>
-    </mat-form-field>
-    
-    <mat-form-field class="form-group" appearance="legacy">
-        <mat-label>Country</mat-label>
-        <input matInput
-            type="text"
-            placeholder="Enter your country"
-            aria-label="Country"
-            formControlName="country"
-            [matAutocomplete]="auto">
-        <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let country of filteredCountries | async" [value]="country">
-                {{country}}
-            </mat-option>
-        </mat-autocomplete>
-        <mat-error *ngIf="this.signupForm.get('country')">Require a country in the list</mat-error>
-    </mat-form-field>
+  <mat-form-field appearance="legacy" class="form-group" id="surname">
+    <mat-label>Surname</mat-label>
+    <input
+      matInput
+      name="surname"
+      formControlName="surname"
+      placeholder="Enter your surname"
+    />
+    <mat-error *ngIf="this.signupForm.get('surname')">Required</mat-error>
+  </mat-form-field>
 
-    <mat-form-field class="form-group" appearance="legacy">
-        <mat-label>Postal Code</mat-label>
-        <input matInput
-            name="postalCode"
-            formControlName="postalCode" 
-            placeholder="Ex: 1200">
-        <mat-error *ngIf="this.signupForm.get('postalCode')">Require a number</mat-error>
-    </mat-form-field>
+  <mat-form-field class="form-group" appearance="legacy">
+    <mat-label>Country</mat-label>
+    <input
+      matInput
+      type="text"
+      placeholder="Enter your country"
+      aria-label="Country"
+      formControlName="country"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option
+        *ngFor="let country of filteredCountries | async"
+        [value]="country"
+      >
+        {{ country }}
+      </mat-option>
+    </mat-autocomplete>
+    <mat-error *ngIf="this.signupForm.get('country')"
+      >Require a country in the list</mat-error
+    >
+  </mat-form-field>
 
+  <mat-form-field class="form-group" appearance="legacy">
+    <mat-label>Postal Code</mat-label>
+    <input
+      matInput
+      name="postalCode"
+      formControlName="postalCode"
+      placeholder="Ex: 1200"
+    />
+    <mat-error *ngIf="this.signupForm.get('postalCode')"
+      >Require a number</mat-error
+    >
+  </mat-form-field>
 
-    <mat-form-field class="form-group" appearance="legacy">
-        <mat-label>City</mat-label>
-        <input matInput
-            name="city"
-            formControlName="city" 
-            placeholder="Ex: Geneva">
-        <mat-error *ngIf="this.signupForm.get('city')">Required</mat-error>
-    </mat-form-field>
+  <mat-form-field class="form-group" appearance="legacy">
+    <mat-label>City</mat-label>
+    <input
+      matInput
+      name="city"
+      formControlName="city"
+      placeholder="Ex: Geneva"
+    />
+    <mat-error *ngIf="this.signupForm.get('city')">Required</mat-error>
+  </mat-form-field>
 
-    <mat-form-field class="form-group" appearance="legacy">
-        <mat-label>Street</mat-label>
-        <input matInput
-            name="street"
-            formControlName="street" 
-            placeholder="Ex: 221B Baker Street">
-        <mat-error *ngIf="this.signupForm.get('street')">Required</mat-error>
-    </mat-form-field>
+  <mat-form-field class="form-group" appearance="legacy">
+    <mat-label>Street</mat-label>
+    <input
+      matInput
+      name="street"
+      formControlName="street"
+      placeholder="Ex: 221B Baker Street"
+    />
+    <mat-error *ngIf="this.signupForm.get('street')">Required</mat-error>
+  </mat-form-field>
 
-    <ng-template appMessageBanner id="banner" ></ng-template>
+  <ng-template appMessageBanner id="banner"></ng-template>
 
-    <button mat-flat-button color="primary" id="signupButton" [disabled]="signupForm.invalid">{{submitBtnText}}</button>
-    
+  <button
+    mat-flat-button
+    color="primary"
+    id="signupButton"
+    [disabled]="signupForm.invalid"
+  >
+    {{ submitBtnText }}
+  </button>
 </form>
+<ng-template #loading>
+  <h2>Loading...</h2>
+</ng-template>
