@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, HostListener, ViewChild } from '@angular/core';
+import { User } from 'src/app/dataModel/user.model';
 import { BackendLinkService } from '../../services/backendservice/backend-link.service';
 
 @Component({

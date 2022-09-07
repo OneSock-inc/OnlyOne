@@ -1,3 +1,4 @@
+<app-backbutton [page]="'/home'"></app-backbutton>
 <h1 class="main-title">My socks</h1>
 <div class="mainContent" id="listOfSocks">
     <ng-container *ngIf="userSocks | async as socks; else loading" >

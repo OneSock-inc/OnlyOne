@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MatchingSocksComponent } from './matching-socks.component';
+import { BackbuttonComponent } from './backbutton.component';
 
-describe('MatchingSocksComponent', () => {
-  let component: MatchingSocksComponent;
-  let fixture: ComponentFixture<MatchingSocksComponent>;
+describe('BackbuttonComponent', () => {
+  let component: BackbuttonComponent;
+  let fixture: ComponentFixture<BackbuttonComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MatchingSocksComponent ]
+      declarations: [ BackbuttonComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MatchingSocksComponent);
+    fixture = TestBed.createComponent(BackbuttonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

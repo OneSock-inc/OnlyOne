@@ -1,4 +1,4 @@
-<mat-card matBadge="{{possibleMatches | async}}" matBadgeColor="warn" matBadgeSize="large" id="sockCard" (click)="onSelect()">
+<mat-card matBadge="{{possibleMatches | async}}" matBadgeColor="warn" matBadgeSize="large" id="sockCard" (click)="onClick()">
     <mat-card-header>
         <mat-card-title>{{typeToString(sock)}} {{sock.shoeSize}}</mat-card-title>
     </mat-card-header>

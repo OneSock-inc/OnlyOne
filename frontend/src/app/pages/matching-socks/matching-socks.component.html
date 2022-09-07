@@ -1,17 +1,25 @@
+<app-backbutton [page]="'/sock-list'"></app-backbutton>
 <h1 class="main-title">Matching socks</h1>
 <div class="mainContent" id="listOfSocks">
-    <div id="mySock">
-        <h2>My sock</h2>
-        <img src={{mySock.picture}} width="100%" alt="Base64 Image"/>
-        <p>{{typeToString(mySock)}} {{mySock.shoeSize}}</p>
-    </div>
-    <ng-container *ngIf="socks.length > 0" style="display:grid">
-        <h2>Potential matches</h2>
-        <div *ngFor="let proposedSock of socks" id="sockCard">
-            <app-proposed-sock [sock]="proposedSock"></app-proposed-sock>
+    <ng-container *ngIf="sock | async as s; else loading">
+        <div id="mySock">
+            <h2>My sock</h2>
+            <img src="data:image/png;base64,{{s.picture}}" width="100%" alt="Base64 Image"/>
+            <p>{{typeToString(s)}} {{s.shoeSize}}</p>
         </div>
+        <ng-container *ngIf="propositionMatches | async as pm">
+            <ng-container *ngIf="pm.length > 0; else noMatch" style="display:grid">
+                <h2>Potential matches</h2>
+                <div *ngFor="let proposedSock of pm" id="sockCard">
+                    <app-proposed-sock [parentSock]="s" [proposedSock]="proposedSock"></app-proposed-sock>
+                </div>
+            </ng-container>
+            <ng-template #noMatch>
+                <h2>There is no sock matching</h2>
+            </ng-template>
+        </ng-container>
     </ng-container>
-    <ng-container *ngIf="socks.length === 0">
-        <h2>There is no sock matching</h2>
-    </ng-container>
+    <ng-template #loading>
+        <div>Loading data...</div>
+    </ng-template>
 </div>

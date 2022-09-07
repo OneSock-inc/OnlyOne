@@ -10,7 +10,7 @@
   justify-content: center;
   align-items: center;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 5rem 8rem repeat(3, 1fr);
+  grid-template-rows: 7rem 8rem repeat(3, 1fr);
   min-height: 100vh;
   padding: 0 3rem 1.5rem 3rem;
 }
@@ -55,7 +55,7 @@ router-outlet + * {
   font-size: 1.8rem;
   gap: 1rem;
   justify-content: space-between;
-
+  margin-bottom: 2rem;
   button {
     font-size: large;
   }
