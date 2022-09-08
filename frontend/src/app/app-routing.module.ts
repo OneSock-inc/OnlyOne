@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
-import { AccessControlService } from './services/authService/access-control.service';
+import { AccessControlMatchPage, AccessControlService } from './services/authService/access-control.service';
 import { SignupPageComponent } from './pages/signup-page/signup-page.component';
 import { AddSockPageComponent } from './pages/add-sock-page/add-sock-page.component';
 import { MatchingSocksComponent } from './pages/matching-socks/matching-socks.component';
@@ -32,8 +32,8 @@ const routes: Routes = [
     path: 'sock/:id',
     component: MatchingSocksComponent,
   },
-  { path: 'match-win', component: MatchWinComponent },
-  { path: 'match-lose', component: MatchLoseComponent },
+  { path: 'match-win', component: MatchWinComponent, canMatch: [AccessControlMatchPage] },
+  { path: 'match-lose', component: MatchLoseComponent, canMatch: [AccessControlMatchPage] },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent },
 ];

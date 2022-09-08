@@ -26,6 +26,10 @@ export class BackendLinkService {
     return this.config.backendUrl + "/user"
   }
 
+  getUserUrl_id(): string {
+    return this.config.backendUrl + "/userid"
+  }
+
   getUpdateUrl(): string {
     return this.config.backendUrl+ "/user/update"
   }
