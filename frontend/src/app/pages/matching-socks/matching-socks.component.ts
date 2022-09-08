@@ -29,7 +29,19 @@ export class MatchingSocksComponent implements OnInit {
       switchMap((params: ParamMap) => {
         return this.sockManager.getSockById(params.get('id')!).pipe(
           map((sock: Sock) => {
-            this.propositionMatches = this.sockManager.getPotencialMatches(sock.id);
+            console.log('>>>>>> sock');
+            console.log(sock);
+                console.log('>>>>>>');
+            this.propositionMatches = this.sockManager.getPotencialMatches(sock.id).pipe(
+
+              map((data: UserSocks)=>{
+                console.log('>>>>>> matches');
+                console.log(data);
+                console.log('>>>>>>');
+                return data;},
+              )
+
+            );
             return sock;
           }),
           catchError(this.errorHandling)

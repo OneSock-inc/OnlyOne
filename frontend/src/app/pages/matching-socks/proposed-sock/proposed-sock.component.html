@@ -7,7 +7,7 @@
         <mat-card-content>
             <p>{{proposedSock.description}}</p>
         </mat-card-content>
-        <ng-container *ngIf="notMatchedObs | async ; else already">
+        <ng-container *ngIf="notRefusedOrAccepted$ | async ; else already">
             <div id="buttons">
                 <button mat-fab color="warn" (click)="refuse(proposedSock.id)">
                     <mat-icon>close</mat-icon>
@@ -19,10 +19,7 @@
             </div>
         </ng-container>
         <ng-template #already>
-            <p>Already accepted or refused</p>
+            <p>{{message}}</p>
         </ng-template>
-        
     </div>
-    
-    
 </mat-card>
