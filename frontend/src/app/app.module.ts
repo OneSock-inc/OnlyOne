@@ -55,6 +55,7 @@ import { AuthInterceptor } from './services/http-interceptors/auth-interceptor.s
 import { TokenService } from './services/authService/token-service.service';
 import { AccessControlMatchPage, AccessControlService } from './services/authService/access-control.service';
 import { UserService } from './services/userService/user-service.service';
+import { ArrowDownComponent } from './arrow-down/arrow-down.component';
 
 @NgModule({
   declarations: [
@@ -82,6 +83,7 @@ import { UserService } from './services/userService/user-service.service';
     RegisteredSockComponent,
     BackbuttonComponent,
     MatchResultComponent,
+    ArrowDownComponent,
   ],
   imports: [
 
