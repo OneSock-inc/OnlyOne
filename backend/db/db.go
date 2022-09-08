@@ -21,7 +21,7 @@ import (
 
 var projectID string = "onlyone-cb08e"
 var dbClient *firestore.Client
-var ctx *context.Context
+var ContextBd *context.Context = nil
 var cache *Cache = nil
 
 const UsersCollection = "users"
@@ -81,7 +81,7 @@ func GetUserSocks(userID string) ([]Sock, error) {
 	}
 
 	query := client.Collection(SocksCollection).Query.Where("owner", "==", userID)
-	iter := query.Documents(context.Background())
+	iter := query.Documents(*ContextBd)
 	var socks []Sock
 	for {
 		doc, err := iter.Next()
@@ -106,7 +106,7 @@ func GetUser(username string) (*firestore.DocumentSnapshot, error) {
 		return nil, err
 	}
 	query := db.Collection(UsersCollection).Where("username", "==", username)
-	users, err := query.Documents(*ctx).GetAll()
+	users, err := query.Documents(*ContextBd).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
 		return nil, err
@@ -125,7 +125,7 @@ func GetUserFromID(id string) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
-	doc, err := db.Collection(UsersCollection).Doc(id).Get(context.Background())
+	doc, err := db.Collection(UsersCollection).Doc(id).Get(*ContextBd)
 	if err != nil {
 		return User{}, err
 	}
@@ -181,12 +181,12 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 				otherSock.MatchResult = WIN
 			}
 
-			_, err = db.Collection(SocksCollection).Doc(otherSock.ID).Set(context.Background(), otherSock)
+			_, err = db.Collection(SocksCollection).Doc(otherSock.ID).Set(*ContextBd, otherSock)
 			if err != nil {
 				return err
 			}
 
-			_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
+			_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(*ContextBd, sock)
 			if err != nil {
 				return err
 			}
@@ -197,7 +197,7 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 		sock.RefusedList = append(sock.RefusedList, otherSock.ID)
 	}
 
-	_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
+	_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(*ContextBd, sock)
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func GetSockInfo(sockId string) (Sock, error) {
 	if err != nil {
 		return Sock{}, err
 	}
-	ref, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
+	ref, err := client.Collection(SocksCollection).Doc(sockId).Get(*ContextBd)
 	if err != nil {
 		return Sock{}, err
 	}
@@ -263,7 +263,7 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 	if err != nil {
 		return Sock{}, err
 	}
-	userSnapShot, err := client.Collection(UsersCollection).Doc(owner).Get(context.Background())
+	userSnapShot, err := client.Collection(UsersCollection).Doc(owner).Get(*ContextBd)
 	if err != nil {
 		return Sock{}, fmt.Errorf("user doesn't exist %s", err.Error())
 	}
@@ -282,11 +282,11 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 		AcceptedList: make([]string, 0),
 		Match:        "",
 	}
-	docRef, _, err := client.Collection(SocksCollection).Add(*ctx, s)
+	docRef, _, err := client.Collection(SocksCollection).Add(*ContextBd, s)
 	if err != nil {
 		return Sock{}, err
 	}
-	_, err = docRef.Set(context.Background(), s)
+	_, err = docRef.Set(*ContextBd, s)
 	if err != nil {
 		return Sock{}, err
 	}
@@ -295,7 +295,7 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 	return s, err
 }
 
-func createClient(ctx context.Context) (*firestore.Client, error) {
+func createClient() (*firestore.Client, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatalf("unable to get the home dir %v", err)
@@ -306,20 +306,27 @@ func createClient(ctx context.Context) (*firestore.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if ContextBd == nil {
+		c := context.Background()
+		ContextBd = &c
+	}
+
 	// Sets your Google Cloud Platform project ID.
-	return firestore.NewClient(ctx, projectID)
+	return firestore.NewClient(*ContextBd, projectID)
 }
 
 func GetDBConnection() (*firestore.Client, error) {
-
 	if dbClient == nil {
 		log.Printf("client is Nil")
-		c := context.Background()
-		ctx = &c
-		client, err1 := createClient(*ctx)
+		client, err := createClient()
 		dbClient = client
-		cache, _ = newCache()
-		return client, err1
+
+		if cache == nil {
+			cache, err = newCache()
+		}
+
+		return client, err
 	}
 	return dbClient, nil
 }
@@ -382,7 +389,7 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 	}
 	//query doc where username's field == `username`
 	query := client.Collection(UsersCollection).Query.Where("username", "==", u.Username)
-	docs, err := query.Documents(context.Background()).GetAll()
+	docs, err := query.Documents(*ContextBd).GetAll()
 	if err != nil {
 		log.Printf("error : %v\n", err)
 		return nil, err
@@ -400,7 +407,7 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 
 	user := u
 	user.Password = string(hash)
-	docRef, _, err := client.Collection(UsersCollection).Add(*ctx, user)
+	docRef, _, err := client.Collection(UsersCollection).Add(*ContextBd, user)
 
 	if err != nil {
 		log.Printf("error : %v\n", err)
@@ -412,8 +419,8 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 // delete the collection referenced by the collection ref attribut
 func DeleteCollection(ctx context.Context, client *firestore.Client,
 	ref *firestore.CollectionRef, batchSize int) error {
-	dbClient = nil
-	cache = nil
+	//dbClient = nil
+	//cache = nil
 	for {
 		// Get a batch of documents
 		iter := ref.Limit(batchSize).Documents(ctx)
@@ -472,7 +479,7 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 	if err != nil {
 		return nil, err
 	}
-	doc, err := client.Collection(SocksCollection).Doc(sockId).Get(context.Background())
+	doc, err := client.Collection(SocksCollection).Doc(sockId).Get(*ContextBd)
 	if err != nil {
 		return nil, err
 	}
@@ -526,7 +533,7 @@ func UpdateUser(userId string, user User) error {
 	if err != nil {
 		return err
 	}
-	doc, err := client.Collection(UsersCollection).Doc(userId).Get(context.Background())
+	doc, err := client.Collection(UsersCollection).Doc(userId).Get(*ContextBd)
 	if err != nil {
 		return err
 	}
@@ -535,6 +542,6 @@ func UpdateUser(userId string, user User) error {
 		return err
 	}
 	user.Password = string(hash)
-	_, err = doc.Ref.Set(context.Background(), user)
+	_, err = doc.Ref.Set(*ContextBd, user)
 	return err
 }
