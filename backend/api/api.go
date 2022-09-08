@@ -259,6 +259,19 @@ func listSocksOfUser(c *gin.Context) {
 		})
 		return
 	}
+	user, err := db.GetUserFromID(userID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
+	if user.Username != c.Param("username") {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: fmt.Sprintf("You tried to access %s's socks but you are %s", c.Param("username"), user.Username),
+		})
+		return
+	}
 
 	socks, err := db.GetUserSocks(userID)
 	if err != nil {
