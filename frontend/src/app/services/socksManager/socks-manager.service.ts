@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { concatAll, map, Observable } from 'rxjs';
 import { Sock } from 'src/app/dataModel/sock.model';
+import { User } from 'src/app/dataModel/user.model';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 import { UserService } from '../userService/user-service.service';
 
@@ -44,23 +45,26 @@ export class SocksManagerService {
    * @param newSock
    */
   registerNewSock(newSock: Sock): Observable<PostResponse> {
-    return this.http
-      .post<PostResponse>(
-        this.backendSrv.postSockUrl(),
-        this.newSockToJson(newSock)
-      )
+    return this.http.post<PostResponse>(
+      this.backendSrv.postSockUrl(),
+      this.newSockToJson(newSock)
+    );
   }
 
   retrieveSocks(): Observable<UserSocks> {
-    const url = this.userSocksUrl();
-    return this.http.get<UserSocks>(url).pipe(
-      map((data: UserSocks) => {
-        if (data) {
-          return data;
-        } else {
-          return new Array();
-        }
-      })
+    return this.userService.getCurrentUser().pipe(
+      map((data: User) => {
+        return this.http.get<UserSocks>(this.userSocksUrl(data.username)).pipe(
+          map((data: UserSocks) => {
+            if (data) {
+              return data;
+            } else {
+              return new Array();
+            }
+          })
+        );
+      }),
+      concatAll()
     );
   }
 
@@ -92,12 +96,8 @@ export class SocksManagerService {
     });
   }
 
-  private userSocksUrl(): string {
-    return (
-      this.backendSrv.getUserUrl() +
-      '/' +
-      + this.userService.getUser()!.username +
-      '/sock'
-    );
+  private userSocksUrl(username: string): string {
+    const url: string = `${this.backendSrv.getUserUrl()}/${username}/sock`;
+    return url;
   }
 }

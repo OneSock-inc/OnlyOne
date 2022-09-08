@@ -19,43 +19,9 @@ export class AuthService {
     private http: HttpClient,
     private backendLink: BackendLinkService,
     private tokenService: TokenService
-  ) { }
-
-  /**
-   * Sends a login request to backend.
-   * Set its jwt param value and save it in localStorage.
-   * @param username provided by front end user
-   * @param password provided by front end user
-   * @returns Observable
-   */
-  loginV2(username: string, password: string, successCallback: Function, errorCallBack: Function): void {
-    this.http.post<JWToken>(this.backendLink.getLoginUrl(), {username, password})
-    .subscribe({
-      next: (response: any) => {
-        this.tokenService.setAuthorizationToken(response);
-        successCallback(response);
-      },
-      error: (error: any) => {
-        errorCallBack(error);
-      }
-    })
+  ) {
   }
 
-  /**
-   * Clear the local storage and the token saved in the TokenService 
-   * instance.
-   */
-  logout() {
-    localStorage.clear();
-    this.tokenService.clearToken();
-  }
 
-  /**
-   * Test if user is logged.
-   * @returns true if the current user is logged in.
-   */
-  isLoggedIn(): boolean {
-    return this.tokenService.getAuthorizationToken() !== '';
-  }
 
 }

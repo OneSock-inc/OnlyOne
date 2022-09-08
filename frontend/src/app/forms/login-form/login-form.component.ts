@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/authService/auth.service';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { UserService } from 'src/app/services/userService/user-service.service';
+import { LoaderDirective } from 'src/app/loader/loader.directive';
+import { LoaderComponent } from 'src/app/loader/loader.component';
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',
@@ -15,9 +17,6 @@ export class LoginFormComponent implements OnInit {
 
   @ViewChild(MessageBannerDirective, {static: true})
   messageBanner!: MessageBannerDirective;
-
-  // @ViewChild(LoaderDirective, {static: true})
-  // loader!: LoaderDirective;
 
 
   hide = true;
@@ -43,30 +42,20 @@ export class LoginFormComponent implements OnInit {
     if (this.clicked) return;
     this.clicked = true;
 
-    //this.createLoader();
-    //this.removeMessage();
     this.messageBanner.hideMessage();
     const userName = this.loginForm.value.username;
     const pwd = form.value.password;
-    this.authService.loginV2(userName, pwd,
+    this.userService.login(userName, pwd,
       (response: any) => {
-        this.userService.cacheUser(userName);
         this.router.navigate(['/home']);
       },
       (error: any) => {
         this.clicked = false;
-        //this.removeLoader();
         this.messageBanner.displayMessage(error)
       }
       )
   }
 
-  // createLoader(): void {
-  //   this.loader.viewContainerRef.createComponent(LoaderComponent);
-  // }
-
-  // removeLoader(): void {
-  //   this.loader.viewContainerRef.clear();
-  // }
-
 }
+
+

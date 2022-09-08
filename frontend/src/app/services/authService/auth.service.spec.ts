@@ -40,13 +40,5 @@ describe('AuthService', () => {
     expect(service.isLoggedIn()).toBeTruthy();
     localStorage.clear();
   })
-
-  it('User must be logged out', () => {
-    localStorage.setItem('jwtoken', JSON.stringify(token));
-    tokenService.getAuthorizationToken();
-    expect(service.isLoggedIn()).toBeTruthy();
-    service.logout();
-    expect(service.isLoggedIn()).toBeFalsy();
-  })
   
 });

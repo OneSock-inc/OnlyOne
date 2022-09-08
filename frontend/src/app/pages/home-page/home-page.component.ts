@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { UserService } from 'src/app/services/userService/user-service.service';
 import { AuthService } from '../../services/authService/auth.service';
 
 type LinkElement = {
@@ -13,11 +14,11 @@ type LinkElement = {
   host: {'class': 'default-layout'}
 })
 
-export class HomePageComponent implements OnInit {
+export class HomePageComponent {
 
-  constructor(private authService: AuthService) {}
+  constructor(private userSrv: UserService) {}
 
-  isLoggedIn: boolean = this.authService.isLoggedIn()
+  isLoggedIn: boolean = this.userSrv.isLoggedIn()
 
   addSock: LinkElement = {text: "Add a lonely sock", href: '/add-sock'};
   sockList: LinkElement = {text: "My socks", href: '/sock-list'};
@@ -26,11 +27,8 @@ export class HomePageComponent implements OnInit {
   login: LinkElement = {text: 'Login', href: '/login'};
   logout: LinkElement = {text: 'Logout', href: ''};
 
-  ngOnInit(): void {
-  }
-
   onLogout() {
-    this.authService.logout();
+    this.userSrv.logout();
     location.assign('/');
   }
 }
