@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router, TitleStrategy } from '@angular/router';
 import { Sock, typeToString } from '../../dataModel/sock.model';
 import { catchError, switchMap } from 'rxjs/operators';
-import { map, Observable, Subscriber, throwError } from 'rxjs';
+import { map, Observable, throwError } from 'rxjs';
 import { SocksManagerService, UserSocks } from 'src/app/services/socksManager/socks-manager.service';
 
 @Component({
