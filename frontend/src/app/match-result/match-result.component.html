@@ -1,0 +1,21 @@
+<div class="mainContent flex-column">
+    <p class="text-center" id="sentence">{{ sentence }}</p>
+    <ng-container *ngIf="result==='lose'">
+        <ng-container *ngIf="otherInfo | async as other">
+            <p  class="address">{{other.user.firstname}} {{other.user.surname}}</p> 
+            <p class="address">{{other.user.address.street}}</p>
+            <p class="address">{{other.user.address.postalCode}} {{other.user.address.city}}</p>
+            <p class="address">{{other.user.address.country}}</p>
+        </ng-container>
+    </ng-container>
+    <mat-icon id="heart">
+        {{ heartIcon }}
+    </mat-icon>
+    <div  id=socks>
+        <img *ngIf="mySock | async as s1" src="data:image/png;base64,{{s1.picture}}" class="sockImg">
+        <img *ngIf="otherInfo | async as s2" src="data:image/png;base64,{{s2.sock.picture}}" class="sockImg">
+    </div>
+    
+</div>
+
+<img *ngIf="result==='win'" src="../../assets/images/confettis.png" id="confettis">

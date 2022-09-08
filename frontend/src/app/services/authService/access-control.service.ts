@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
-  ActivatedRouteSnapshot,
-  CanActivate,
-  NavigationEnd,
   Route,
   Router,
-  RouterStateSnapshot,
   UrlSegment,
   UrlTree,
 } from '@angular/router';
@@ -59,7 +55,7 @@ export class AccessControlMatchPage implements CanMatch {
     | Promise<boolean | UrlTree> {
 
 
-      if (segments[0].path === 'match-lose' && this.router.url === '/sock-list') {
+      if ((segments[0].path === 'match-lose' || segments[0].path === 'match-win') && this.router.url === '/sock-list') {
         return true;
       } else {
         return this.router.parseUrl('sock-list');
