@@ -3,11 +3,6 @@ import { HttpClient } from '@angular/common/http';
 
 import { Config } from '../../dataModel/config.model';
 
-
-interface Country {
-  name: string;
-  code:string;
-}
 @Injectable( {providedIn: 'root'} )
 export class ConfigService {
   constructor(private http: HttpClient) { 
