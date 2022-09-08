@@ -1,18 +1,14 @@
-
-.mat-icon {
-    font-size: 80px;
-    padding-top: 10%;
-    grid-column: 1;
-    grid-row: 2;
+.mainGrid {
+    grid-row: 3/-1;
+    grid-column: 1/-1;
 }
 
-#heart {
-    color:red;
-    display: table;
-    margin: 0 auto;
+.backButton{
+    grid-column: 1;
+    grid-row: 1;
 }
 
-#win-sentence {
-    grid-column: 1;
-    grid-row: 2;
+.main-title {
+    font-size: 5rem;
+    font-weight: 400;
 }

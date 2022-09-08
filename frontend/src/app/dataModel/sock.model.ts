@@ -1,5 +1,3 @@
-
-
 export enum SockType {
     low,
     medium,

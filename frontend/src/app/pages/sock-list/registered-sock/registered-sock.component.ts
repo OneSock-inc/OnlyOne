@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Observable } from 'rxjs';
+import { MatchService } from 'src/app/services/match/match-service.service';
 import {
   SocksManagerService,
   UserSocks,
@@ -16,7 +17,8 @@ import { Sock, typeToString as tts } from '../../../dataModel/sock.model';
 export class RegisteredSockComponent implements OnInit {
   constructor(
     private socksManager: SocksManagerService,
-    private router: Router
+    private router: Router,
+    private matchSrv: MatchService
   ) {}
 
   @Input() // to be accessed by the parent component
@@ -27,21 +29,23 @@ export class RegisteredSockComponent implements OnInit {
   }
 
   possibleMatches!: Observable<String>;
+  badgeColor !: string;
 
   private redirectUrl = new Array();
 
   ngOnInit(): void {
     if (this.sock.id !== '') {
       if (this.sock.match !== '') {
+        this.badgeColor = 'transparent';
         this.possibleMatches = new Observable<String>((s) =>
-          s.next('\u{1F5A4}')
+          s.next('\u{2764}')
         );
         const url = this.sock.matchResult;
-        this.redirectUrl = [
-          `match-${url}`,
-          { queryParams: { mySock: this.sock.id, otherSock: this.sock.match } },
-        ];
+        this.redirectUrl = [`match-${url}`];
+        this.matchSrv.selfSock = this.sock;
+        this.matchSrv.otherSockId = this.sock.match;
       } else {
+        this.badgeColor = 'red';
         this.socksManager
           .getPotencialMatches(this.sock.id)
           .subscribe((data: UserSocks) => {
@@ -51,14 +55,6 @@ export class RegisteredSockComponent implements OnInit {
           });
         this.redirectUrl = ['/sock', this.sock.id];
       }
-    }
-  }
-
-  onSelect() {
-    if (this.sock.match !== '') {
-      console.log('Go to win/lose page of sock : ' + this.sock.id); // TODO api call
-    } else {
-      console.log('Go to possible matches of sock: ' + this.sock.id); // TODO api call
     }
   }
 

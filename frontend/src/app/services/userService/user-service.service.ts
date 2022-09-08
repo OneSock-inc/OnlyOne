@@ -1,60 +1,120 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 
 import { User } from 'src/app/dataModel/user.model';
+import { concatAll, map, Observable } from 'rxjs';
+import { JWToken } from 'src/app/dataModel/index.model';
+import { TokenService } from '../authService/token-service.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private http: HttpClient, private backSrv: BackendLinkService) {
-    this.user = UserService.userFromLocalStorage();
+  constructor(
+    private http: HttpClient,
+    private backSrv: BackendLinkService,
+    private tokenService: TokenService
+  ) {
+    if (!this.isLoggedIn()) {
+      this.user$ = new Observable<User>((s) => s.next(new User()));
+    } else {
+      this.user$ = this.fetchUserById(this.getUserId());
+    }
   }
 
-  private user: User;
-  updateUser(user : User, sucessCallb: Function, errorCallb : Function) : void {
-    this.http.patch<any>(this.backSrv.getUpdateUrl(),user).subscribe({
-      next: (response) => {
-        sucessCallb(response)
-      },
-      error: (error) => errorCallb(error),
-    });
-  }
+  private user$: Observable<User> = new Observable<User>((s) =>
+    s.next(new User())
+  );
 
-  registerNewUser(newUser: User, successCb: Function, errorCb: Function): void {
-    UserService.registerUserInLocalStorage(newUser);
+  /**
+   * Sends a login request to backend.
+   * Set its jwt param value and save it in localStorage.
+   * @param username provided by front end user
+   * @param password provided by front end user
+   * @returns Observable
+   */
+  login(
+    username: string,
+    password: string,
+    successCallback: Function,
+    errorCallBack: Function
+  ): void {
     this.http
-      .post<any>(this.backSrv.getRegisterUrl(), newUser)
+      .post<JWToken>(this.backSrv.getLoginUrl(), { username, password })
       .subscribe({
-        next: (response) => {
-          successCb(response)
+        next: (response: any) => {
+          this.tokenService.setAuthorizationToken(response);
+          this.user$ = this.fetchUserById(this.getUserId());
+          successCallback(response);
         },
-        error: (error) => errorCb(error),
+        error: (error: any) => {
+          errorCallBack(error);
+        },
       });
   }
 
   /**
-   * @returns Retrieve the user if present in localStorage, return empty user otherwise.
+   * Clear the local storage and the token saved in the TokenService
+   * instance.
    */
-  getUser(): User {
-    return this.user;
+  logout() {
+    localStorage.clear();
+    this.tokenService.clearToken();
   }
 
-  private static userFromLocalStorage(): User {
-    const usrStr = localStorage.getItem('currentUser');
-    if (typeof usrStr === 'string') {
-      return JSON.parse(usrStr);
-    } else {
-      return new User();
+  /**
+   * Test if user is logged.
+   * @returns true if the current user is logged in.
+   */
+  isLoggedIn(): boolean {
+    return this.tokenService.getAuthorizationToken() !== '';
+  }
+
+  /**
+   * Get the user id from JWT stored in localStorage
+   * @returns userid string
+   */
+  getUserId(): string {
+    return this.tokenService.getUserIdFromJWT();
+  }
+
+  registerNewUser(newUser: User, successCb: Function, errorCb: Function): void {
+    this.http.post<any>(this.backSrv.getRegisterUrl(), newUser).subscribe({
+      next: (response) => {
+        successCb(response);
+      },
+      error: (error) => errorCb(error),
+    });
+  }
+
+  /**
+   * @returns Retrieve the current user
+   */
+  getCurrentUser(forceFetch: boolean = false): Observable<User> {
+    if (forceFetch) {
+      this.user$ = this.fetchUserById(this.getUserId());
     }
+    return this.user$;
   }
 
-  private static registerUserInLocalStorage(user: User): void {
-    const usrStr = JSON.stringify(user);
-    const usrClone = JSON.parse(usrStr);
-    usrClone.password = '';
-    localStorage.setItem('currentUser', JSON.stringify(usrClone));
+  /**
+   *
+   * @param updatedData return updated user
+   */
+  updateUser(updatedData: User): Observable<User> {
+    const url = `${this.backSrv.getUserUrl()}/update`;
+    return this.http.patch<any>(url, updatedData).pipe(
+      map((data: any) => {
+        this.user$ = this.fetchUserById(this.getUserId());
+        return this.user$;
+      }),
+      concatAll()
+    );
   }
-  
+
+  private fetchUserById(userid: string): Observable<User> {
+    const url: string = `${this.backSrv.getUserUrl_id()}/${userid}`;
+    return this.http.get<User>(url);
+  }
 }

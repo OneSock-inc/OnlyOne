@@ -37,21 +37,4 @@ describe('LoginPageComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  /**
-   * integration tests
-   */
-
-  // it('Schould create loader', () => {
-  //   expect(
-  //     component.dynamicChild?.viewContainerRef.createComponent(LoaderComponent)
-  //   ).toBeTruthy();
-  // });
-
-  // it('should display message in banner', () => {
-  //   component.displayMessage('test message');
-  //   const compiled = fixture.nativeElement as HTMLElement;
-  //   expect(compiled.querySelector('.banner')?.textContent).toContain(
-  //     'test message'
-  //   );
-  // });
 });

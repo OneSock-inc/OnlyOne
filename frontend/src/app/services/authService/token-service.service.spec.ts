@@ -3,7 +3,6 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { JWToken } from 'src/app/dataModel/jwt.model';
 import { services } from '..';
-import { AuthService } from './auth.service';
 
 import { TokenService } from './token-service.service';
 
@@ -14,7 +13,6 @@ const token: JWToken = {
 
 describe('TokenServiceService', () => {
   let tokenService: TokenService;
-  let authService: AuthService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,7 +20,6 @@ describe('TokenServiceService', () => {
       providers: [services, HttpClient],
     });
     tokenService = TestBed.inject(TokenService);
-    authService = TestBed.inject(AuthService);
   });
 
   it('should be created', () => {

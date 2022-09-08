@@ -1,5 +1,5 @@
-import { Component, ViewChild } from '@angular/core';
-import { AuthService } from '../../services/authService/auth.service';
+import { Component } from '@angular/core';
+import { UserService } from 'src/app/services/userService/user-service.service';
 
 @Component({
   selector: 'app-login-page',
@@ -9,9 +9,10 @@ import { AuthService } from '../../services/authService/auth.service';
 })
 export class LoginPageComponent {
 
-  constructor(private authService: AuthService) { }
+  constructor(private userSrv: UserService) { }
 
   notLogged(): boolean {
-    return !this.authService.isLoggedIn();
+    return !this.userSrv.isLoggedIn();
   }
+
 }

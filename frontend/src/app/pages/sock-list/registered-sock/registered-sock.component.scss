@@ -2,3 +2,9 @@
     height: 30rem;
     object-fit: contain;
 }
+
+::ng-deep .mat-badge-content {
+    font-size: 2rem !important;    
+    background-color: white !important;
+    color: #2c2c2c !important;
+}

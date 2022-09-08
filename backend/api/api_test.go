@@ -44,7 +44,6 @@ func TestRoutes(t *testing.T) {
 	if routes == nil {
 		t.Errorf("routes is nil which should be impossible")
 	}
-	// log.Printf("routes: %v\n", routes)
 
 }
 

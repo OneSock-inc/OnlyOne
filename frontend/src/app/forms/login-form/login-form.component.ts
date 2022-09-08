@@ -1,12 +1,12 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/services/authService/auth.service';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { LoaderDirective } from 'src/app/loader/loader.directive';
 import { LoaderComponent } from 'src/app/loader/loader.component';
 import { JWToken } from 'src/app/dataModel/jwt.model';
 import { PushNotificationService } from 'src/app/services/notification/push-notification.service';
+import { UserService } from 'src/app/services/userService/user-service.service';
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',
@@ -14,13 +14,11 @@ import { PushNotificationService } from 'src/app/services/notification/push-noti
 })
 export class LoginFormComponent implements OnInit {
 
-  constructor(private router: Router, private authService: AuthService,private notif : PushNotificationService) { }
+
+  constructor(private router: Router, private userService: UserService,private notif : PushNotificationService) { }
 
   @ViewChild(MessageBannerDirective, {static: true})
   messageBanner!: MessageBannerDirective;
-
-  // @ViewChild(LoaderDirective, {static: true})
-  // loader!: LoaderDirective;
 
 
   hide = true;
@@ -47,29 +45,21 @@ export class LoginFormComponent implements OnInit {
     this.clicked = true;
     this.notif.requestSubscription();
 
-    //this.createLoader();
-    //this.removeMessage();
     this.messageBanner.hideMessage();
     const userName = this.loginForm.value.username;
     const pwd = form.value.password;
-    this.authService.loginV2(userName, pwd,
+    this.userService.login(userName, pwd,
       (response: any) => {
         this.router.navigate(['/home']);
       },
       (error: any) => {
         this.clicked = false;
-        //this.removeLoader();
         this.messageBanner.displayMessage(error)
       }
       )
   }
 
-  // createLoader(): void {
-  //   this.loader.viewContainerRef.createComponent(LoaderComponent);
-  // }
-
-  // removeLoader(): void {
-  //   this.loader.viewContainerRef.clear();
-  // }
-
 }
+
+
+
