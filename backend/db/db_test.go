@@ -1,7 +1,6 @@
 package db
 
 import (
-	"context"
 	"log"
 	"os"
 	"testing"
@@ -19,12 +18,12 @@ func TestMain(m *testing.M) {
 		log.Print(err.Error())
 		os.Exit(1)
 	}
-	err = DeleteCollection(context.Background(), client, client.Collection("users"), 64)
+	err = DeleteCollection(*ContextBd, client, client.Collection("users"), 64)
 	if err != nil {
 		log.Print(err.Error())
 		os.Exit(1)
 	}
-	err = DeleteCollection(context.Background(), client, client.Collection("socks"), 64)
+	err = DeleteCollection(*ContextBd, client, client.Collection("socks"), 64)
 	if err != nil {
 		log.Print(err.Error())
 		os.Exit(1)
@@ -251,7 +250,7 @@ func TestGetUserFromID(t *testing.T) {
 		//delete all the socks
 		//client, err := GetDBConnection()
 		//assert.Nil(t, err)
-		//assert.Nil(t, DeleteCollection(context.Background(), client, client.Collection(SocksCollection), 64))
+		//assert.Nil(t, DeleteCollection(*ContextBd, client, client.Collection(SocksCollection), 64))
 		//assert.Nil(t, err)
 
 		//create a user
@@ -304,7 +303,7 @@ func TestGetUserFromID(t *testing.T) {
 	func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 		//client, err := GetDBConnection()
 		//assert.Nil(t, err)
-		//assert.Nil(t, DeleteCollection(context.Background(), client, client.Collection(SocksCollection), 64))
+		//assert.Nil(t, DeleteCollection(*ContextBd, client, client.Collection(SocksCollection), 64))
 		sockId := ""
 		//create 10 users with two socks each
 		for i := 0; i < 10; i++ {
