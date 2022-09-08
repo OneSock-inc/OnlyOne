@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	webpush "github.com/SherClockHolmes/webpush-go"
+	_ "net/http/pprof"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -86,10 +86,6 @@ func Setup() *gin.Engine {
 	router.GET("/userid/:userid", auth.MiddlewareFunc(), showUserFromUserId)
 	user := router.Group("/user")
 	{
-		user.POST("/subscribe", auth.MiddlewareFunc(), subscribe)
-		user.POST("/subscribe/", auth.MiddlewareFunc(), func(c *gin.Context) {
-			c.Redirect(http.StatusMovedPermanently, "/user/subscribe")
-		})
 		user.PATCH("/update", auth.MiddlewareFunc(), updateUser)
 		user.PATCH("/update/", auth.MiddlewareFunc(), updateUser)
 		user.POST("/login", auth.LoginHandler)
@@ -121,29 +117,6 @@ func Setup() *gin.Engine {
 	}
 
 	return router
-}
-
-func subscribe(c *gin.Context) {
-	claim := jwt.ExtractClaims(c)
-	userId := claim[jwt.IdentityKey].(string)
-
-	var sub webpush.Subscription
-	if err := c.ShouldBindJSON(&sub); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			msg: err.Error(),
-		})
-		return
-	}
-
-	err := db.RegisterToPush(sub, userId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			msg: err.Error(),
-		})
-	}
-	c.JSON(http.StatusCreated, gin.H{
-		msg: "Subscribed",
-	})
 }
 
 func updateUser(c *gin.Context) {
