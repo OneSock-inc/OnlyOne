@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"time"
 
+	_ "net/http/pprof"
+
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	jwtgo "github.com/golang-jwt/jwt/v4"
@@ -312,7 +314,7 @@ func addSock(c *gin.Context) {
 	}
 	tmpSock.ID = doc.ID
 	tmpSock.Owner = userID
-	log.Printf("user %s added sock %+v \n", userID, tmpSock)
+	log.Printf("user %s added sock %s \n", userID, tmpSock.ID)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"id": tmpSock.ID,
@@ -320,9 +322,8 @@ func addSock(c *gin.Context) {
 }
 
 func listMatchesOfSock(c *gin.Context) {
-	var limit uint16 = 4 //chosen by fair random dice roll
 	sockId := c.Param("sockId")
-	socks, err := db.GetCompatibleSocks(sockId, limit)
+	socks, err := db.GetCompatibleSocks(sockId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			msg: err.Error(),
@@ -348,10 +349,10 @@ func login(c *gin.Context) (interface{}, error) {
 
 	id, err := db.VerifyLogin(tmpLogin.Username, tmpLogin.Password)
 	if err != nil {
-		log.Printf("login failed %+v\n", tmpLogin)
+		log.Printf("login failed for %s using %s\n", tmpLogin.Username, tmpLogin.Password)
 		return "", err
 	}
-	log.Printf("user %s logged in\n", id)
+	log.Printf("user %s logged in\n", tmpLogin.Username)
 	return id, nil
 }
 
@@ -359,14 +360,12 @@ func login(c *gin.Context) (interface{}, error) {
 func register(c *gin.Context) {
 
 	tmpUser := db.User{}
-	log.Printf("new user signing up :")
 	if err := c.BindJSON(&tmpUser); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			msg: err.Error(),
 		})
 		return
 	}
-	log.Printf("%+v\n", tmpUser)
 
 	_, err := db.RegisterUser(tmpUser)
 
@@ -376,5 +375,6 @@ func register(c *gin.Context) {
 		})
 		return
 	}
+	log.Printf("%s signed up", tmpUser.Username)
 	c.JSON(http.StatusCreated, gin.H{msg: "registration successful"})
 }
