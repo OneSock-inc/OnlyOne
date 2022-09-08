@@ -1,11 +1,7 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
-import { LoaderDirective } from 'src/app/loader/loader.directive';
-import { LoaderComponent } from 'src/app/loader/loader.component';
-import { JWToken } from 'src/app/dataModel/jwt.model';
-import { PushNotificationService } from 'src/app/services/notification/push-notification.service';
 import { UserService } from 'src/app/services/userService/user-service.service';
 @Component({
   selector: 'app-login-form',
@@ -14,8 +10,7 @@ import { UserService } from 'src/app/services/userService/user-service.service';
 })
 export class LoginFormComponent implements OnInit {
 
-
-  constructor(private router: Router, private userService: UserService,private notif : PushNotificationService) { }
+  constructor(private router: Router, private userService: UserService) { }
 
   @ViewChild(MessageBannerDirective, {static: true})
   messageBanner!: MessageBannerDirective;
@@ -43,7 +38,6 @@ export class LoginFormComponent implements OnInit {
     if (form.invalid) return;
     if (this.clicked) return;
     this.clicked = true;
-    this.notif.requestSubscription();
 
     this.messageBanner.hideMessage();
     const userName = this.loginForm.value.username;

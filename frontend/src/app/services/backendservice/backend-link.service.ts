@@ -17,9 +17,6 @@ export class BackendLinkService {
   getLoginUrl(): string {
     return this.config.backendUrl + "/user/login"
   }
-  getPushSubscriptionUrl() : string {
-    return this.config.backendUrl + "/user/subscribe";
-  }
   
   getRegisterUrl(): string {
     return this.config.backendUrl + "/user/register";
