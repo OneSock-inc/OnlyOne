@@ -40,7 +40,7 @@ export class SignupFormComponent implements OnInit {
   ngOnInit(): void {
     this.isSignup = this.isSignup !== undefined;
 
-    this.user$ = this.userService.getUserV2().pipe(
+    this.user$ = this.userService.getCurrentUser().pipe(
       map((data: User) => {
         this.fillForm(data);
         return data;

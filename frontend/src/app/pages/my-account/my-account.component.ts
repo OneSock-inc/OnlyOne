@@ -15,7 +15,7 @@ export class MyAccountComponent implements OnInit {
   user$!: Observable<User>;
 
   ngOnInit(): void {
-    this.user$ = this.userService.getUserV2();
+    this.user$ = this.userService.getCurrentUser();
   }
 
 }

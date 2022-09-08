@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { JWToken } from 'src/app/dataModel/jwt.model';
+import {decodeJwt} from 'jose'
+
 
 @Injectable({
   providedIn: 'root',
@@ -45,6 +47,11 @@ export class TokenService {
       const jsonObj: Object = JSON.parse(strObj);
       this.token = <JWToken>jsonObj;
     }
+  }
+
+  getUserIdFromJWT(): string {
+    const tmp: any = decodeJwt(this.getAuthorizationToken());
+    return tmp.identity;
   }
 
 }
