@@ -358,6 +358,73 @@ func TestGetCompatibleSocksWithManySocksAndUser(t *testing.T) {
 	// }
 }
 
+func TestGetCompatibleSocksNotInListAfterMatch(t *testing.T) {
+	user1 := User{Username: "Estelle", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}}
+	user2 := User{Username: "Elisabeth", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}}
+
+	doc, err := RegisterUser(user1)
+	assert.Nil(t, err)
+	id1 := doc.ID
+	doc, err = RegisterUser(user2)
+	assert.Nil(t, err)
+	id2 := doc.ID
+
+	sock1, err := NewSock(50, 2, "#BEDEAD", "Niarf", "QnVncyBkZSBtZXJkZQo=", id1)
+	assert.Nil(t, err)
+	sock2, err := NewSock(50, 2, "#BEDEAD", "Niarf", "QnVncyBkZSBtZXJkZQo=", id2)
+	assert.Nil(t, err)
+
+	log.Printf("sock ID1 : %+v", sock1.ID)
+	log.Printf("sock ID2 : %+v", sock2.ID)
+
+	socks, err := GetCompatibleSocks(sock1.ID)
+	log.Printf("Socks : %+v\n\n", socks)
+	result := false
+	for _, sock := range socks {
+		if sock.ID == sock2.ID {
+			result = true
+		}
+	}
+	assert.True(t, result)
+
+	socks, err = GetCompatibleSocks(sock2.ID)
+	log.Printf("Socks : %+v\n\n", socks)
+	result = false
+	for _, sock := range socks {
+		if sock.ID == sock1.ID {
+			result = true
+		}
+	}
+	assert.True(t, result)
+
+	// match !
+	err = EditMatchingSock(sock1, sock2, true)
+	assert.Nil(t, err)
+	err = EditMatchingSock(sock2, sock1, true)
+	assert.Nil(t, err)
+
+	// Should not be in the compatible list
+	socks, err = GetCompatibleSocks(sock1.ID)
+	//log.Printf("Socks : %+v", socks)
+	result = false
+	for _, sock := range socks {
+		if sock.ID == sock2.ID {
+			result = true
+		}
+	}
+	assert.False(t, result)
+
+	socks, err = GetCompatibleSocks(sock2.ID)
+	//log.Printf("Socks : %+v", socks)
+	result = false
+	for _, sock := range socks {
+		if sock.ID == sock1.ID {
+			result = true
+		}
+	}
+	assert.False(t, result)
+}
+
 func TestSocksProfiles(t *testing.T) {
 	user := User{Username: "kikiriki", Password: "123", Firstname: "James", Surname: "Wow", Address: Address{Street: "Non", Country: "CH", City: "GE", PostalCode: "1212"}}
 	doc, err := RegisterUser(user)

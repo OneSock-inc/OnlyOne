@@ -233,15 +233,15 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 			if err != nil {
 				return err
 			}
-			cache.update(sock)
+			cache.update(otherSock)
 
 			sendNotificationOfMatch(&sock)
 			sendNotificationOfMatch(&otherSock)
 		}
 	} else {
 		sock.RefusedList = append(sock.RefusedList, otherSock.ID)
-		cache.update(sock)
 	}
+	cache.update(sock)
 
 	_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(*ContextBd, sock)
 	if err != nil {
@@ -538,12 +538,14 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 	//rows contains the indexes of the most similar socks, fetching socks[rows[0]] gives the best matching sock
 	//fetching datas[rows[0]] gives the feature of the best matching sock
 
+	socksCount := len(cache.socks)
+
 	//take the min from n (4,5 or 6) and number of sock
 	n := rand.Intn(6-4) + 4
-	limit := int(math.Min(float64(len(cache.socks)), float64(n)))
+	limit := int(math.Min(float64(socksCount), float64(n)))
 
 	tree.Build(cache.socksFeatures)
-	rows, _, err := tree.Search(len(cache.socks), euclide, []float64{
+	rows, _, err := tree.Search(socksCount, euclide, []float64{
 		float64(originalSock.ShoeSize) * 125 * 4,
 		float64(originalSock.Type) * 250 * 4,
 		float64(rgb.A),
@@ -555,12 +557,15 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 		return nil, err
 	}
 
-	res := make([]Sock, 0)
+	res := make([]Sock, 0, limit)
 	taken := 0
-	for i := 0; i < limit && taken < limit; i++ {
+	for i := 0; i < socksCount && taken < limit; i++ {
 		idx := rows[i]
 		strId := cache.getStrIdFromIdx(idx)
-		if cache.socks[strId].Owner == originalSock.Owner || utils.Contains(originalSock.AcceptedList, cache.getStrIdFromIdx(idx)) || utils.Contains(originalSock.RefusedList, cache.getStrIdFromIdx(idx)) || cache.socks[strId].Match != "" {
+		if cache.socks[strId].Owner == originalSock.Owner ||
+			utils.Contains(originalSock.AcceptedList, strId) ||
+			utils.Contains(originalSock.RefusedList, strId) ||
+			cache.socks[strId].Match != "" {
 			continue
 		}
 		taken++
