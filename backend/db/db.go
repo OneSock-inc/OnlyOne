@@ -3,6 +3,7 @@ package db
 import (
 	utils "backend/utils"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -13,11 +14,15 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	webpush "github.com/SherClockHolmes/webpush-go"
 	"github.com/sjwhitworth/golearn/kdtree"
 	"github.com/sjwhitworth/golearn/metrics/pairwise"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/api/iterator"
 )
+
+const VAPID_K = "ZWgVCXK7wcF60rwxs6xUOn10crCMQqGtLzgo82FWxC4"                                              //private
+const VAPID_KP = "BFGS8tken0rfjH_R04JzZb3eTWqkmAhVQJOvKH-HRN1sor_WEiijXIxahfgzIRr70V1MbB_lU4tLswZmtGmR3q4" //public
 
 var projectID string = "onlyone-cb08e"
 var dbClient *firestore.Client
@@ -41,6 +46,13 @@ type User struct {
 	Surname   string  `firestore:"surname" json:"surname"`
 	Password  string  `firestore:"hash" json:"password"`
 	Address   Address `firestore:"address" json:"address"`
+}
+type PushSub struct {
+	Endpoint string `json:"endpoint"`
+	Keys     struct {
+		P256dh string `json:"p256dh"`
+		Auth   string `json:"auth"`
+	} `json:"keys"`
 }
 
 // Ther is two type : low and high
@@ -134,7 +146,39 @@ func GetUserFromID(id string) (User, error) {
 	doc.DataTo(&user)
 	return user, nil
 }
-
+func sendNotificationOfMatch(sock *Sock) {
+	if sock == nil {
+		return
+	}
+	db, err := GetDBConnection()
+	if err != nil {
+		return
+	}
+	docs, err := db.Collection("notif").Query.Where("userId", "==", sock.Owner).Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Println(err)
+	}
+	for _, doc := range docs {
+		ref, err := doc.Ref.Get(context.Background())
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		data := ref.Data()
+		s := &webpush.Subscription{}
+		if subscription, ok := data["sub"].(string); ok {
+			json.Unmarshal([]byte(subscription), s)
+			_, _ = webpush.SendNotification([]byte("You got a match"), s, &webpush.Options{
+				Subscriber:      "exemple@exemple.com",
+				VAPIDPublicKey:  VAPID_KP,
+				VAPIDPrivateKey: VAPID_K,
+				TTL:             50,
+			})
+		} else {
+			log.Println("sub is not a string")
+		}
+	}
+}
 func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 	otherSock, err := GetSockInfo(otherSock.ID)
 	if err != nil {
@@ -191,7 +235,8 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 			}
 			cache.update(otherSock)
 
-			// TODO: alert user there is a match
+			sendNotificationOfMatch(&sock)
+			sendNotificationOfMatch(&otherSock)
 		}
 	} else {
 		sock.RefusedList = append(sock.RefusedList, otherSock.ID)
@@ -550,5 +595,20 @@ func UpdateUser(userId string, user User) error {
 	}
 	user.Password = string(hash)
 	_, err = doc.Ref.Set(*ContextBd, user)
+	return err
+}
+
+func RegisterToPush(sub webpush.Subscription, userId string) error {
+	client, err := GetDBConnection()
+	if err != nil {
+		return err
+	}
+
+	//we always create a new record, because the same user can register multiple devices (with unique sub token)
+	_, err = client.Collection("notif").NewDoc().Set(context.Background(), struct {
+		UserId string               `firestore:"userId" json:"userId"`
+		Sub    webpush.Subscription `firestore:"sub" json:"sub"`
+	}{UserId: userId, Sub: sub})
+
 	return err
 }
