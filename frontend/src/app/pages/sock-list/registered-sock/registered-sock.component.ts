@@ -41,12 +41,9 @@ export class RegisteredSockComponent implements OnInit {
           s.next('\u{2764}')
         );
         const url = this.sock.matchResult;
-        this.redirectUrl = [
-          `match-${url}`,
-          { queryParams: { mySock: this.sock.id, otherSock: this.sock.match } },
-        ];
+        this.redirectUrl = [`match-${url}`];
         this.matchSrv.selfSock = this.sock;
-        this.matchSrv.otherSockId = this.sock.match; 
+        this.matchSrv.otherSockId = this.sock.match;
       } else {
         this.badgeColor = 'red';
         this.socksManager
