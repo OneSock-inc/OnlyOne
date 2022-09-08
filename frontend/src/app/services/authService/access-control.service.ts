@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   ActivatedRouteSnapshot,
   CanActivate,
+  NavigationEnd,
   Route,
   Router,
   RouterStateSnapshot,
@@ -35,4 +36,34 @@ export class AccessControlService implements CanMatch {
       return this.authService.isLoggedIn() || this.router.parseUrl('/login');
     }
   }
+
+}
+
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AccessControlMatchPage implements CanMatch {
+  constructor(private router: Router) { }
+  
+  previousUrl!: string;
+  currentUrl!: string;
+
+  canMatch(
+    route: Route,
+    segments: UrlSegment[]
+  ):
+    | boolean
+    | UrlTree
+    | Observable<boolean | UrlTree>
+    | Promise<boolean | UrlTree> {
+
+
+      if (segments[0].path === 'match-lose' && this.router.url === '/sock-list') {
+        return true;
+      } else {
+        return this.router.parseUrl('sock-list');
+      }
+  }
+
 }

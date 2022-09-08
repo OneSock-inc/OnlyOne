@@ -35,7 +35,8 @@ export class MatchService {
   getOtherInfos(): Observable<OtherInfo> {
     return this.sockManager.getSockById(this.otherSockId).pipe(
       mergeMap((otherSock: Sock) => {
-        const url: string = `${this.bl.getUserUrl()}/${this.otherSock?.owner}`;
+        const url: string = `${this.bl.getUserUrl_id()}/${otherSock.owner}`;
+        console.log(`Other owner id ${otherSock.owner}`);
         return this.httpClient.get<User>(url).pipe(
           map((user: User) => {
             return { user: user, sock: otherSock };
@@ -44,5 +45,5 @@ export class MatchService {
       })
     );
   }
-  
+
 }
