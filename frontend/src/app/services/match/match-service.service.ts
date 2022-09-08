@@ -6,7 +6,6 @@ import { User } from 'src/app/dataModel/user.model';
 import { BackendLinkService } from '../backendservice/backend-link.service';
 import { SocksManagerService } from '../socksManager/socks-manager.service';
 
-
 export interface OtherInfo {
   sock: Sock;
   user: User;
