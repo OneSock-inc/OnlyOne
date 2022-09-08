@@ -415,8 +415,8 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 // delete the collection referenced by the collection ref attribut
 func DeleteCollection(ctx context.Context, client *firestore.Client,
 	ref *firestore.CollectionRef, batchSize int) error {
-	dbClient = nil
-	cache = nil
+	//dbClient = nil
+	//cache = nil
 	for {
 		// Get a batch of documents
 		iter := ref.Limit(batchSize).Documents(ctx)
