@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router, TitleStrategy } from '@angular/router';
 import { Sock, typeToString } from '../../dataModel/sock.model';
 import { catchError, switchMap } from 'rxjs/operators';
-import { map, Observable, Subscriber, throwError } from 'rxjs';
+import { map, Observable, throwError } from 'rxjs';
 import { SocksManagerService, UserSocks } from 'src/app/services/socksManager/socks-manager.service';
 
 @Component({
@@ -29,19 +29,7 @@ export class MatchingSocksComponent implements OnInit {
       switchMap((params: ParamMap) => {
         return this.sockManager.getSockById(params.get('id')!).pipe(
           map((sock: Sock) => {
-            console.log('>>>>>> sock');
-            console.log(sock);
-                console.log('>>>>>>');
-            this.propositionMatches = this.sockManager.getPotencialMatches(sock.id).pipe(
-
-              map((data: UserSocks)=>{
-                console.log('>>>>>> matches');
-                console.log(data);
-                console.log('>>>>>>');
-                return data;},
-              )
-
-            );
+            this.propositionMatches = this.sockManager.getPotencialMatches(sock.id);
             return sock;
           }),
           catchError(this.errorHandling)
@@ -52,11 +40,9 @@ export class MatchingSocksComponent implements OnInit {
 
   private errorHandling(e: any) {
     alert(e.message);
-    // this.router.navigate(['sock-list']); //does not work... why ?
     return throwError(() => {
       new Error(e.message);
     });
   }
 
-  //this.propositionMatches = this.
 }
