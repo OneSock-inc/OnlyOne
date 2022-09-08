@@ -19,31 +19,44 @@ import (
 	"google.golang.org/api/iterator"
 )
 
+// Global variable for the db module (private)
 var projectID string = "onlyone-cb08e"
 var dbClient *firestore.Client
 var ContextBd *context.Context = nil
 var cache *Cache = nil
 
+// the name of the collection in the db
 const UsersCollection = "users"
 const SocksCollection = "socks"
 const ResultsCollection = "results"
 
+// this struct contains the information about an address
 type Address struct {
-	Street     string `firestore:"street" json:"street"`
-	Country    string `firestore:"country" json:"country"`
-	City       string `firestore:"city" json:"city"`
+	//the street name
+	Street string `firestore:"street" json:"street"`
+	//the country name
+	Country string `firestore:"country" json:"country"`
+	//the city name
+	City string `firestore:"city" json:"city"`
+	//the zip code
 	PostalCode string `firestore:"postalCode" json:"postalCode"`
 }
 
+// this struct contains all the data about a user
 type User struct {
-	Username  string  `firestore:"username" json:"username"`
-	Firstname string  `firestore:"firstname" json:"firstname"`
-	Surname   string  `firestore:"surname" json:"surname"`
-	Password  string  `firestore:"hash" json:"password"`
-	Address   Address `firestore:"address" json:"address"`
+	//the user's username
+	Username string `firestore:"username" json:"username"`
+	//the user's First name
+	Firstname string `firestore:"firstname" json:"firstname"`
+	//the user's Last name
+	Surname string `firestore:"surname" json:"surname"`
+	//the user's password, in the db it is a hash of the password, while handling an incoming http request this is a clear text password
+	Password string `firestore:"hash" json:"password"`
+	//this is the address of the user
+	Address Address `firestore:"address" json:"address"`
 }
 
-// Ther is two type : low and high
+// Ther is 3 type : low and high and knee_high
 type Profile uint8
 
 const (
@@ -53,27 +66,38 @@ const (
 	Count
 )
 
+// this struct contains all the data about a sock
+
 type Sock struct {
-	ID       string `json:"id"`
-	ShoeSize uint8  `firestore:"shoeSize" json:"shoeSize"`
-	//is it a high or low profile sock
-	Type         Profile  `firestore:"type" json:"type"`
-	Color        string   `firestore:"color" json:"color"`
-	Description  string   `firestore:"description" json:"description"`
-	Picture      string   `firestore:"picture" json:"picture"`
-	Owner        string   `firestore:"owner" json:"owner"`
-	RefusedList  []string `firestore:"refusedList" json:"refusedList"`
+	//id of the document in the db
+	ID string `json:"id"`
+	//the size of the sock
+	ShoeSize uint8 `firestore:"shoeSize" json:"shoeSize"`
+	//the sock type (is it a high or low profile, knee high sock )
+	Type Profile `firestore:"type" json:"type"`
+	//color in format #RRGGBB
+	Color string `firestore:"color" json:"color"`
+	// a descruption
+	Description string `firestore:"description" json:"description"`
+	//a picture of the sock in base64 format
+	Picture string `firestore:"picture" json:"picture"`
+	//the owner's ID of the sock ! not his username
+	Owner string `firestore:"owner" json:"owner"`
+	//the list of the potential matches for the sock that the owner refused
+	RefusedList []string `firestore:"refusedList" json:"refusedList"`
+	//the list of the potential matches for the sock that the owner accepted
 	AcceptedList []string `firestore:"acceptedList" json:"acceptedList"`
-	Match        string   `firestore:"match" json:"match"`
-	MatchResult  string   `firestore:"matchResult" json:"matchResult"`
+	//the id of the other sock matched with this one ("" if no match)
+	Match string `firestore:"match" json:"match"`
+	//The result of the match with another sock (you can either loose your sock or win the other sock indicated by Match) : either WIN or LOSE
+	MatchResult string `firestore:"matchResult" json:"matchResult"`
 }
 
 // MatchResult status
 const WIN = "win"
 const LOSE = "lose"
 
-//return all the socks of a user identified by it's cookie session
-
+// return all the socks of a user identified by it's jwt identity (doc id)
 func GetUserSocks(userID string) ([]Sock, error) {
 	client, err := GetDBConnection()
 	if err != nil {
@@ -100,6 +124,7 @@ func GetUserSocks(userID string) ([]Sock, error) {
 	return socks, nil
 }
 
+// return the docSnapshot of the user indicated by the username `username`
 func GetUser(username string) (*firestore.DocumentSnapshot, error) {
 	db, err := GetDBConnection()
 	if err != nil {
@@ -120,6 +145,7 @@ func GetUser(username string) (*firestore.DocumentSnapshot, error) {
 	return users[0], nil
 }
 
+// same as GetUser but use the id instead of the username and return a user not a snapshot
 func GetUserFromID(id string) (User, error) {
 	db, err := GetDBConnection()
 	if err != nil {
@@ -135,6 +161,7 @@ func GetUserFromID(id string) (User, error) {
 	return user, nil
 }
 
+// this function let the owner modify his sock to indicate whether he accepts or refuses the match with the other sock
 func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 	otherSock, err := GetSockInfo(otherSock.ID)
 	if err != nil {
@@ -206,7 +233,7 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 	return nil
 }
 
-// get a sock struct from the database
+// get the sock identified by sockId in the db and return a sock struct containing all the info of the sock
 func GetSockInfo(sockId string) (Sock, error) {
 	client, err := GetDBConnection()
 	if err != nil {
@@ -224,11 +251,8 @@ func GetSockInfo(sockId string) (Sock, error) {
 		return Sock{}, fmt.Errorf("corrupted data, unable to read database")
 	}
 
-	//in order to have an empty json array and not a null when converting from the go struct to the json repr
+	//in order to have an empty json array and not a null when converting from the go struct to the json repr we do this
 	// related to TestGetSockInfo@db_test.go
-	//{..
-	//"refusedList": [],
-	//"acceptedList": [],...}
 	if s.AcceptedList == nil {
 		s.AcceptedList = make([]string, 0)
 	}
@@ -239,6 +263,7 @@ func GetSockInfo(sockId string) (Sock, error) {
 	return s, nil
 }
 
+// create a new sock in the db and return A sock structu containing all the info of the new sock (with the ID field set)
 func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb64 string, owner string) (Sock, error) {
 	if shoeSize > 75 {
 		return Sock{}, fmt.Errorf("show size `%d` is giant ! Are you a giant ? I don't think so", shoeSize)
@@ -296,6 +321,7 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 	return s, err
 }
 
+// private function of the module used to create a new connection to the db, the service-account.json file (keys) is expected to be at ~/service-account.json
 func createClient() (*firestore.Client, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -317,6 +343,7 @@ func createClient() (*firestore.Client, error) {
 	return firestore.NewClient(*ContextBd, projectID)
 }
 
+// this is a weird singleton implementation, it doesn't create a new client each time it is called, it only creates one client and returns it each time it is called
 func GetDBConnection() (*firestore.Client, error) {
 	if dbClient == nil {
 		log.Printf("client is Nil")
@@ -348,6 +375,8 @@ func VerifyLogin(username string, password string) (string, error) {
 	}
 	return doc.Ref.ID, nil
 }
+
+// this method is used to validate a user struct, we do it when someone tries to register or update his profile
 func checkRegisterFormWasValid(u User) error {
 	if strings.TrimSpace(u.Username) == "" {
 		return fmt.Errorf("username is empty")
@@ -376,8 +405,7 @@ func checkRegisterFormWasValid(u User) error {
 	return nil
 }
 
-// register a user in the db, currently the hash field should be a clear password
-// unfortunatly we cannot have an option as in rust
+// register a user in the db, currently the password field should be a clear password, we hash it and store the hash in the db along all the other user's info
 func RegisterUser(u User) (*firestore.DocumentRef, error) {
 	err := checkRegisterFormWasValid(u)
 	if err != nil {
@@ -417,7 +445,7 @@ func RegisterUser(u User) (*firestore.DocumentRef, error) {
 	return docRef, nil
 }
 
-// delete the collection referenced by the collection ref attribut
+// delete the collection referenced by the collection ref parameter
 func DeleteCollection(ctx context.Context, client *firestore.Client,
 	ref *firestore.CollectionRef, batchSize int) error {
 	//dbClient = nil
@@ -458,6 +486,8 @@ func DeleteCollection(ctx context.Context, client *firestore.Client,
 
 }
 
+// this extract a feature vector from a sock pointer, returns a slice of float64 containing the features.
+// the features are taken from the shoeSize field, the type and the color components
 func GetFeaturesFromSock(s *Sock) []float64 {
 	rgb, _ := utils.ParseHexColor(s.Color)
 	return []float64{
@@ -472,6 +502,7 @@ func GetFeaturesFromSock(s *Sock) []float64 {
 
 /*
 GetCompatibleSocks returns the most similar sock in the collection
+similarity is calculated using the euclide distance between the two feature vectors
 */
 func GetCompatibleSocks(sockId string) ([]Sock, error) {
 	tree := kdtree.New()
@@ -512,6 +543,7 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 		return nil, err
 	}
 
+	//evict from the results the socks with the same owner, the socks already accepted or rejected and the socks matched
 	res := make([]Sock, 0, limit)
 	taken := 0
 	for i := 0; i < socksCount && taken < limit; i++ {

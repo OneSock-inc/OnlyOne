@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// before all test setup
 func TestMain(m *testing.M) {
 	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080")
 	client, _ := db.GetDBConnection()
