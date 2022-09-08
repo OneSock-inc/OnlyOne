@@ -10,9 +10,6 @@ export class AddSockPageComponent implements OnInit {
 
   displayArrow: boolean = true;
 
-  
-
-
   constructor() { }
 
   ngOnInit(): void {

@@ -32,10 +32,7 @@ export class ProposedSockComponent implements OnInit {
   checkMatch(): boolean {
     const inAcceptedList = this.parentSock.acceptedList.includes(this.proposedSock.id);
     const inRefusedList = this.parentSock.refusedList.includes(this.proposedSock.id);
-    // this.parentSock.acceptedList.includes()
-    // every((value: string, index:number) => {
-    //   value !== this.parentSock.id;
-    // })
+
     return inAcceptedList && inRefusedList;
   }
   

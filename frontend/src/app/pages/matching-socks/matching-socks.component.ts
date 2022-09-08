@@ -40,11 +40,9 @@ export class MatchingSocksComponent implements OnInit {
 
   private errorHandling(e: any) {
     alert(e.message);
-    // this.router.navigate(['sock-list']); //does not work... why ?
     return throwError(() => {
       new Error(e.message);
     });
   }
 
-  //this.propositionMatches = this.
 }
