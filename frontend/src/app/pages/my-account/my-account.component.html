@@ -4,7 +4,7 @@
 <ng-container *ngIf="user$ | async as u; else loading" >
     <div class="mainContent">
         <h2 class="text-center">{{u.username}}</h2>
-        <app-signup-form [submitBtnText]="'Save'" textButton="Save" [isSignup]="false"></app-signup-form>
+        <app-signup-form class="" [submitBtnText]="'Save'" textButton="Save" [isSignup]="false"></app-signup-form>
     </div>
 </ng-container>
 <ng-template #loading>
