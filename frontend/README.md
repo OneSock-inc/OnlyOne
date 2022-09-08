@@ -55,7 +55,44 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 ---
 ## Develop new features
 ### Poject structure
-
 You find inside `frontend/src/app` folder the code of the application. The pages components are grouped together in the `pages` folder and the services in the `services` folder. 
 All the htpp requests are made in servives. Some of them have specific behaviours. Http interceptors affect all http requests. It is usefull to handle errors and JWT authentication. 
 Lastly, all the forms are grouped in one folder.
+
+### Data domain
+The types and classes linked to the data are grouped in the `dataModel` folder. Note that at this date this project lacks conventions. So some data structure are modelled with typed JavaScript classes and other with Typescript interfaces declarations.
+
+
+### UX
+The user interface follows certain conventions. If you want to add a page, use the command `ng g c pages/<name>`. This is a shortcut for `ng generate component pages/<name>`. Be carefull to not include "component" in the name ! Angular automatically names the files `<name>.component.ts|html` and the linked class `<Name>Component`. Then add a route in `app-routing.module.ts`.  We defined in `styles.scss` a selector that we reproduce here: 
+
+```scss
+
+@mixin defaultLayout {
+  max-width: 900px;
+  margin: auto;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 7rem 8rem repeat(3, 1fr);
+  min-height: 100vh;
+  padding: 0 3rem 1.5rem 3rem;
+}
+
+router-outlet + * {
+  @include defaultLayout();
+}
+```
+This means that the container directly following the router-outlet element will have a css grid display. See more informations here about the [adjacent sibling combinator](https://developer.mozilla.org/en-US/docs/Web/CSS/Adjacent_sibling_combinator).  
+After that, the following html structure give the default structure to the new page:
+
+```html
+<!-- example-page.component.html-->
+<h1 class="main-title">Login</h1>
+<div class="mainContent">
+  ...
+</div>
+```
+### About CSS
+In this project, we use [scss](https://sass-lang.com/guide) that is automatically transpilled in `css` by Angular. The folder `frontend/src/styles-generic` contains all the rules that could apply to any project while the file `frontend/src/styles.scss` contains the rules that apply to the whole project. In `frontend/src/styles-generic/_index.scss` you find some variables that configure the general aspect of the application.
