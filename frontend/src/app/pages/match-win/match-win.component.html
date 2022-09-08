@@ -1,9 +1,3 @@
-<app-backbutton [page]="'/sock-list'"></app-backbutton>
 <h1 class="main-title">You won !</h1>
-
-<div class="mainContent flex-column">
-    <p class="text-center" id="win-sentence">You will receive the sock in a few days</p>
-    <mat-icon id="heart">
-        favorite
-    </mat-icon>
-</div>
+<app-backbutton class="backButton" [page]="'/sock-list'"></app-backbutton>
+<app-match-result class="mainGrid" [result]="'win'"></app-match-result>
