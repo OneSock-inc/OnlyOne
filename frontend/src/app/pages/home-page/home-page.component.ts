@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from 'src/app/services/userService/user-service.service';
-import { AuthService } from '../../services/authService/auth.service';
 
 type LinkElement = {
   text: string;

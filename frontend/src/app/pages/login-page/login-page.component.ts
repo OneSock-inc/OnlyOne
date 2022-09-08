@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { UserService } from 'src/app/services/userService/user-service.service';
-import { AuthService } from '../../services/authService/auth.service';
 
 @Component({
   selector: 'app-login-page',
@@ -15,5 +14,5 @@ export class LoginPageComponent {
   notLogged(): boolean {
     return !this.userSrv.isLoggedIn();
   }
-  
+
 }

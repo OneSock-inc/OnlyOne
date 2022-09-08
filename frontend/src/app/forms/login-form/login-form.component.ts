@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/services/authService/auth.service';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { UserService } from 'src/app/services/userService/user-service.service';
 import { LoaderDirective } from 'src/app/loader/loader.directive';
@@ -13,7 +12,7 @@ import { LoaderComponent } from 'src/app/loader/loader.component';
 })
 export class LoginFormComponent implements OnInit {
 
-  constructor(private router: Router, private authService: AuthService, private userService: UserService) { }
+  constructor(private router: Router, private userService: UserService) { }
 
   @ViewChild(MessageBannerDirective, {static: true})
   messageBanner!: MessageBannerDirective;

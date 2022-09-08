@@ -34,7 +34,6 @@ import { LoaderDirective } from './loader/loader.directive';
 import { MessageBannerComponent } from './message-banner/message-banner.component';
 import { MessageBannerDirective } from './message-banner/mesage-banner.directive';
 import { HttpErrorService } from './services/http-interceptors/http-error.service';
-import { AuthService } from './services/authService/auth.service';
 import { AuthInterceptor } from './services/http-interceptors/auth-interceptor.service';
 import { TokenService } from './services/authService/token-service.service';
 import { AccessControlService } from './services/authService/access-control.service';
@@ -101,7 +100,6 @@ import { MatchResultComponent } from './match-result/match-result.component';
   ],
   providers: [
     ConfigService,
-    AuthService,
     TokenService,
     AccessControlService,
     {
