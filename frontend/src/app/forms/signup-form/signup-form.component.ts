@@ -59,7 +59,6 @@ export class SignupFormComponent implements OnInit {
 
   onSubmit(form: FormGroup): void {
     if (!form.valid) return;
-    //this.messageBanner.hideMessage();
     this.userService.registerNewUser(
       SignupFormComponent.formGroupToUserObject(form),
       this.onSuccess,
@@ -68,12 +67,11 @@ export class SignupFormComponent implements OnInit {
   }
 
   private onSuccess = (successMsg: any) => {
-    console.log(successMsg);
+    alert(successMsg.message)
     this.router.navigate(['/login']);
   };
 
   private onError = (errorMSg: any) => {
-    //this.messageBanner.displayMessage(errorMSg);
     alert(errorMSg);
   };
 
