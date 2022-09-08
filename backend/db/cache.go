@@ -22,21 +22,32 @@ This is how to datas in arranged in the socksFeature field of Cache
 	}
 */
 type Cache struct {
-	socks         []Sock
+	sockId        []string
+	socks         map[string]Sock
 	socksFeatures [][]float64
 }
 
-func (c *Cache) update(s Sock, sockFeatures []float64) {
+func (c *Cache) getStrIdFromIdx(idx int) string {
+	return c.sockId[idx]
+}
+
+func (c *Cache) add(s Sock, sockFeature []float64) {
+	c.sockId = append(c.sockId, s.ID)
+	c.socks[s.ID] = s
+	c.socksFeatures = append(c.socksFeatures, sockFeature)
+}
+func (c *Cache) update(s Sock) {
 	log.Println("Updating cache")
-	c.socks = append(c.socks, s)
-	c.socksFeatures = append(c.socksFeatures, sockFeatures)
+	//don't update sockId because the data dosen't move
+	c.socks[s.ID] = s
+	//features don't change
 }
 
 func newCache() (*Cache, error) {
 	log.Println("creating cache")
-	socks := make([]Sock, 0)
+	socks := make(map[string]Sock, 0)
 	socksFeatures := make([][]float64, 0)
-
+	socksId := make([]string, 0)
 	dbClient, err := GetDBConnection()
 	if err != nil {
 		return nil, err
@@ -49,7 +60,7 @@ func newCache() (*Cache, error) {
 	//matrix of sock's features each row is an array of the sock's feature
 
 	//Query.Where("shoeSize", "==", s.ShoeSize).Where("type", "==", s.Type).Where("isMatched", "==", false).Documents(context.Background())
-
+	i := 0
 	for {
 		//if we are done
 		doc, err := it.Next()
@@ -79,12 +90,14 @@ func newCache() (*Cache, error) {
 		socksFeatures = append(socksFeatures, GetFeaturesFromSock(&currentSock))
 
 		currentSock.ID = dockSnapShot.Ref.ID
-		socks = append(socks, currentSock)
+		socks[currentSock.ID] = currentSock
+		socksId = append(socksId, currentSock.ID)
+		i++
 	}
 
 	return &Cache{
-			socks: socks,
-			// owners:        owners,
+			socks:         socks,
+			sockId:        socksId,
 			socksFeatures: socksFeatures,
 		},
 		nil
