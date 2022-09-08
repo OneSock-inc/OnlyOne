@@ -58,14 +58,6 @@ export class RegisteredSockComponent implements OnInit {
     }
   }
 
-  onSelect() {
-    if (this.sock.match !== '') {
-      console.log('Go to win/lose page of sock : ' + this.sock.id); // TODO api call
-    } else {
-      console.log('Go to possible matches of sock: ' + this.sock.id); // TODO api call
-    }
-  }
-
   onClick() {
     this.router.navigate(this.redirectUrl);
   }

@@ -3,8 +3,6 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageBannerDirective } from 'src/app/message-banner/mesage-banner.directive';
 import { UserService } from 'src/app/services/userService/user-service.service';
-import { LoaderDirective } from 'src/app/loader/loader.directive';
-import { LoaderComponent } from 'src/app/loader/loader.component';
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',

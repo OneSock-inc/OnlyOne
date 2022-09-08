@@ -77,7 +77,7 @@ export class AddSockFormComponent implements OnInit {
 
     this.socksMan.registerNewSock(this.newSock).subscribe({
       next: (response: PostResponse) => {
-        alert(`New sock added !)`);
+        alert(`New sock added !`);
         this.router.navigate(['/home']);
       },
       error: (e) => alert(`ERROR : ${e.message}`),

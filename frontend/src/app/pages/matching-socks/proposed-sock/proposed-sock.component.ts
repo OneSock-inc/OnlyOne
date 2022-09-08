@@ -55,7 +55,6 @@ export class ProposedSockComponent implements OnInit {
     this.sockManager.setMatch(this.parentSock.id, {otherSockId: sockId, status: status}).subscribe(
       {
         next: (data) => {
-          console.log(data);
           this.notRefusedOrAccepted$ = new Observable((s) => s.next(false));
         },
         error: (e:any) => alert(e.message)

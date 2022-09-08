@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { CanMatch } from '@angular/router';
 import { UserService } from '../userService/user-service.service';
 
+// Documentation
 // https://netbasal.com/introducing-the-canmatch-router-guard-in-angular-84e398046c9a
 // https://levelup.gitconnected.com/route-guards-angular-1ea6e596ce65
 
@@ -34,7 +35,6 @@ export class AccessControlService implements CanMatch {
   }
 
 }
-
 
 @Injectable({
   providedIn: 'root',
