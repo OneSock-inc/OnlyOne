@@ -164,7 +164,6 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 
 	if accept {
 		sock.AcceptedList = append(sock.AcceptedList, otherSock.ID)
-
 		//if the other sock already accepted us and we are accepting it now, then we got a match
 		if utils.Contains(otherSock.AcceptedList, sock.ID) {
 			sock.Match = otherSock.ID
@@ -190,11 +189,13 @@ func EditMatchingSock(sock Sock, otherSock Sock, accept bool) error {
 			if err != nil {
 				return err
 			}
+			cache.update(sock)
 
 			// TODO: alert user there is a match
 		}
 	} else {
 		sock.RefusedList = append(sock.RefusedList, otherSock.ID)
+		cache.update(sock)
 	}
 
 	_, err = db.Collection(SocksCollection).Doc(sock.ID).Set(context.Background(), sock)
@@ -286,12 +287,12 @@ func NewSock(shoeSize uint8, type_ Profile, color string, desc string, Pictureb6
 	if err != nil {
 		return Sock{}, err
 	}
+	s.ID = docRef.ID
 	_, err = docRef.Set(context.Background(), s)
 	if err != nil {
 		return Sock{}, err
 	}
-	s.ID = docRef.ID
-	cache.update(s, GetFeaturesFromSock(&s))
+	cache.add(s, GetFeaturesFromSock(&s))
 	return s, err
 }
 
@@ -506,11 +507,12 @@ func GetCompatibleSocks(sockId string) ([]Sock, error) {
 	taken := 0
 	for i := 0; i < limit && taken < limit; i++ {
 		idx := rows[i]
-		if cache.socks[idx].Owner == originalSock.Owner || utils.Contains(originalSock.AcceptedList, cache.socks[idx].ID) || utils.Contains(originalSock.RefusedList, cache.socks[idx].ID) {
+		strId := cache.getStrIdFromIdx(idx)
+		if cache.socks[strId].Owner == originalSock.Owner || utils.Contains(originalSock.AcceptedList, cache.getStrIdFromIdx(idx)) || utils.Contains(originalSock.RefusedList, cache.getStrIdFromIdx(idx)) || cache.socks[strId].Match != "" {
 			continue
 		}
 		taken++
-		res = append(res, cache.socks[idx])
+		res = append(res, cache.socks[strId])
 	}
 
 	return res, nil
