@@ -19,15 +19,15 @@ export class SignupPageComponent {
   displayArrow: boolean = true;
 
   // display down arrow if the user has not scrolled to the bottom of the page
-  @HostListener('window:scroll', ['$event'])
-  onScroll(event: Event): void {
-    if (window.pageYOffset >= (document.documentElement.scrollHeight - document.documentElement.clientHeight)) {
-      this.displayArrow = false;
-    }
-    else {
-      this.displayArrow = true;
-    }
-  }
+  // @HostListener('window:scroll', ['$event'])
+  // onScroll(event: Event): void {
+  //   if (window.pageYOffset >= (document.documentElement.scrollHeight - document.documentElement.clientHeight)) {
+  //     this.displayArrow = false;
+  //   }
+  //   else {
+  //     this.displayArrow = true;
+  //   }
+  // }
 
 }
 
