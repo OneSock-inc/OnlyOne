@@ -311,15 +311,18 @@ func createClient(ctx context.Context) (*firestore.Client, error) {
 }
 
 func GetDBConnection() (*firestore.Client, error) {
-
 	if dbClient == nil {
 		log.Printf("client is Nil")
 		c := context.Background()
 		ctx = &c
-		client, err1 := createClient(*ctx)
+		client, err := createClient(*ctx)
 		dbClient = client
-		cache, _ = newCache()
-		return client, err1
+
+		if cache == nil {
+			cache, err = newCache()
+		}
+
+		return client, err
 	}
 	return dbClient, nil
 }
