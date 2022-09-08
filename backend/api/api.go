@@ -81,6 +81,7 @@ func Setup() *gin.Engine {
 	router = gin.Default()
 	router.Use(CORSMiddleware())
 	auth := jwtSetup()
+	router.GET("/userid/:userid", auth.MiddlewareFunc(), showUserFromUserId)
 	user := router.Group("/user")
 	{
 		user.PATCH("/update", auth.MiddlewareFunc(), updateUser)
@@ -219,7 +220,19 @@ func patchAcceptListOfSock(c *gin.Context) {
 		msg: "Success",
 	})
 }
+func showUserFromUserId(c *gin.Context) {
+	user, err := db.GetUserFromID(c.Param("userid"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			msg: err.Error(),
+		})
+		return
+	}
 
+	user.Password = ""
+	c.JSON(http.StatusOK, user)
+
+}
 func showUser(c *gin.Context) {
 	doc, err := db.GetUser(c.Param("username"))
 	if err != nil {
