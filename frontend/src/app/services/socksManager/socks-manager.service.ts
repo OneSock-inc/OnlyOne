@@ -34,7 +34,7 @@ export class SocksManagerService {
    * Make an http request to retrieve sock
    * @param sockId
    */
-  getSockById(sockId: string): Observable<Sock> {
+  getSockById(sockId: string | undefined): Observable<Sock> {
     const url = this.backendSrv.getSockUrl() + '/' + sockId;
     return this.http.get<Sock>(url);
   }
