@@ -1,5 +1,5 @@
 [![backend](https://github.com/OneSock-inc/OnlyOne/actions/workflows/backend.yml/badge.svg?branch=main)](https://github.com/OneSock-inc/OnlyOne/actions/workflows/backend.yml)
-[![frontend](https://github.com/OneSock-inc/OnlyOne/actions/workflows/frontend.yml/badge.svg?branch=main)](https://github.com/OneSock-inc/OnlyOne/actions/workflows/frontend.yml)
+[![frontend](https://github.com/OneSock-inc/OnlyOne/actions/workflows/frontend.yml/badge.svg)](https://github.com/OneSock-inc/OnlyOne/actions/workflows/frontend.yml)
 
 
 ![image of the app running on an iphone13](./screenshots/onlyone.png)
