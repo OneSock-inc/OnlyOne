@@ -1,3 +1,7 @@
+[![backend](https://github.com/OneSock-inc/OnlyOne/actions/workflows/backend.yml/badge.svg?branch=main)](https://github.com/OneSock-inc/OnlyOne/actions/workflows/backend.yml)
+[![frontend](https://github.com/OneSock-inc/OnlyOne/actions/workflows/frontend.yml/badge.svg?branch=main)](https://github.com/OneSock-inc/OnlyOne/actions/workflows/frontend.yml)
+
+
 ![image of the app running on an iphone13](./screenshots/onlyone.png)
 
 # About OnlyOne   
@@ -10,10 +14,12 @@ If you accept another sock and the owner of the other sock accepts yours, then y
 
 If you loose, you'll have instruction on how to send your sock to the winner.
 
-### Don't play if you are not willing to loose your sock
+Don't play if you are not willing to loose your sock.
 
 ## OnlyOne Documentation
-The setup instruction are split in two : the [frontend instruction](./frontend/README.md) and the [backend instruction](./backend/README.md).
+The setup instruction and documentation are split in two : the [frontend instruction](./frontend/README.md) and the [backend instruction](./backend/README.md).
+
+The thorough documentation can be downloaded from the teams channel 
 
 ## The production environment
 The workflow to deploy is as follows :
