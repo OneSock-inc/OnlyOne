@@ -7,6 +7,7 @@ import { catchError, map, Observable, throwError } from 'rxjs';
   templateUrl: './sock-list.component.html',
   styleUrls: ['./sock-list.component.scss'],
 })
+
 export class SockListComponent implements OnInit {
   constructor(private socksManager: SocksManagerService) {}
   

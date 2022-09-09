@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Observable } from 'rxjs';
-import { MatchService } from 'src/app/services/match/match-service.service';
+import { MatchService, MatchesInfo } from 'src/app/services/match/match-service.service';
 import {
   SocksManagerService,
   UserSocks,
@@ -36,12 +36,20 @@ export class RegisteredSockComponent implements OnInit {
   ngOnInit(): void {
     if (this.sock.id !== '') {
       if (this.sock.match !== '') {
+        this.matchSrv.init();
         this.badgeColor = 'transparent';
         this.possibleMatches = new Observable<String>((s) =>
           s.next('\u{2764}')
         );
         const url = this.sock.matchResult;
-        this.redirectUrl = [`match-${url}`];
+        this.redirectUrl = [`match-${url}`, {id: this.sock.id}];
+        const matchInfo: MatchesInfo = {
+          otherSockId: this.sock.match,
+          selfSockId: this.sock.id,
+          otherSock: new Sock(),
+          selfSock: this.sock
+        }
+        this.matchSrv.matchesInfos.set(this.sock.id, matchInfo)
         this.matchSrv.selfSock = this.sock;
         this.matchSrv.otherSockId = this.sock.match;
       } else {
