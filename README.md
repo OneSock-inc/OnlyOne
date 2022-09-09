@@ -19,7 +19,7 @@ Don't play if you are not willing to loose your sock.
 ## OnlyOne Documentation
 The setup instruction and documentation are split in two : the [frontend instruction](./frontend/README.md) and the [backend instruction](./backend/README.md).
 
-The thorough documentation can be downloaded from the teams channel 
+The thorough documentation can be downloaded from the teams channel or in the [documents folder](./documents/)
 
 ## The production environment
 The workflow to deploy is as follows :
